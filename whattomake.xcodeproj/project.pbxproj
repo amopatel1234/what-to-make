@@ -15,6 +15,8 @@
 		3B5E9E8D2AE07F9D00293473 /* whattomakeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5E9E8C2AE07F9D00293473 /* whattomakeTests.swift */; };
 		3B5E9E972AE07F9D00293473 /* whattomakeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5E9E962AE07F9D00293473 /* whattomakeUITests.swift */; };
 		3B5E9E992AE07F9D00293473 /* whattomakeUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5E9E982AE07F9D00293473 /* whattomakeUITestsLaunchTests.swift */; };
+		3B5E9EA92AE08B8700293473 /* RecipeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5E9EA82AE08B8700293473 /* RecipeTests.swift */; };
+		3B5E9EAB2AE08BF200293473 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5E9EAA2AE08BF200293473 /* Recipe.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +50,8 @@
 		3B5E9E922AE07F9D00293473 /* whattomakeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = whattomakeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B5E9E962AE07F9D00293473 /* whattomakeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = whattomakeUITests.swift; sourceTree = "<group>"; };
 		3B5E9E982AE07F9D00293473 /* whattomakeUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = whattomakeUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		3B5E9EA82AE08B8700293473 /* RecipeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeTests.swift; sourceTree = "<group>"; };
+		3B5E9EAA2AE08BF200293473 /* Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +103,7 @@
 		3B5E9E762AE07F9B00293473 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				3B5E9EA72AE08B3F00293473 /* Models */,
 				3B5E9EA62AE0853000293473 /* Application */,
 				3B5E9E792AE07F9B00293473 /* ContentView.swift */,
 				3B5E9E7B2AE07F9B00293473 /* Item.swift */,
@@ -118,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				3B5E9E8C2AE07F9D00293473 /* whattomakeTests.swift */,
+				3B5E9EA82AE08B8700293473 /* RecipeTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -148,6 +154,14 @@
 				3B5E9E772AE07F9B00293473 /* whattomakeApp.swift */,
 			);
 			path = Application;
+			sourceTree = "<group>";
+		};
+		3B5E9EA72AE08B3F00293473 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3B5E9EAA2AE08BF200293473 /* Recipe.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -283,6 +297,7 @@
 				3B5E9E7A2AE07F9B00293473 /* ContentView.swift in Sources */,
 				3B5E9E7C2AE07F9B00293473 /* Item.swift in Sources */,
 				3B5E9E782AE07F9B00293473 /* whattomakeApp.swift in Sources */,
+				3B5E9EAB2AE08BF200293473 /* Recipe.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -291,6 +306,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3B5E9E8D2AE07F9D00293473 /* whattomakeTests.swift in Sources */,
+				3B5E9EA92AE08B8700293473 /* RecipeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -451,16 +467,17 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Supporting Files/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "What to Make";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = amishpatel.whattomake;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -482,16 +499,17 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Supporting Files/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "What to Make";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = amishpatel.whattomake;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
