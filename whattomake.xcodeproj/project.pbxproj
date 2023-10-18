@@ -78,9 +78,10 @@
 		3B5E9E6B2AE07F9B00293473 = {
 			isa = PBXGroup;
 			children = (
-				3B5E9E762AE07F9B00293473 /* whattomake */,
-				3B5E9E8B2AE07F9D00293473 /* whattomakeTests */,
-				3B5E9E952AE07F9D00293473 /* whattomakeUITests */,
+				3B5E9E762AE07F9B00293473 /* Sources */,
+				3B5E9EA52AE0850A00293473 /* Supporting Files */,
+				3B5E9E8B2AE07F9D00293473 /* Tests */,
+				3B5E9E952AE07F9D00293473 /* UITests */,
 				3B5E9E752AE07F9B00293473 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -95,18 +96,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		3B5E9E762AE07F9B00293473 /* whattomake */ = {
+		3B5E9E762AE07F9B00293473 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				3B5E9E772AE07F9B00293473 /* whattomakeApp.swift */,
+				3B5E9EA62AE0853000293473 /* Application */,
 				3B5E9E792AE07F9B00293473 /* ContentView.swift */,
 				3B5E9E7B2AE07F9B00293473 /* Item.swift */,
-				3B5E9E7D2AE07F9D00293473 /* Assets.xcassets */,
-				3B5E9E822AE07F9D00293473 /* whattomake.entitlements */,
-				3B5E9E832AE07F9D00293473 /* Info.plist */,
-				3B5E9E7F2AE07F9D00293473 /* Preview Content */,
 			);
-			path = whattomake;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		3B5E9E7F2AE07F9D00293473 /* Preview Content */ = {
@@ -117,21 +114,40 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		3B5E9E8B2AE07F9D00293473 /* whattomakeTests */ = {
+		3B5E9E8B2AE07F9D00293473 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
 				3B5E9E8C2AE07F9D00293473 /* whattomakeTests.swift */,
 			);
-			path = whattomakeTests;
+			path = Tests;
 			sourceTree = "<group>";
 		};
-		3B5E9E952AE07F9D00293473 /* whattomakeUITests */ = {
+		3B5E9E952AE07F9D00293473 /* UITests */ = {
 			isa = PBXGroup;
 			children = (
 				3B5E9E962AE07F9D00293473 /* whattomakeUITests.swift */,
 				3B5E9E982AE07F9D00293473 /* whattomakeUITestsLaunchTests.swift */,
 			);
-			path = whattomakeUITests;
+			path = UITests;
+			sourceTree = "<group>";
+		};
+		3B5E9EA52AE0850A00293473 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				3B5E9E7D2AE07F9D00293473 /* Assets.xcassets */,
+				3B5E9E822AE07F9D00293473 /* whattomake.entitlements */,
+				3B5E9E832AE07F9D00293473 /* Info.plist */,
+				3B5E9E7F2AE07F9D00293473 /* Preview Content */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		3B5E9EA62AE0853000293473 /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				3B5E9E772AE07F9B00293473 /* whattomakeApp.swift */,
+			);
+			path = Application;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -427,14 +443,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = whattomake/whattomake.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Supporting Files/whattomake.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"whattomake/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Supporting Files/Preview Content\"";
 				DEVELOPMENT_TEAM = 24CTGGM78R;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = whattomake/Info.plist;
+				INFOPLIST_FILE = "Supporting Files/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -458,14 +474,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = whattomake/whattomake.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Supporting Files/whattomake.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"whattomake/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Supporting Files/Preview Content\"";
 				DEVELOPMENT_TEAM = 24CTGGM78R;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = whattomake/Info.plist;
+				INFOPLIST_FILE = "Supporting Files/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
