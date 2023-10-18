@@ -8,26 +8,37 @@
 import XCTest
 @testable import whattomake
 import SwiftUI
+import SwiftData
 
 final class RecipeTests: XCTestCase {
 
     var sut: Recipe!
     override func setUpWithError() throws {
-        sut = createMockRecipe()
+        sut = try createMockRecipe()
     }
 
     override func tearDownWithError() throws {
         sut = nil
     }
     
+    func test_init_recipeHasValues() {
+        XCTAssertNotNil(sut)
+        XCTAssertEqual(sut.name, "Pasta")
+        XCTAssertEqual(sut.timesUsed, 0)
+        XCTAssertEqual(sut.servingSize, 4)
+        XCTAssertEqual(sut.dateCreated, Date(timeIntervalSince1970: 200))
+    }
+    
 }
 
 extension RecipeTests {
-    func createMockRecipe() -> Recipe {
-        Recipe(name: "Pasta",
+    func createMockRecipe() throws -> Recipe {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Recipe.self, configurations: config)
+        return Recipe(name: "Pasta",
                timesUsed: 0,
                servingSize: 4,
-               dateCreated: Date(timeIntervalSince1970: 200),
-               headerImage: Image(systemName: "eraser"))
+               dateCreated: Date(timeIntervalSince1970: 200))
+        
     }
 }

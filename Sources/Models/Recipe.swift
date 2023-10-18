@@ -7,23 +7,22 @@
 
 import Foundation
 import SwiftUI
+import SwiftData
 
+@Model
 class Recipe {
     var name: String
     var timesUsed: Int
     var servingSize: Int
     var dateCreated: Date
-    var headerImage: Image
     
     init(name: String, 
          timesUsed: Int,
          servingSize: Int,
-         dateCreated: Date,
-         headerImage: Image) {
+         dateCreated: Date) {
         self.name = name
         self.timesUsed = timesUsed
         self.servingSize = servingSize
         self.dateCreated = dateCreated
-        self.headerImage = headerImage
     }
 }

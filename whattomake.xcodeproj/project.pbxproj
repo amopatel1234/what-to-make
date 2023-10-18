@@ -17,6 +17,7 @@
 		3B5E9E992AE07F9D00293473 /* whattomakeUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5E9E982AE07F9D00293473 /* whattomakeUITestsLaunchTests.swift */; };
 		3B5E9EA92AE08B8700293473 /* RecipeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5E9EA82AE08B8700293473 /* RecipeTests.swift */; };
 		3B5E9EAB2AE08BF200293473 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5E9EAA2AE08BF200293473 /* Recipe.swift */; };
+		3B5E9EAD2AE097B200293473 /* MockRecipeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5E9EAC2AE097B200293473 /* MockRecipeService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +53,7 @@
 		3B5E9E982AE07F9D00293473 /* whattomakeUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = whattomakeUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		3B5E9EA82AE08B8700293473 /* RecipeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeTests.swift; sourceTree = "<group>"; };
 		3B5E9EAA2AE08BF200293473 /* Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
+		3B5E9EAC2AE097B200293473 /* MockRecipeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRecipeService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +126,7 @@
 			children = (
 				3B5E9E8C2AE07F9D00293473 /* whattomakeTests.swift */,
 				3B5E9EA82AE08B8700293473 /* RecipeTests.swift */,
+				3B5E9EAC2AE097B200293473 /* MockRecipeService.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -298,6 +301,7 @@
 				3B5E9E7C2AE07F9B00293473 /* Item.swift in Sources */,
 				3B5E9E782AE07F9B00293473 /* whattomakeApp.swift in Sources */,
 				3B5E9EAB2AE08BF200293473 /* Recipe.swift in Sources */,
+				3B5E9EAD2AE097B200293473 /* MockRecipeService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
