@@ -34,7 +34,7 @@ final class RecipeTests: XCTestCase {
 extension RecipeTests {
     func createMockRecipe() throws -> Recipe {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: Recipe.self, configurations: config)
+//        _ = try ModelContainer(for: Recipe.self, configurations: config)
         return Recipe(name: "Pasta",
                timesUsed: 0,
                servingSize: 4,
