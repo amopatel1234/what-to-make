@@ -10,8 +10,9 @@ import SwiftUI
 import SwiftData
 
 @Model
-class Recipe {
+class Recipe: Identifiable {
     var name: String
+    var id: String = UUID().uuidString
     var timesUsed: Int
     var servingSize: Int
     var dateCreated: Date

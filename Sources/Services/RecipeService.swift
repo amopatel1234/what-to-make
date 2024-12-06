@@ -9,38 +9,50 @@ import Foundation
 import SwiftData
 
 protocol RecipeServiceable {
-    var config: ModelConfiguration { get }
-    var container: ModelContainer { get }
-    func addRecipe(recipe: Recipe) throws
-    func clearRecipe(recipe: Recipe) throws
+    var sharedModelContainer: ModelContainer { get }
+    var isStoredInMemory: Bool { get }
+    func addRecipe(recipe: Recipe) async throws
+    func clearRecipe(recipe: Recipe) async throws
 }
 
 class RecipeService: RecipeServiceable {
-    let config: ModelConfiguration
-    let container: ModelContainer
     
-    private(set) var recipes: [Recipe] = [Recipe]()
+    private(set) var recipes: [Recipe] = []
     
-    init(config: ModelConfiguration, container: ModelContainer) {
-        self.config = config
-        self.container = container
+    let isStoredInMemory: Bool
+    
+    lazy var sharedModelContainer: ModelContainer = {
+        let schema = Schema([
+            Recipe.self,
+        ])
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isStoredInMemory)
+
+        do {
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+    }()
+    
+    init(isStoredInMemory: Bool = false) {
+        self.isStoredInMemory = isStoredInMemory
     }
     
     @MainActor
-    func addRecipe(recipe: Recipe) throws {
-        container.mainContext.insert(recipe)
-        try fetchData()
+    func addRecipe(recipe: Recipe) async throws {
+        sharedModelContainer.mainContext.insert(recipe)
+        try await fetchData()
     }
     
     @MainActor
-    func clearRecipe(recipe: Recipe) throws {
-        container.mainContext.delete(recipe)
-        try fetchData()
+    func clearRecipe(recipe: Recipe) async throws {
+        sharedModelContainer.mainContext.delete(recipe)
+        try await fetchData()
     }
     
     @MainActor
-    private func fetchData() throws {
+    private func fetchData() async throws {
         let descriptor = FetchDescriptor<Recipe>(sortBy: [SortDescriptor(\.name)])
-        recipes = try container.mainContext.fetch(descriptor)
+        recipes = try sharedModelContainer.mainContext.fetch(descriptor)
     }
 }

@@ -5,48 +5,45 @@
 //  Created by Amish Patel on 19/10/2023.
 //
 
-import XCTest
+import Testing
 import SwiftData
 @testable import whattomake
+import Foundation
 
-final class RecipeServiceTests: XCTestCase {
-
-    var sut: RecipeService!
+struct RecipeServiceTests {
     
-    override func setUpWithError() throws {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: Recipe.self, configurations: config)
-        sut = RecipeService(config: config, container: container)
-    }
-
-    override func tearDownWithError() throws {
-        sut = nil
+    var sut: RecipeService
+    
+    init() async throws {
+        self.sut = RecipeService(isStoredInMemory: true)
     }
     
-    func test_init_hasEmptyList() {
-        XCTAssertNotNil(sut)
-        XCTAssertEqual(sut.recipes.count, 0)
+    @Test func checkForEmptyRecipes() {
+        #expect(sut.recipes.count == 0)
     }
     
-    @MainActor 
-    func test_addRecipe_increasesRecipeCount() throws {
+    @Test func addRecipeAndCheckRecipeCount() async throws {
+        #expect(sut.recipes.count == 0)
         let recipe = createMockRecipeModel(name: "Testing")
-        try sut.addRecipe(recipe: recipe)
-        XCTAssertEqual(sut.recipes.count, 1)
+        try await sut.addRecipe(recipe: recipe)
+        #expect(sut.recipes.count == 1)
+        // adding same recipe does not increase count
+        try await sut.addRecipe(recipe: recipe)
+        #expect(sut.recipes.count == 1)
     }
     
-    @MainActor
-    func test_clearRecipe_hasEmptyList() throws {
+    @Test func addRecipeThenDeleteAndCheckCount() async throws {
+        #expect(sut.recipes.count == 0)
         let recipe = createMockRecipeModel(name: "Testing")
-        try sut.addRecipe(recipe: recipe)
-        XCTAssertEqual(sut.recipes.count, 1)
-        try sut.clearRecipe(recipe: recipe)
-        XCTAssertEqual(sut.recipes.count, 0)
+        try await sut.addRecipe(recipe: recipe)
+        #expect(sut.recipes.count == 1)
+        try await sut.clearRecipe(recipe: recipe)
+        #expect(sut.recipes.count == 0)
     }
 }
 
 extension RecipeServiceTests {
     func createMockRecipeModel(name: String) -> Recipe {
-        Recipe(name: name, timesUsed: 0, servingSize: 0, dateCreated: Date(timeIntervalSince1970: 200))
+        Recipe(name: name, timesUsed: 0, servingSize: 0, dateCreated: Date())
     }
 }
