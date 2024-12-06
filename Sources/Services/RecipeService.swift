@@ -10,9 +10,11 @@ import SwiftData
 
 protocol RecipeServiceable {
     var sharedModelContainer: ModelContainer { get }
+    var recipes: [Recipe] { get }
     var isStoredInMemory: Bool { get }
     func addRecipe(recipe: Recipe) async throws
     func clearRecipe(recipe: Recipe) async throws
+    func fetchData() async throws 
 }
 
 class RecipeService: RecipeServiceable {
@@ -51,7 +53,7 @@ class RecipeService: RecipeServiceable {
     }
     
     @MainActor
-    private func fetchData() async throws {
+    func fetchData() async throws {
         let descriptor = FetchDescriptor<Recipe>(sortBy: [SortDescriptor(\.name)])
         recipes = try sharedModelContainer.mainContext.fetch(descriptor)
     }

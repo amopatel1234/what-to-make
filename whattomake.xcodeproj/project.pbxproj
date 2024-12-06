@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3B28DB182D03A2B900356038 /* RecipeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B28DB172D03A2B000356038 /* RecipeListView.swift */; };
+		3B28DB1C2D03A2E100356038 /* RecipeListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B28DB1B2D03A2DA00356038 /* RecipeListViewModel.swift */; };
+		3B28DB1E2D03AA8100356038 /* AddRecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B28DB1D2D03AA7A00356038 /* AddRecipeView.swift */; };
 		3B5E9E782AE07F9B00293473 /* whattomakeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5E9E772AE07F9B00293473 /* whattomakeApp.swift */; };
 		3B5E9E7A2AE07F9B00293473 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5E9E792AE07F9B00293473 /* ContentView.swift */; };
 		3B5E9E7C2AE07F9B00293473 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5E9E7B2AE07F9B00293473 /* Item.swift */; };
@@ -39,6 +42,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3B28DB172D03A2B000356038 /* RecipeListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeListView.swift; sourceTree = "<group>"; };
+		3B28DB1B2D03A2DA00356038 /* RecipeListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeListViewModel.swift; sourceTree = "<group>"; };
+		3B28DB1D2D03AA7A00356038 /* AddRecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecipeView.swift; sourceTree = "<group>"; };
 		3B5E9E742AE07F9B00293473 /* whattomake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = whattomake.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B5E9E772AE07F9B00293473 /* whattomakeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = whattomakeApp.swift; sourceTree = "<group>"; };
 		3B5E9E792AE07F9B00293473 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -107,10 +113,13 @@
 		3B5E9E762AE07F9B00293473 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				3B28DB1D2D03AA7A00356038 /* AddRecipeView.swift */,
 				3B5E9EB02AE09E1600293473 /* Services */,
 				3B5E9EA72AE08B3F00293473 /* Models */,
 				3B5E9EA62AE0853000293473 /* Application */,
 				3B5E9E792AE07F9B00293473 /* ContentView.swift */,
+				3B28DB172D03A2B000356038 /* RecipeListView.swift */,
+				3B28DB1B2D03A2DA00356038 /* RecipeListViewModel.swift */,
 				3B5E9E7B2AE07F9B00293473 /* Item.swift */,
 			);
 			path = Sources;
@@ -242,7 +251,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					3B5E9E732AE07F9B00293473 = {
 						CreatedOnToolsVersion = 15.0;
@@ -308,6 +317,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B28DB1C2D03A2E100356038 /* RecipeListViewModel.swift in Sources */,
+				3B28DB182D03A2B900356038 /* RecipeListView.swift in Sources */,
+				3B28DB1E2D03AA8100356038 /* AddRecipeView.swift in Sources */,
 				3B5E9E7A2AE07F9B00293473 /* ContentView.swift in Sources */,
 				3B5E9EB22AE09E3F00293473 /* RecipeService.swift in Sources */,
 				3B5E9E7C2AE07F9B00293473 /* Item.swift in Sources */,
@@ -539,7 +551,6 @@
 		3B5E9EA02AE07F9D00293473 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -559,7 +570,6 @@
 		3B5E9EA12AE07F9D00293473 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -579,7 +589,6 @@
 		3B5E9EA32AE07F9D00293473 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 24CTGGM78R;
@@ -598,7 +607,6 @@
 		3B5E9EA42AE07F9D00293473 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 24CTGGM78R;
