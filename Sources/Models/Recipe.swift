@@ -2,28 +2,26 @@
 //  Recipe.swift
 //  whattomake
 //
-//  Created by Amish Patel on 18/10/2023.
+//  Created by Amish Patel on 10/08/2025.
 //
 
+
 import Foundation
-import SwiftUI
 import SwiftData
 
 @Model
-class Recipe: Identifiable {
+final class Recipe {
+    @Attribute(.unique) var id: UUID
     var name: String
-    var id: String = UUID().uuidString
-    var timesUsed: Int
-    var servingSize: Int
-    var dateCreated: Date
-    
-    init(name: String, 
-         timesUsed: Int,
-         servingSize: Int,
-         dateCreated: Date) {
+    var ingredients: [String]
+    var notes: String?
+    var usageCount: Int
+
+    init(id: UUID = UUID(), name: String, ingredients: [String], notes: String? = nil, usageCount: Int = 0) {
+        self.id = id
         self.name = name
-        self.timesUsed = timesUsed
-        self.servingSize = servingSize
-        self.dateCreated = dateCreated
+        self.ingredients = ingredients
+        self.notes = notes
+        self.usageCount = usageCount
     }
 }
