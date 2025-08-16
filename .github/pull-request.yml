@@ -1,0 +1,44 @@
+name: iOS Pull Request
+
+on:
+  pull_request:
+    types: [ opened, reopened, synchronize, ready_for_review ]
+    branches: [ main ]
+    
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and Test default scheme using any available iPhone simulator
+    if: github.event.pull_request.draft == false
+    runs-on: macos-15
+
+    steps:
+      - name: Add path globally
+        run: echo "/usr/local/bin" >> $GITHUB_PATH
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: 'true'
+          fetch-depth: 0
+
+      - name: Validate Pull Request Name
+        id: versioning
+        uses: Oliver-Binns/Versioning@main
+        with:
+          ACTION_TYPE: 'Validate'
+          
+      - name: Run Unit Tests
+        env:
+          WORKSPACE: ${{ github.workspace }}
+          WORKSPACE_FILENAME: "whattomake.xcworkspace"
+          SCHEME: "whattomake"
+          TEST_PLAN: "UnitTestsPlan"
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SOURCE_BRANCH: ${{ github.head_ref }}
+          TARGET_BRANCH: ${{ github.base_ref }}
+        run: fastlane runUnitTests
