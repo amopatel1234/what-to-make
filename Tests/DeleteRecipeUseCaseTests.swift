@@ -7,6 +7,9 @@
 
 import SwiftUI
 
+#if false
+// Legacy view left from an earlier prototype; not part of the current architecture.
+// Keeping the file for reference but excluding it from compilation.
 struct AddRecipeView: View {
     
     @State var name: String = ""
@@ -40,3 +43,4 @@ struct AddRecipeView: View {
         
     }
 }
+#endif

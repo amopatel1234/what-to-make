@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "3B5E9E732AE07F9B00293473"
-               BuildableName = "whattomake.app"
+               BuildableName = "Forkcast.app"
                BlueprintName = "whattomake"
                ReferencedContainer = "container:whattomake.xcodeproj">
             </BuildableReference>
@@ -27,8 +27,16 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <TestPlans>
+         <TestPlanReference
+            reference = "container:TestPlans/UnitTestsPlan.xctestplan"
+            default = "YES">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:TestPlans/UITestsPlan.xctestplan">
+         </TestPlanReference>
+      </TestPlans>
       <Testables>
          <TestableReference
             skipped = "NO"
@@ -69,7 +77,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3B5E9E732AE07F9B00293473"
-            BuildableName = "whattomake.app"
+            BuildableName = "Forkcast.app"
             BlueprintName = "whattomake"
             ReferencedContainer = "container:whattomake.xcodeproj">
          </BuildableReference>
@@ -86,7 +94,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3B5E9E732AE07F9B00293473"
-            BuildableName = "whattomake.app"
+            BuildableName = "Forkcast.app"
             BlueprintName = "whattomake"
             ReferencedContainer = "container:whattomake.xcodeproj">
          </BuildableReference>

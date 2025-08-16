@@ -4,7 +4,7 @@
 //
 //  Created by Amish Patel on 10/08/2025.
 //
-@testable import whattomake
+@testable import Forkcast
 import Testing
 
 @Test
