@@ -1,6 +1,8 @@
 // filepath: /Users/amishpatel/Projects/what-to-make/Tests/CountRecipesUseCaseTests.swift
 //
-//  CountRecipesUseCaseTests.swift
+// filepath: /Users/amishpatel/Projects/what-to-make/Tests/FetchRecipesUseCaseTests.swift
+//
+//  FetchRecipesUseCaseTests.swift
 //  whattomake
 //
 //  Created by Amish Patel on 16/08/2025.
