@@ -45,10 +45,6 @@ final class RecipesFlowBlankStateTests: UITestBase {
         if !app.keyboards.keys.element(boundBy: 0).exists { nameField.tap() }
         clearAndType(nameField, text: "UI Test Dish", name: "Recipe Name Field")
 
-        // ✅ New: add ingredients via dynamic flow
-        addIngredient("Item A")
-        addIngredient("Item B")
-
         if !notesField.isHittable { app.swipeUp() }
         waitForHittable(notesField, name: "Notes Field")
         notesField.tap()

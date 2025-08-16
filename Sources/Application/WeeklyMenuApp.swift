@@ -96,7 +96,6 @@ private struct StoreFactory {
             for i in 1...8 {
                 let r = Recipe(
                     name: "Seeded \(i)",
-                    ingredients: ["Item \(i)A", "Item \(i)B"],
                     notes: i.isMultiple(of: 2) ? "Note \(i)" : nil
                 )
                 context.insert(r)

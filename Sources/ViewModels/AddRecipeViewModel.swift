@@ -7,63 +7,82 @@
 
 import Foundation
 import Observation
+import SwiftUI
+import UIKit
+import PhotosUI
 
-@MainActor
 @Observable
 final class AddRecipeViewModel {
     var name = ""
-    // Dynamic ingredients list for better entry UX
-    var ingredients: [String] = []
-    var newIngredient: String = ""
     var notes = ""
-    var errorMessage: String?
+    var selectedPhotoItem: PhotosPickerItem?
+    var previewImage: UIImage?
 
+    private(set) var thumbnailBase64: String?
+    private(set) var imageFilename: String?
+    var errorMessage: String?
 
     private let addRecipeUseCase: AddRecipeUseCase
 
-    init(addRecipeUseCase: AddRecipeUseCase) { self.addRecipeUseCase = addRecipeUseCase }
+    init(addRecipeUseCase: AddRecipeUseCase) {
+        self.addRecipeUseCase = addRecipeUseCase
+    }
+
+    // Testable helper: process loaded image data and update state
+    func handleLoadedImageData(_ data: Data) async {
+        if let uiImage = UIImage(data: data) {
+            let thumbnail = ImageCodec.base64JPEGThumbnail(from: uiImage)
+            let filename = try? ImageStore.saveOriginal(uiImage)
+            await MainActor.run {
+                self.previewImage = uiImage
+                self.thumbnailBase64 = thumbnail
+                self.imageFilename = filename
+                self.errorMessage = nil
+            }
+        } else {
+            await MainActor.run {
+                self.errorMessage = "Could not load photo."
+            }
+        }
+    }
+
+    func loadSelectedImage() {
+        guard let item = selectedPhotoItem else { return }
+        Task {
+            do {
+                if let data = try await item.loadTransferable(type: Data.self) {
+                    await handleLoadedImageData(data)
+                } else {
+                    await MainActor.run {
+                        self.errorMessage = "Could not load photo."
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = "Failed to load photo."
+                }
+            }
+        }
+    }
 
     func saveRecipe() async -> Bool {
-        let cleaned = ingredients.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                                  .filter { !$0.isEmpty }
         do {
-            try await addRecipeUseCase.execute(
-                name: name,
-                ingredients: cleaned,
-                notes: notes.isEmpty ? nil : notes
-            )
-            errorMessage = nil
+            try await addRecipeUseCase.execute(name: name, notes: notes.isEmpty ? nil : notes, thumbnailBase64: thumbnailBase64, imageFilename: imageFilename)
+            await MainActor.run { self.errorMessage = nil }
             return true
         } catch {
-            errorMessage = error.localizedDescription
+            await MainActor.run { self.errorMessage = error.localizedDescription }
             return false
         }
     }
 
-
     func reset() {
         name = ""
-        ingredients = []
-        newIngredient = ""
         notes = ""
+        selectedPhotoItem = nil
+        previewImage = nil
+        thumbnailBase64 = nil
+        imageFilename = nil
         errorMessage = nil
     }
-    
-    func addIngredientIfValid() {
-        let trimmed = newIngredient.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        ingredients.append(trimmed)
-        newIngredient = ""
-    }
-
-    func removeIngredient(at index: Int) {
-        guard ingredients.indices.contains(index) else { return }
-        ingredients.remove(at: index)
-    }
-
-    func updateIngredient(_ text: String, at index: Int) {
-        guard ingredients.indices.contains(index) else { return }
-        ingredients[index] = text
-    }
-
 }

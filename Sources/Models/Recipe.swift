@@ -13,15 +13,23 @@ import SwiftData
 final class Recipe {
     @Attribute(.unique) var id: UUID
     var name: String
-    var ingredients: [String]
     var notes: String?
     var usageCount: Int
 
-    init(id: UUID = UUID(), name: String, ingredients: [String], notes: String? = nil, usageCount: Int = 0) {
+    // NEW: tiny, sync-friendly image data
+    var thumbnailBase64: String?     // ~300–600 px JPEG as Base64
+
+    // NEW: local original file name in app container (not synced)
+    var imageFilename: String?       // e.g., "img_9F3C2A.jpg"
+
+    init(id: UUID = UUID(), name: String, notes: String? = nil,
+         usageCount: Int = 0, thumbnailBase64: String? = nil, imageFilename: String? = nil) {
         self.id = id
         self.name = name
-        self.ingredients = ingredients
         self.notes = notes
         self.usageCount = usageCount
+        self.thumbnailBase64 = thumbnailBase64
+        self.imageFilename = imageFilename
     }
 }
+

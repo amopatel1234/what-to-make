@@ -7,12 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3B47D5F52E4962CE00E22A4B /* AddRecipeViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B47D5F42E4962CE00E22A4B /* AddRecipeViewModelTests.swift */; };
 		3B47D5F72E49662F00E22A4B /* CountRecipesUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B47D5F62E49662F00E22A4B /* CountRecipesUseCase.swift */; };
-		3B47D5F92E49673300E22A4B /* GenerateMenuViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B47D5F82E49673300E22A4B /* GenerateMenuViewModelTests.swift */; };
 		3B47D5FC2E49698000E22A4B /* DebugTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B47D5FB2E49698000E22A4B /* DebugTools.swift */; };
 		3B47D5FE2E49698900E22A4B /* DebugMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B47D5FD2E49698900E22A4B /* DebugMenuView.swift */; };
 		3B47D6002E496CB400E22A4B /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B47D5FF2E496CB400E22A4B /* AppState.swift */; };
+		3B47D6022E4E3BE000E22A4B /* ImageCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B47D6012E4E3BE000E22A4B /* ImageCodec.swift */; };
 		3B5E9E7E2AE07F9D00293473 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3B5E9E7D2AE07F9D00293473 /* Assets.xcassets */; };
 		3B5E9E812AE07F9D00293473 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3B5E9E802AE07F9D00293473 /* Preview Assets.xcassets */; };
 		3BAD929C2E493AA6009DCBAE /* GenerateMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD929A2E4939DB009DCBAE /* GenerateMenuView.swift */; };
@@ -35,13 +34,22 @@
 		3BAD92AD2E493AA6009DCBAE /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD92802E4937C9009DCBAE /* Recipe.swift */; };
 		3BAD92AE2E493AA6009DCBAE /* WeeklyMenuApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD929B2E4939ED009DCBAE /* WeeklyMenuApp.swift */; };
 		3BAD92B02E494333009DCBAE /* DeleteRecipeUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD92AF2E494333009DCBAE /* DeleteRecipeUseCase.swift */; };
-		3BAD92B22E494456009DCBAE /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD92B12E49443C009DCBAE /* Tests.swift */; };
 		3BAD92B32E49449C009DCBAE /* MockMenuRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD928A2E4938E5009DCBAE /* MockMenuRepository.swift */; };
 		3BAD92B42E49449C009DCBAE /* MockRecipeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD92892E4938B8009DCBAE /* MockRecipeRepository.swift */; };
 		3BAD92BB2E494F01009DCBAE /* RecipesFlowBlankStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD92B82E494EAD009DCBAE /* RecipesFlowBlankStateTests.swift */; };
 		3BAD92BC2E494F01009DCBAE /* MenuFlowSeededTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD92B92E494EC1009DCBAE /* MenuFlowSeededTests.swift */; };
 		3BAD92BD2E494F01009DCBAE /* UITestBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD92B72E494EA4009DCBAE /* UITestBase.swift */; };
 		3BAD92BE2E494F01009DCBAE /* RecipesAddOnSeededTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD92BA2E494ED3009DCBAE /* RecipesAddOnSeededTests.swift */; };
+		3BFF4A842E50B2C300022454 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A832E50B2C300022454 /* Tests.swift */; };
+		3BFF4A852E50B2C300022454 /* AddRecipeUseCaseThumbnailsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A7A2E50B2C300022454 /* AddRecipeUseCaseThumbnailsTests.swift */; };
+		3BFF4A862E50B2C300022454 /* DeleteRecipeUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A7D2E50B2C300022454 /* DeleteRecipeUseCaseTests.swift */; };
+		3BFF4A872E50B2C300022454 /* GenerateMenuViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A812E50B2C300022454 /* GenerateMenuViewModelTests.swift */; };
+		3BFF4A882E50B2C300022454 /* FetchMenusUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A7E2E50B2C300022454 /* FetchMenusUseCaseTests.swift */; };
+		3BFF4A892E50B2C300022454 /* CountRecipesUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A7C2E50B2C300022454 /* CountRecipesUseCaseTests.swift */; };
+		3BFF4A8A2E50B2C300022454 /* FetchRecipesUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A7F2E50B2C300022454 /* FetchRecipesUseCaseTests.swift */; };
+		3BFF4A8C2E50B2C300022454 /* RecipesListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A822E50B2C300022454 /* RecipesListViewModelTests.swift */; };
+		3BFF4A8D2E50B2C300022454 /* AddRecipeViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A7B2E50B2C300022454 /* AddRecipeViewModelTests.swift */; };
+		3BFF4A8F2E50B30B00022454 /* GenerateMenuUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A8E2E50B30100022454 /* GenerateMenuUseCaseTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,13 +70,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		3B47D5F42E4962CE00E22A4B /* AddRecipeViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecipeViewModelTests.swift; sourceTree = "<group>"; };
 		3B47D5F62E49662F00E22A4B /* CountRecipesUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountRecipesUseCase.swift; sourceTree = "<group>"; };
-		3B47D5F82E49673300E22A4B /* GenerateMenuViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateMenuViewModelTests.swift; sourceTree = "<group>"; };
 		3B47D5FB2E49698000E22A4B /* DebugTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugTools.swift; sourceTree = "<group>"; };
 		3B47D5FD2E49698900E22A4B /* DebugMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugMenuView.swift; sourceTree = "<group>"; };
 		3B47D5FF2E496CB400E22A4B /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
-		3B5E9E742AE07F9B00293473 /* whattomake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = whattomake.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B47D6012E4E3BE000E22A4B /* ImageCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCodec.swift; sourceTree = "<group>"; };
+		3B47D6052E4F0EAD00E22A4B /* Context.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Context.md; sourceTree = "<group>"; };
+		3B5E9E742AE07F9B00293473 /* ForkPlan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ForkPlan.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B5E9E7D2AE07F9D00293473 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3B5E9E802AE07F9D00293473 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		3B5E9E822AE07F9D00293473 /* whattomake.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = whattomake.entitlements; sourceTree = "<group>"; };
@@ -97,11 +105,22 @@
 		3BAD929A2E4939DB009DCBAE /* GenerateMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateMenuView.swift; sourceTree = "<group>"; };
 		3BAD929B2E4939ED009DCBAE /* WeeklyMenuApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyMenuApp.swift; sourceTree = "<group>"; };
 		3BAD92AF2E494333009DCBAE /* DeleteRecipeUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteRecipeUseCase.swift; sourceTree = "<group>"; };
-		3BAD92B12E49443C009DCBAE /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		3BAD92B72E494EA4009DCBAE /* UITestBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestBase.swift; sourceTree = "<group>"; };
 		3BAD92B82E494EAD009DCBAE /* RecipesFlowBlankStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipesFlowBlankStateTests.swift; sourceTree = "<group>"; };
 		3BAD92B92E494EC1009DCBAE /* MenuFlowSeededTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuFlowSeededTests.swift; sourceTree = "<group>"; };
 		3BAD92BA2E494ED3009DCBAE /* RecipesAddOnSeededTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipesAddOnSeededTests.swift; sourceTree = "<group>"; };
+		3BFF4A682E507C5E00022454 /* UnitTestsPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UnitTestsPlan.xctestplan; sourceTree = "<group>"; };
+		3BFF4A692E507C6D00022454 /* UITestsPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UITestsPlan.xctestplan; sourceTree = "<group>"; };
+		3BFF4A7A2E50B2C300022454 /* AddRecipeUseCaseThumbnailsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecipeUseCaseThumbnailsTests.swift; sourceTree = "<group>"; };
+		3BFF4A7B2E50B2C300022454 /* AddRecipeViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecipeViewModelTests.swift; sourceTree = "<group>"; };
+		3BFF4A7C2E50B2C300022454 /* CountRecipesUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountRecipesUseCaseTests.swift; sourceTree = "<group>"; };
+		3BFF4A7D2E50B2C300022454 /* DeleteRecipeUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteRecipeUseCaseTests.swift; sourceTree = "<group>"; };
+		3BFF4A7E2E50B2C300022454 /* FetchMenusUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMenusUseCaseTests.swift; sourceTree = "<group>"; };
+		3BFF4A7F2E50B2C300022454 /* FetchRecipesUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchRecipesUseCaseTests.swift; sourceTree = "<group>"; };
+		3BFF4A812E50B2C300022454 /* GenerateMenuViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateMenuViewModelTests.swift; sourceTree = "<group>"; };
+		3BFF4A822E50B2C300022454 /* RecipesListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipesListViewModelTests.swift; sourceTree = "<group>"; };
+		3BFF4A832E50B2C300022454 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
+		3BFF4A8E2E50B30100022454 /* GenerateMenuUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateMenuUseCaseTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,11 +158,21 @@
 			path = DebugMenu;
 			sourceTree = "<group>";
 		};
+		3B47D6032E4F0EA200E22A4B /* Docs */ = {
+			isa = PBXGroup;
+			children = (
+				3B47D6052E4F0EAD00E22A4B /* Context.md */,
+			);
+			path = Docs;
+			sourceTree = "<group>";
+		};
 		3B5E9E6B2AE07F9B00293473 = {
 			isa = PBXGroup;
 			children = (
+				3B47D6032E4F0EA200E22A4B /* Docs */,
 				3B5E9E762AE07F9B00293473 /* Sources */,
 				3B5E9EA52AE0850A00293473 /* Supporting Files */,
+				3BFF4A672E507C3900022454 /* TestPlans */,
 				3B5E9E8B2AE07F9D00293473 /* Tests */,
 				3B5E9E952AE07F9D00293473 /* UITests */,
 				3B5E9E752AE07F9B00293473 /* Products */,
@@ -153,7 +182,7 @@
 		3B5E9E752AE07F9B00293473 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3B5E9E742AE07F9B00293473 /* whattomake.app */,
+				3B5E9E742AE07F9B00293473 /* ForkPlan.app */,
 				3B5E9E882AE07F9D00293473 /* whattomakeTests.xctest */,
 				3B5E9E922AE07F9D00293473 /* whattomakeUITests.xctest */,
 			);
@@ -185,9 +214,16 @@
 		3B5E9E8B2AE07F9D00293473 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				3B47D5F82E49673300E22A4B /* GenerateMenuViewModelTests.swift */,
-				3B47D5F42E4962CE00E22A4B /* AddRecipeViewModelTests.swift */,
-				3BAD92B12E49443C009DCBAE /* Tests.swift */,
+				3BFF4A8E2E50B30100022454 /* GenerateMenuUseCaseTests.swift */,
+				3BFF4A7A2E50B2C300022454 /* AddRecipeUseCaseThumbnailsTests.swift */,
+				3BFF4A7B2E50B2C300022454 /* AddRecipeViewModelTests.swift */,
+				3BFF4A7C2E50B2C300022454 /* CountRecipesUseCaseTests.swift */,
+				3BFF4A7D2E50B2C300022454 /* DeleteRecipeUseCaseTests.swift */,
+				3BFF4A7E2E50B2C300022454 /* FetchMenusUseCaseTests.swift */,
+				3BFF4A7F2E50B2C300022454 /* FetchRecipesUseCaseTests.swift */,
+				3BFF4A812E50B2C300022454 /* GenerateMenuViewModelTests.swift */,
+				3BFF4A822E50B2C300022454 /* RecipesListViewModelTests.swift */,
+				3BFF4A832E50B2C300022454 /* Tests.swift */,
 				3BAD92882E4938B6009DCBAE /* Mocks */,
 			);
 			path = Tests;
@@ -226,6 +262,7 @@
 		3B5E9EA72AE08B3F00293473 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				3B47D6012E4E3BE000E22A4B /* ImageCodec.swift */,
 				3BAD92812E4937D4009DCBAE /* Menu.swift */,
 				3BAD92802E4937C9009DCBAE /* Recipe.swift */,
 			);
@@ -295,6 +332,15 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		3BFF4A672E507C3900022454 /* TestPlans */ = {
+			isa = PBXGroup;
+			children = (
+				3BFF4A682E507C5E00022454 /* UnitTestsPlan.xctestplan */,
+				3BFF4A692E507C6D00022454 /* UITestsPlan.xctestplan */,
+			);
+			path = TestPlans;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -312,7 +358,7 @@
 			);
 			name = whattomake;
 			productName = whattomake;
-			productReference = 3B5E9E742AE07F9B00293473 /* whattomake.app */;
+			productReference = 3B5E9E742AE07F9B00293473 /* ForkPlan.app */;
 			productType = "com.apple.product-type.application";
 		};
 		3B5E9E872AE07F9D00293473 /* whattomakeTests */ = {
@@ -449,6 +495,7 @@
 				3BAD92AD2E493AA6009DCBAE /* Recipe.swift in Sources */,
 				3BAD92AE2E493AA6009DCBAE /* WeeklyMenuApp.swift in Sources */,
 				3B47D5FC2E49698000E22A4B /* DebugTools.swift in Sources */,
+				3B47D6022E4E3BE000E22A4B /* ImageCodec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -456,9 +503,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3B47D5F92E49673300E22A4B /* GenerateMenuViewModelTests.swift in Sources */,
-				3B47D5F52E4962CE00E22A4B /* AddRecipeViewModelTests.swift in Sources */,
-				3BAD92B22E494456009DCBAE /* Tests.swift in Sources */,
+				3BFF4A842E50B2C300022454 /* Tests.swift in Sources */,
+				3BFF4A8F2E50B30B00022454 /* GenerateMenuUseCaseTests.swift in Sources */,
+				3BFF4A852E50B2C300022454 /* AddRecipeUseCaseThumbnailsTests.swift in Sources */,
+				3BFF4A862E50B2C300022454 /* DeleteRecipeUseCaseTests.swift in Sources */,
+				3BFF4A872E50B2C300022454 /* GenerateMenuViewModelTests.swift in Sources */,
+				3BFF4A882E50B2C300022454 /* FetchMenusUseCaseTests.swift in Sources */,
+				3BFF4A892E50B2C300022454 /* CountRecipesUseCaseTests.swift in Sources */,
+				3BFF4A8A2E50B2C300022454 /* FetchRecipesUseCaseTests.swift in Sources */,
+				3BFF4A8C2E50B2C300022454 /* RecipesListViewModelTests.swift in Sources */,
+				3BFF4A8D2E50B2C300022454 /* AddRecipeViewModelTests.swift in Sources */,
 				3BAD92B32E49449C009DCBAE /* MockMenuRepository.swift in Sources */,
 				3BAD92B42E49449C009DCBAE /* MockRecipeRepository.swift in Sources */,
 			);
@@ -624,7 +678,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "What to Make";
+				INFOPLIST_KEY_CFBundleDisplayName = ForkPlan;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -637,7 +691,7 @@
 				);
 				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = amishpatel.whattomake;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ForkPlan;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -656,7 +710,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "What to Make";
+				INFOPLIST_KEY_CFBundleDisplayName = ForkPlan;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -669,7 +723,7 @@
 				);
 				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = amishpatel.whattomake;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ForkPlan;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -690,7 +744,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/whattomake.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/whattomake";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ForkPlan.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ForkPlan";
 			};
 			name = Debug;
 		};
@@ -708,7 +762,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/whattomake.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/whattomake";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ForkPlan.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ForkPlan";
 			};
 			name = Release;
 		};

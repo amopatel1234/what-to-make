@@ -36,18 +36,18 @@ struct RecipesView: View {
                         List {
                             ForEach(listVM.recipes, id: \.id) { recipe in
                                 HStack {
-                                    VStack(alignment: .leading) {
-                                        Text(recipe.name).font(.headline).accessibilityIdentifier("recipeName_\(recipe.name)")
-                                        Text("\(recipe.ingredients.count) ingredients")
-                                            .font(.subheadline)
-                                            .foregroundColor(.secondary)
+                                    if let base64 = recipe.thumbnailBase64, let thumb = ImageCodec.image(fromBase64: base64) {
+                                        Image(uiImage: thumb).resizable().scaledToFill()
+                                            .frame(width: 44, height: 44).clipShape(RoundedRectangle(cornerRadius: 8))
+                                    } else if let fn = recipe.imageFilename, let full = ImageStore.loadOriginal(named: fn) {
+                                        Image(uiImage: full).resizable().scaledToFill()
+                                            .frame(width: 44, height: 44).clipShape(RoundedRectangle(cornerRadius: 8))
+                                    } else {
+                                        Image(systemName: "fork.knife").frame(width: 44, height: 44).foregroundStyle(.secondary)
                                     }
-                                    Spacer()
-                                    Text("Used: \(recipe.usageCount)")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                        .accessibilityIdentifier("usageCount_\(recipe.name)")
+                                    Text(recipe.name).accessibilityIdentifier("recipeName_\(recipe.name)")
                                 }
+
                             }
                             .onDelete(perform: listVM.delete)
                         }
@@ -86,7 +86,7 @@ struct RecipesView: View {
                             ToolbarItem(placement: .confirmationAction) { Button("Save") { Task { if await addVM.saveRecipe() { showAdd = false } } }.accessibilityIdentifier("saveRecipeButton") }
                         }
                 }
-                .presentationDetents([.medium, .large])
+//                .presentationDetents([.medium, .large])
             }
 #if DEBUG
                 .sheet(isPresented: $showDebugSheet) {

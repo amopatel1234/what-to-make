@@ -9,5 +9,8 @@
 struct DeleteRecipeUseCase {
     private let repository: RecipeRepository
     init(repository: RecipeRepository) { self.repository = repository }
-    func execute(_ recipe: Recipe) async throws { try await repository.delete(recipe) }
+    func execute(_ recipe: Recipe) async throws {
+        if let filename = recipe.imageFilename { ImageStore.delete(named: filename) }
+        try await repository.delete(recipe)
+    }
 }
