@@ -6,7 +6,7 @@
 //  Created by Amish Patel on 16/08/2025.
 //
 import Testing
-@testable import Forkcast
+@testable import ForkPlan
 
 struct FetchRecipesUseCaseTests {
     @Test

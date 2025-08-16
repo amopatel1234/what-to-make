@@ -5,7 +5,7 @@
 //  Created by Amish Patel on 10/08/2025.
 //
 
-@testable import Forkcast
+@testable import ForkPlan
 // In-memory mock repository for unit tests
 final class MockRecipeRepository: RecipeRepository {
     private(set) var recipes: [Recipe] = []

@@ -8,7 +8,7 @@
 
 // AddRecipeViewModelTests.swift
 import Testing
-@testable import Forkcast
+@testable import ForkPlan
 
 @MainActor
 struct AddRecipeViewModelTests {
