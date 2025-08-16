@@ -71,7 +71,7 @@
 		3B47D5FF2E496CB400E22A4B /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		3B47D6012E4E3BE000E22A4B /* ImageCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCodec.swift; sourceTree = "<group>"; };
 		3B47D6052E4F0EAD00E22A4B /* Context.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Context.md; sourceTree = "<group>"; };
-		3B5E9E742AE07F9B00293473 /* whattomake.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = whattomake.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B5E9E742AE07F9B00293473 /* Forkcast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Forkcast.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B5E9E7D2AE07F9D00293473 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3B5E9E802AE07F9D00293473 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		3B5E9E822AE07F9D00293473 /* whattomake.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = whattomake.entitlements; sourceTree = "<group>"; };
@@ -165,7 +165,7 @@
 		3B5E9E752AE07F9B00293473 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3B5E9E742AE07F9B00293473 /* whattomake.app */,
+				3B5E9E742AE07F9B00293473 /* Forkcast.app */,
 				3B5E9E882AE07F9D00293473 /* whattomakeTests.xctest */,
 				3B5E9E922AE07F9D00293473 /* whattomakeUITests.xctest */,
 			);
@@ -325,7 +325,7 @@
 			);
 			name = whattomake;
 			productName = whattomake;
-			productReference = 3B5E9E742AE07F9B00293473 /* whattomake.app */;
+			productReference = 3B5E9E742AE07F9B00293473 /* Forkcast.app */;
 			productType = "com.apple.product-type.application";
 		};
 		3B5E9E872AE07F9D00293473 /* whattomakeTests */ = {
@@ -638,7 +638,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "What to Make";
+				INFOPLIST_KEY_CFBundleDisplayName = Forkcast;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -651,7 +651,7 @@
 				);
 				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = amishpatel.whattomake;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Forkcast;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -670,7 +670,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "What to Make";
+				INFOPLIST_KEY_CFBundleDisplayName = Forkcast;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -683,7 +683,7 @@
 				);
 				MARKETING_VERSION = 0.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = amishpatel.whattomake;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Forkcast;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

@@ -43,7 +43,7 @@ struct RecipesView: View {
                                         Image(uiImage: full).resizable().scaledToFill()
                                             .frame(width: 44, height: 44).clipShape(RoundedRectangle(cornerRadius: 8))
                                     } else {
-                                        Image(systemName: "photo").frame(width: 44, height: 44).foregroundStyle(.secondary)
+                                        Image(systemName: "fork.knife").frame(width: 44, height: 44).foregroundStyle(.secondary)
                                     }
                                     Text(recipe.name).accessibilityIdentifier("recipeName_\(recipe.name)")
                                 }

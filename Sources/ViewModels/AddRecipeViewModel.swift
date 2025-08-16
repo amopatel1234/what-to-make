@@ -57,7 +57,7 @@ final class AddRecipeViewModel {
 
     func saveRecipe() async -> Bool {
         do {
-            try await addRecipeUseCase.execute(name: name, notes: notes.isEmpty ? nil : notes)
+            try await addRecipeUseCase.execute(name: name, notes: notes.isEmpty ? nil : notes, thumbnailBase64: thumbnailBase64, imageFilename: imageFilename)
             await MainActor.run { self.errorMessage = nil }
             return true
         } catch {
