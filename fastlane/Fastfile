@@ -57,7 +57,7 @@ platform :ios do
         project_language: "swift", 
         sonar_login: ENV['SONAR_TOKEN'],
         sonar_url: "https://sonarcloud.io",
-        sonar_runner_args: "-Dproject.settings=${WORKSPACE}/scripts-configs/sonar-project.properties -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=- -Dsonar.coverageReportPaths=${WORKSPACE}/fastlane/test_output/sonarqube-generic-coverage.xml"
+        sonar_runner_args: "-Dproject.settings=${WORKSPACE}/sonar-project.properties -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=- -Dsonar.coverageReportPaths=${WORKSPACE}/fastlane/test_output/sonarqube-generic-coverage.xml"
       )
     end
   end
