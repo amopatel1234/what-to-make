@@ -9,4 +9,5 @@ You are helping on an iOS app called "WeeklyMenu". Follow these constraints:
 - Debug menu in debug builds or via -debug-menu arg: clear DB, seed recipes/menu, reset usage, refresh AppState.
 - In UI, render menu rows from snapshot values (day + recipe name) not live model objects to avoid diff crashes.
 - Tests: Swift Testing for units, XCUITest for UI. No mixing of prod/test code unless necessary for debug seeding.
+- When writing commit messages follow conventional commits syntax and prefix message with docs|fix|feat|chore|style|refactor|perf|test and use ! if there are breaking changes for example "feat!: this is a breaking change" 
 
