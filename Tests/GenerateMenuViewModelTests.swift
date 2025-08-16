@@ -19,7 +19,7 @@ struct GenerateMenuViewModelTests {
         let recipeRepository = MockRecipeRepository()
         for index in 1...recipeCount {
             try await recipeRepository.add(
-                Recipe(name: "Recipe \(index)", ingredients: ["Item"], notes: nil)
+                Recipe(name: "Recipe \(index)", notes: nil)
             )
         }
         let menuRepository = MockMenuRepository()
@@ -46,7 +46,7 @@ struct GenerateMenuViewModelTests {
     ) async throws -> (viewModel: GenerateMenuViewModel, recipeRepo: MockRecipeRepository, menuRepo: MockMenuRepository) {
         let recipeRepo = MockRecipeRepository()
         for index in 1...recipeCount {
-            try await recipeRepo.add(Recipe(name: "Recipe \(index)", ingredients: ["Item"], notes: nil))
+            try await recipeRepo.add(Recipe(name: "Recipe \(index)", notes: nil))
         }
         let menuRepo = MockMenuRepository()
 

@@ -42,9 +42,6 @@ final class RecipesAddOnSeededTests: UITestBase {
 
         clearAndType(nameField, text: "Extra Dish", name: "Recipe Name Field")
 
-        addIngredient("X")
-        addIngredient("Y")
-
         // If the keyboard is covering Save on small devices, dismiss it
         if app.keyboards.keys.count > 0 {
             // Try common actions to dismiss keyboard

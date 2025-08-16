@@ -26,7 +26,6 @@ enum DebugTools {
         for i in 1...count {
             let r = Recipe(
                 name: "Seed \(i)",
-                ingredients: ["Item \(i)A", "Item \(i)B"],
                 notes: i.isMultiple(of: 2) ? "Quick note \(i)" : nil
             )
             context.insert(r)

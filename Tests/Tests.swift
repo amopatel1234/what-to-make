@@ -11,7 +11,7 @@ import Testing
 func testAddRecipeUseCaseSuccess() async throws {
     let repo = MockRecipeRepository()
     let useCase = AddRecipeUseCase(repository: repo)
-    try await useCase.execute(name: "Toast", ingredients: ["Bread","Butter"], notes: nil)
+    try await useCase.execute(name: "Toast", notes: nil)
     #expect(repo.addCalledCount == 1)
     #expect(repo.recipes.count == 1)
     #expect(repo.recipes.first?.name == "Toast")
@@ -22,16 +22,16 @@ func testAddRecipeUseCaseEmptyName() async throws {
     let repo = MockRecipeRepository()
     let useCase = AddRecipeUseCase(repository: repo)
     await #expect(throws: RecipeError.emptyName) {
-        try await useCase.execute(name: "   ", ingredients: ["X"], notes: nil)
+        try await useCase.execute(name: "   ", notes: nil)
     }
 }
 
 @Test
 func testGenerateMenuUseCaseIncrementsUsage() async throws {
     let repo = MockRecipeRepository(); let menuRepo = MockMenuRepository()
-    try await repo.add(Recipe(name: "A", ingredients: ["i"], notes: nil))
-    try await repo.add(Recipe(name: "B", ingredients: ["i"], notes: nil))
-    try await repo.add(Recipe(name: "C", ingredients: ["i"], notes: nil))
+    try await repo.add(Recipe(name: "A", notes: nil))
+    try await repo.add(Recipe(name: "B", notes: nil))
+    try await repo.add(Recipe(name: "C", notes: nil))
     let useCase = GenerateMenuUseCase(recipeRepository: repo, menuRepository: menuRepo)
     let menu = try await useCase.execute(for: ["Mon","Tue"])
     #expect(menu.recipes.count == 2)
