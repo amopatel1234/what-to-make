@@ -34,7 +34,7 @@ platform :ios do
     )
     
     sh(
-      "bash ${WORKSPACE}/scripts-configs/xccov-to-sonarqube-generic.sh ${WORKSPACE}/fastlane/test_output/${SCHEME}.xcresult > ${WORKSPACE}/fastlane/test_output/sonarqube-generic-coverage.xml"
+      "bash ${WORKSPACE}/scripts/xccov-to-sonarqube-generic.sh ${WORKSPACE}/fastlane/test_output/${SCHEME}.xcresult > ${WORKSPACE}/fastlane/test_output/sonarqube-generic-coverage.xml"
     )
     
     if ENV['PR_NUMBER']
