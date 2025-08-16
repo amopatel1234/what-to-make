@@ -1,64 +1,75 @@
-// filepath: /Users/amishpatel/Projects/what-to-make/Tests/RecipesListViewModelTests.swift
+// filepath: /Users/amishpatel/Projects/what-to-make/Tests/GenerateMenuUseCaseTests.swift
 //
-//  RecipesListViewModelTests.swift
-//  whattomake
+//  GenerateMenuUseCaseTests.swift
 //
-//  Created by Amish Patel on 16/08/2025.
-//
-import Foundation
 import Testing
-@testable import Forkcast
+@testable import ForkPlan
 
-@MainActor
-struct RecipesListViewModelTests {
+struct GenerateMenuUseCaseTests {
     @Test
-    func testLoadPopulatesRecipes() async throws {
-        let repo = MockRecipeRepository()
-        try await repo.add(Recipe(name: "One", notes: nil))
-        try await repo.add(Recipe(name: "Two", notes: "N2"))
-
-        let fetch = FetchRecipesUseCase(repository: repo)
-        let delete = DeleteRecipeUseCase(repository: repo)
-        let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
-
-        vm.load()
-        // wait for async Task in load()
-        var attempts = 0
-        while vm.recipes.count < 2 && attempts < 50 {
-            try? await Task.sleep(nanoseconds: 50_000_000) // 0.05s
-            attempts += 1
+    func testThrowsWhenNoRecipesAvailable() async throws {
+        let recipeRepo = MockRecipeRepository()
+        let menuRepo = MockMenuRepository()
+        let useCase = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
+        await #expect(throws: MenuError.noRecipesAvailable) {
+            _ = try await useCase.execute(for: ["Mon"])
         }
-        #expect(vm.recipes.count == 2)
-        #expect(vm.errorMessage == nil)
+        #expect(menuRepo.menus.isEmpty)
     }
 
     @Test
-    func testDeleteRemovesRecipeAndReloads() async throws {
-        let repo = MockRecipeRepository()
-        try await repo.add(Recipe(name: "One", notes: nil))
-        try await repo.add(Recipe(name: "Two", notes: nil))
+    func testGeneratesMenuForSelectedDays_persistsMenu_andIncrementsUsage() async throws {
+        // Seed >=7 recipes to simulate real app readiness
+        let recipeRepo = MockRecipeRepository(); let menuRepo = MockMenuRepository()
+        for i in 1...8 { try await recipeRepo.add(Recipe(name: "R\(i)", notes: nil)) }
+        let useCase = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
 
-        let fetch = FetchRecipesUseCase(repository: repo)
-        let delete = DeleteRecipeUseCase(repository: repo)
-        let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
+        let days = ["Mon","Tue","Wed"]
+        let menu = try await useCase.execute(for: days)
 
-        // initial load
-        vm.load()
-        var attempts = 0
-        while vm.recipes.count < 2 && attempts < 50 {
-            try? await Task.sleep(nanoseconds: 50_000_000)
-            attempts += 1
-        }
-        #expect(vm.recipes.count == 2)
+        // Menu correctness
+        #expect(menu.days == days)
+        #expect(menu.recipes.count == days.count)
 
-        // delete first
-        vm.delete(at: IndexSet(integer: 0))
-        attempts = 0
-        while vm.recipes.count != 1 && attempts < 50 {
-            try? await Task.sleep(nanoseconds: 50_000_000)
-            attempts += 1
-        }
-        #expect(vm.recipes.count == 1)
-        #expect(repo.recipes.count == 1)
+        // Persistence
+        #expect(menuRepo.menus.count == 1)
+
+        // Usage increments on exactly the number of selected recipes
+        let incrementedCount = recipeRepo.recipes.filter { $0.usageCount > 0 }.count
+        #expect(incrementedCount == days.count)
+    }
+
+    @Test
+    func testDaysExceedingAvailableRecipes_selectsAtMostAvailable_andStillPersistsMenuDays() async throws {
+        let recipeRepo = MockRecipeRepository(); let menuRepo = MockMenuRepository()
+        for i in 1...5 { try await recipeRepo.add(Recipe(name: "R\(i)", notes: nil)) }
+        let useCase = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
+
+        let days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] // 7 days, 5 recipes only
+        let menu = try await useCase.execute(for: days)
+
+        // The use case selects prefix(days.count) after shuffle; when fewer recipes exist, it returns all available
+        #expect(menu.recipes.count == 5)
+        #expect(menu.days == days)
+        #expect(menuRepo.menus.count == 1)
+
+        let incrementedCount = recipeRepo.recipes.filter { $0.usageCount > 0 }.count
+        #expect(incrementedCount == 5)
+    }
+
+    @Test
+    func testEmptyDays_returnsEmptyMenu_noUsageIncrement_butPersistsMenu() async throws {
+        let recipeRepo = MockRecipeRepository(); let menuRepo = MockMenuRepository()
+        for i in 1...3 { try await recipeRepo.add(Recipe(name: "R\(i)", notes: nil)) }
+        let useCase = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
+
+        let days: [String] = []
+        let menu = try await useCase.execute(for: days)
+
+        #expect(menu.days.isEmpty)
+        #expect(menu.recipes.isEmpty)
+        #expect(menuRepo.menus.count == 1)
+        let incrementedCount = recipeRepo.recipes.filter { $0.usageCount > 0 }.count
+        #expect(incrementedCount == 0)
     }
 }

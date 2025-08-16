@@ -1,4 +1,3 @@
-// filepath: /Users/amishpatel/Projects/what-to-make/Tests/RecipesListViewModelTests.swift
 //
 //  RecipesListViewModelTests.swift
 //  whattomake
@@ -7,7 +6,7 @@
 //
 import Foundation
 import Testing
-@testable import Forkcast
+@testable import ForkPlan
 
 @MainActor
 struct RecipesListViewModelTests {

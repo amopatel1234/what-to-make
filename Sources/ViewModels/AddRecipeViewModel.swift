@@ -28,20 +28,30 @@ final class AddRecipeViewModel {
         self.addRecipeUseCase = addRecipeUseCase
     }
 
+    // Testable helper: process loaded image data and update state
+    func handleLoadedImageData(_ data: Data) async {
+        if let uiImage = UIImage(data: data) {
+            let thumbnail = ImageCodec.base64JPEGThumbnail(from: uiImage)
+            let filename = try? ImageStore.saveOriginal(uiImage)
+            await MainActor.run {
+                self.previewImage = uiImage
+                self.thumbnailBase64 = thumbnail
+                self.imageFilename = filename
+                self.errorMessage = nil
+            }
+        } else {
+            await MainActor.run {
+                self.errorMessage = "Could not load photo."
+            }
+        }
+    }
+
     func loadSelectedImage() {
         guard let item = selectedPhotoItem else { return }
         Task {
             do {
-                if let data = try await item.loadTransferable(type: Data.self),
-                   let uiImage = UIImage(data: data) {
-                    let thumbnail = ImageCodec.base64JPEGThumbnail(from: uiImage)
-                    let filename = try? ImageStore.saveOriginal(uiImage)
-                    await MainActor.run {
-                        self.previewImage = uiImage
-                        self.thumbnailBase64 = thumbnail
-                        self.imageFilename = filename
-                        self.errorMessage = nil
-                    }
+                if let data = try await item.loadTransferable(type: Data.self) {
+                    await handleLoadedImageData(data)
                 } else {
                     await MainActor.run {
                         self.errorMessage = "Could not load photo."

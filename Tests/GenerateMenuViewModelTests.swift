@@ -1,6 +1,6 @@
-// filepath: /Users/amishpatel/Projects/what-to-make/Tests/FetchRecipesUseCaseTests.swift
+// filepath: /Users/amishpatel/Projects/what-to-make/Tests/GenerateMenuViewModelTests.swift
 //
-//  FetchRecipesUseCaseTests.swift
+//  GenerateMenuViewModelTests.swift
 //  whattomake
 //
 //  Created by Amish Patel on 16/08/2025.
@@ -8,15 +8,39 @@
 import Testing
 @testable import ForkPlan
 
-struct FetchRecipesUseCaseTests {
+@MainActor
+struct GenerateMenuViewModelTests {
     @Test
-    func testExecuteReturnsAllRecipes() async throws {
-        let repo = MockRecipeRepository()
-        try await repo.add(Recipe(name: "One", notes: "N1"))
-        try await repo.add(Recipe(name: "Two", notes: nil))
-        let useCase = FetchRecipesUseCase(repository: repo)
-        let result = try await useCase.execute()
-        #expect(result.count == 2)
-        #expect(result.map { $0.name }.sorted() == ["One", "Two"]) 
+    func testCanGenerateIsDisabledWhenBelowMinimumOrNoDays() async throws {
+        let recipeRepo = MockRecipeRepository()
+        let menuRepo = MockMenuRepository()
+        let generate = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
+        let count = CountRecipesUseCase(repository: recipeRepo)
+        let vm = GenerateMenuViewModel(generateUseCase: generate, countRecipesUseCase: count)
+
+        await vm.loadAvailability()
+        #expect(vm.availableRecipeCount == 0)
+        #expect(vm.canGenerate == false)
+
+        vm.selectedDays = ["Mon"]
+        #expect(vm.canGenerate == false)
+    }
+
+    @Test
+    func testGenerateValidatesNoDaySelected() async throws {
+        let recipeRepo = MockRecipeRepository()
+        let menuRepo = MockMenuRepository()
+        let generate = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
+        let count = CountRecipesUseCase(repository: recipeRepo)
+        let vm = GenerateMenuViewModel(generateUseCase: generate, countRecipesUseCase: count)
+
+        for i in 1...7 { try await recipeRepo.add(Recipe(name: "R\(i)", notes: nil)) }
+        await vm.loadAvailability()
+        #expect(vm.availableRecipeCount == 7)
+
+        vm.selectedDays = []
+        vm.generate()
+        #expect(vm.generatedMenu == nil)
+        #expect(vm.errorMessage?.isEmpty == false)
     }
 }
