@@ -27,7 +27,7 @@ platform :ios do
     
     run_tests(
       workspace: ENV["WORKSPACE_FILENAME"],
-      device: "iPhone 16 Pro (18.6)",
+      device: "iPhone 16 Pro (18.0)",
       scheme: ENV["SCHEME"],
       testplan: ENV["TEST_PLAN"],
       result_bundle: true,
