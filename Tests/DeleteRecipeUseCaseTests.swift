@@ -6,6 +6,7 @@ import Foundation
 import Testing
 @testable import ForkPlan
 
+@MainActor
 struct DeleteRecipeUseCaseTests {
     @Test
     func testExecuteDeletesRecipeAndImageFileIfPresent() async throws {
@@ -15,15 +16,15 @@ struct DeleteRecipeUseCaseTests {
         try dummyData.write(to: fileURL)
         #expect(FileManager.default.fileExists(atPath: fileURL.path))
 
-        let repo = await MockRecipeRepository()
+        let repo = MockRecipeRepository()
         let recipe = Recipe(name: "ToDelete", notes: nil, imageFilename: filename)
         try await repo.add(recipe)
-        await #expect(repo.recipes.count == 1)
+        #expect(repo.recipes.count == 1)
 
         let useCase = DeleteRecipeUseCase(repository: repo)
         try await useCase.execute(recipe)
 
-        await #expect(repo.recipes.isEmpty)
+        #expect(repo.recipes.isEmpty)
         #expect(FileManager.default.fileExists(atPath: fileURL.path) == false)
     }
 }

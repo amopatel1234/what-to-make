@@ -16,6 +16,7 @@
 /// let useCase = AddRecipeUseCase(repository: repo)
 /// try await useCase.execute(name: "Pasta", notes: "Family favorite", thumbnailBase64: thumb, imageFilename: filename)
 /// ```
+@MainActor
 struct AddRecipeUseCase {
     private let repository: RecipeRepository
     init(repository: RecipeRepository) { self.repository = repository }

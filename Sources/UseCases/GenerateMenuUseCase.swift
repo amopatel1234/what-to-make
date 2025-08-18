@@ -17,6 +17,7 @@
 /// let useCase = GenerateMenuUseCase(recipeRepository: recipes, menuRepository: menus)
 /// let menu = try await useCase.execute(for: ["Mon", "Wed", "Fri"])
 /// ```
+@MainActor
 struct GenerateMenuUseCase {
     private let recipeRepository: RecipeRepository
     private let menuRepository: MenuRepository

@@ -7,6 +7,7 @@
 import Foundation
 import SwiftData
 
+@MainActor
 /// SwiftData-backed implementation of ``RecipeRepository``.
 ///
 /// Persists and queries ``Recipe`` models using a provided ``ModelContext``.

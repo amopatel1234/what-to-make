@@ -14,6 +14,7 @@
 /// ```swift
 /// let menus = try await FetchMenusUseCase(repository: repo).execute()
 /// ```
+@MainActor
 struct FetchMenusUseCase {
     private let repository: MenuRepository
     init(repository: MenuRepository) { self.repository = repository }

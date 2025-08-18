@@ -10,10 +10,11 @@
 import Testing
 @testable import ForkPlan
 
+@MainActor
 struct FetchRecipesUseCaseTests {
     @Test
     func testExecuteReturnsAllRecipes() async throws {
-        let repo = await MockRecipeRepository()
+        let repo = MockRecipeRepository()
         try await repo.add(Recipe(name: "One", notes: "N1"))
         try await repo.add(Recipe(name: "Two", notes: nil))
         let useCase = FetchRecipesUseCase(repository: repo)

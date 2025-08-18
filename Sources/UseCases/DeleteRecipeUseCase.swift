@@ -16,6 +16,7 @@
 /// let useCase = DeleteRecipeUseCase(repository: repo)
 /// try await useCase.execute(recipe)
 /// ```
+@MainActor
 struct DeleteRecipeUseCase {
     private let repository: RecipeRepository
     init(repository: RecipeRepository) { self.repository = repository }

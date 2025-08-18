@@ -19,6 +19,7 @@ import Foundation
 /// let all = try await repo.fetchAll()
 /// try await repo.delete(menu)
 /// ```
+@MainActor
 protocol MenuRepository {
     /// Persists a new menu.
     /// - Parameter menu: The menu to insert.

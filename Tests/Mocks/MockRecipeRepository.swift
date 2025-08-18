@@ -7,6 +7,7 @@
 
 @testable import ForkPlan
 // In-memory mock repository for unit tests
+@MainActor
 final class MockRecipeRepository: RecipeRepository {
     private(set) var recipes: [Recipe] = []
     private(set) var addCalledCount = 0
