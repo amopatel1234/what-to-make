@@ -37,6 +37,19 @@
   - `DebugMenuView`: buttons for seeding/clearing data.
 - Menu rows: Render from snapshot values (day + recipe name), not live model objects, to avoid diffing crashes.
 
+## File Structure
+- Sources folder contains all the main source files.
+  - Views folder contains all SwiftUI View files.
+  - ViewModels folder contains all view models related to views.
+  - Use Cases folder contains all use case used in view models.
+  - Repositories folder contains all repositories used for store and fetching of data using SwiftData.
+  - Models folder contains all models used by app.
+  - Application folder contains main app file used to run the app and root of the application.
+  - Debug Menu folder contains all debug related code used to debug the app at run time.
+  - Supporting Files folder contains all relevant supporting files and folders such as asset catalog, info.plist ect.
+  - TestPlans folder contains xctestplan files.
+  - Tests UITests folders contain all test and ui test related files.
+
 ## Debug & Test Hooks
 - Debug menu visible in debug builds or via launch arg `-debug-menu`.
 - Debug actions:
