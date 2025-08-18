@@ -44,7 +44,7 @@ platform :ios do
         pull_request_key: ENV['PR_NUMBER'],
         project_version: "1.0",
         project_language: "swift",
-        sonar_login: ENV['SONAR_TOKEN'],
+        sonar_token: ENV['SONAR_TOKEN'],
         sonar_url: "https://sonarcloud.io",
         sonar_runner_args: "-Dproject.settings=${WORKSPACE}/sonar-project.properties -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=- -Dsonar.coverageReportPaths=${WORKSPACE}/fastlane/test_output/sonarqube-generic-coverage.xml"
       )
@@ -54,7 +54,7 @@ platform :ios do
         branch: ENV['GITHUB_REF_NAME'],
         project_version: "1.0",
         project_language: "swift", 
-        sonar_login: ENV['SONAR_TOKEN'],
+        sonar_token: ENV['SONAR_TOKEN'],
         sonar_url: "https://sonarcloud.io",
         sonar_runner_args: "-Dproject.settings=${WORKSPACE}/sonar-project.properties -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=- -Dsonar.coverageReportPaths=${WORKSPACE}/fastlane/test_output/sonarqube-generic-coverage.xml"
       )
