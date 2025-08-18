@@ -8,15 +8,9 @@ import SwiftUI
 import Observation
 
 struct RecipesView: View {
-    @Environment(AppState.self) private var appState
     @Bindable var listVM: RecipesListViewModel
     @State private var showAdd = false
     let makeAddVM: () -> AddRecipeViewModel
-    
-#if DEBUG
-    @State private var showDebugSheet = false
-#endif
-    
     
     var body: some View {
         NavigationStack {
@@ -61,22 +55,8 @@ struct RecipesView: View {
                     Button { showAdd = true } label: { Image(systemName: "plus") }
                         .accessibilityIdentifier("addRecipeButton")
                 }
-#if DEBUG
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        showDebugSheet = true
-                    } label: {
-                        Image(systemName: "ladybug") // 🐞
-                    }
-                    .accessibilityIdentifier("debug_button")
-                }
-#endif
-                
             }
             .onAppear { listVM.load() }
-            .task(id: appState.refreshCounter) {   // ← runs every time debug actions bump the counter
-                listVM.load()
-            }
             .sheet(isPresented: $showAdd, onDismiss: { listVM.load() }) {
                 let addVM = makeAddVM()
                 NavigationStack {
@@ -88,12 +68,6 @@ struct RecipesView: View {
                 }
 //                .presentationDetents([.medium, .large])
             }
-#if DEBUG
-                .sheet(isPresented: $showDebugSheet) {
-                    DebugMenuView()
-                        .presentationDetents([.medium, .large])
-                }
-#endif
         }
     }
 }

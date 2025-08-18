@@ -11,14 +11,12 @@ import SwiftData
 
 @main
 struct WeeklyMenuApp: App {
-    private let appState = AppState()
     var body: some Scene {
         WindowGroup {
             let mode = StoreMode.current()
             if let container = StoreFactory.makeContainer(mode: mode) {
                 RootTabsView(mode: mode, container: container)
                     .modelContainer(container)
-                    .environment(appState)
             } else {
                 Text("Failed to initialise data store.")
             }
