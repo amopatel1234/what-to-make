@@ -6,6 +6,7 @@ import Foundation
 import Testing
 @testable import ForkPlan
 
+@MainActor
 struct DeleteRecipeUseCaseTests {
     @Test
     func testExecuteDeletesRecipeAndImageFileIfPresent() async throws {

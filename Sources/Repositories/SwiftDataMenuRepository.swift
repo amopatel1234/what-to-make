@@ -7,6 +7,7 @@
 import Foundation
 import SwiftData
 
+@MainActor
 /// SwiftData-backed implementation of ``MenuRepository``.
 ///
 /// Stores and queries ``Menu`` models using the provided ``ModelContext``.

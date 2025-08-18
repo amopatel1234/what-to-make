@@ -9,6 +9,7 @@ import Foundation
 import Testing
 @testable import ForkPlan
 
+@MainActor
 struct FetchMenusUseCaseTests {
     @Test
     func testExecuteReturnsAllMenus() async throws {

@@ -8,6 +8,7 @@
 import Testing
 @testable import ForkPlan
 
+@MainActor
 struct AddRecipeUseCaseThumbnailsTests {
     @Test
     func testExecutePersistsThumbnailAndFilename() async throws {

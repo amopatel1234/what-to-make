@@ -17,6 +17,7 @@
 /// let useCase = GenerateMenuUseCase(recipeRepository: recipes, menuRepository: menus)
 /// let menu = try await useCase.execute(for: ["Mon", "Wed", "Fri"])
 /// ```
+@MainActor
 struct GenerateMenuUseCase {
     private let recipeRepository: RecipeRepository
     private let menuRepository: MenuRepository
@@ -35,6 +36,7 @@ struct GenerateMenuUseCase {
     ///   or repository errors when updating recipes or saving the menu fails.
     /// - SideEffects: Increments ``Recipe/usageCount`` on each selected recipe and persists
     ///   those updates before saving the menu.
+    @MainActor
     func execute(for days: [String]) async throws -> Menu {
         var recipes = try await recipeRepository.fetchAll()
         guard !recipes.isEmpty else { throw MenuError.noRecipesAvailable }

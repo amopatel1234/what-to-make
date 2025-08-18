@@ -8,6 +8,7 @@
 import Testing
 @testable import ForkPlan
 
+@MainActor
 struct CountRecipesUseCaseTests {
     @Test
     func testExecuteReturnsZeroWhenNoRecipes() async throws {

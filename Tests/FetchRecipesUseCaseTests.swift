@@ -10,6 +10,7 @@
 import Testing
 @testable import ForkPlan
 
+@MainActor
 struct FetchRecipesUseCaseTests {
     @Test
     func testExecuteReturnsAllRecipes() async throws {

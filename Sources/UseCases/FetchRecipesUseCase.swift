@@ -14,6 +14,7 @@
 /// ```swift
 /// let recipes = try await FetchRecipesUseCase(repository: repo).execute()
 /// ```
+@MainActor
 struct FetchRecipesUseCase {
     private let repository: RecipeRepository
     init(repository: RecipeRepository) { self.repository = repository }

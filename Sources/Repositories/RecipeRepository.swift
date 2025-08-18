@@ -22,6 +22,7 @@ import Foundation
 /// try await repo.update(first)
 /// try await repo.delete(first)
 /// ```
+@MainActor
 protocol RecipeRepository {
     /// Persists a new recipe.
     /// - Parameter recipe: The recipe to insert.

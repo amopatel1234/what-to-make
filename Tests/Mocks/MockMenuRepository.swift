@@ -7,6 +7,7 @@
 
 @testable import ForkPlan
 
+@MainActor
 final class MockMenuRepository: MenuRepository {
     private(set) var menus: [Menu] = []
 

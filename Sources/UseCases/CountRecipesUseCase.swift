@@ -15,6 +15,7 @@
 /// let count = try await CountRecipesUseCase(repository: repo).execute()
 /// if count >= 7 { /* enable menu generation */ }
 /// ```
+@MainActor
 struct CountRecipesUseCase {
     private let repository: RecipeRepository
     init(repository: RecipeRepository) { self.repository = repository }

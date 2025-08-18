@@ -5,6 +5,7 @@
 import Testing
 @testable import ForkPlan
 
+@MainActor
 struct GenerateMenuUseCaseTests {
     @Test
     func testThrowsWhenNoRecipesAvailable() async throws {
@@ -23,17 +24,17 @@ struct GenerateMenuUseCaseTests {
         let recipeRepo = MockRecipeRepository(); let menuRepo = MockMenuRepository()
         for i in 1...8 { try await recipeRepo.add(Recipe(name: "R\(i)", notes: nil)) }
         let useCase = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
-
+        
         let days = ["Mon","Tue","Wed"]
         let menu = try await useCase.execute(for: days)
-
+        
         // Menu correctness
         #expect(menu.days == days)
         #expect(menu.recipes.count == days.count)
-
+        
         // Persistence
         #expect(menuRepo.menus.count == 1)
-
+        
         // Usage increments on exactly the number of selected recipes
         let incrementedCount = recipeRepo.recipes.filter { $0.usageCount > 0 }.count
         #expect(incrementedCount == days.count)
