@@ -63,7 +63,7 @@ platform :ios do
   
   desc "Deploy to App Store Connect"
   lane :deploy do
-    if ENV["BUILD_NUMBER"].nil? || ENV["BUILD_NUMBER"].empty?
+    if ENV["VERSION_NUMBER"].nil? || ENV["VERSION_NUMBER"].empty?
       UI.important 'nothing to deploy'
       next
     end
