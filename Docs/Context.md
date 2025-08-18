@@ -38,7 +38,7 @@
 - Menu rows: Render from snapshot values (day + recipe name), not live model objects, to avoid diffing crashes.
 
 ## File Structure
-- Soruces folder contains the all the main source file.
+- Sources folder contains all the main source files.
   - Views folder contains all SwiftUI View files.
   - ViewModels folder contains all view models related to views.
   - Use Cases folder contains all use case used in view models.
