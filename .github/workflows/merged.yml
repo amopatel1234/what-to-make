@@ -39,8 +39,8 @@ jobs:
       - name: Deploy
         run: fastlane deploy
         env:
-          ISSUER_ID: "69a6de7c-2e67-47e3-e053-5b8c7c11a4d1"
-          KEY_ID: "G6483F9382"
+          ISSUER_ID: "69a6de86-2dd0-47e3-e053-5b8c7c11a4d1"
+          KEY_ID: "6986A95Z65"
           KEY_VALUE: ${{ secrets.KEY_VALUE }}
           CERTIFICATE_PASSWORD: ${{ secrets.DISTRIBUTION_PASSWORD }}
-          BUILD_NUMBER: ${{ steps.versioning.outputs.release_version }}
+          VERSION_NUMBER: ${{ steps.versioning.outputs.release_version }}
