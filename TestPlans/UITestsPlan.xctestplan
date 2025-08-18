@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "F4FD7117-8EC4-46A5-8013-8907FFEEE0CD",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:whattomake.xcodeproj",
+        "identifier" : "3B5E9E912AE07F9D00293473",
+        "name" : "whattomakeUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

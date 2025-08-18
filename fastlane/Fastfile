@@ -1,0 +1,129 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+xcode_select("/Applications/Xcode_16.4.app")
+platform :ios do
+
+  desc "Run unit test and upload test coverage"
+  lane :runUnitTests do
+    # Validate required environment variables
+    required_vars = ['WORKSPACE', 'WORKSPACE_FILENAME', 'SCHEME', 'TEST_PLAN']
+    required_vars.each do |var|
+      UI.user_error!("Missing required environment variable: #{var}") unless ENV[var]
+    end
+    
+    run_tests(
+      workspace: ENV["WORKSPACE_FILENAME"],
+      scheme: ENV["SCHEME"],
+      testplan: ENV["TEST_PLAN"],
+      result_bundle: true,
+    )
+    
+    sh(
+      "bash ${WORKSPACE}/scripts/xccov-to-sonarqube-generic.sh ${WORKSPACE}/fastlane/test_output/${SCHEME}.xcresult > ${WORKSPACE}/fastlane/test_output/sonarqube-generic-coverage.xml"
+    )
+    
+    if ENV['PR_NUMBER']
+      # PR build - include PR-specific parameters
+      sonar(
+        pull_request_branch: ENV['SOURCE_BRANCH'],
+        pull_request_base: ENV['TARGET_BRANCH'], 
+        pull_request_key: ENV['PR_NUMBER'],
+        project_version: "1.0",
+        project_language: "swift",
+        sonar_token: ENV['SONAR_TOKEN'],
+        sonar_url: "https://sonarcloud.io",
+        sonar_runner_args: "-Dproject.settings=${WORKSPACE}/sonar-project.properties -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=- -Dsonar.coverageReportPaths=${WORKSPACE}/fastlane/test_output/sonarqube-generic-coverage.xml"
+      )
+    else
+      # Main branch build - no PR parameters
+      sonar(
+        branch: ENV['GITHUB_REF_NAME'],
+        project_version: "1.0",
+        project_language: "swift", 
+        sonar_token: ENV['SONAR_TOKEN'],
+        sonar_url: "https://sonarcloud.io",
+        sonar_runner_args: "-Dproject.settings=${WORKSPACE}/sonar-project.properties -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=- -Dsonar.coverageReportPaths=${WORKSPACE}/fastlane/test_output/sonarqube-generic-coverage.xml"
+      )
+    end
+  end
+  
+  desc "Deploy to App Store Connect"
+  lane :deploy do
+    if ENV["BUILD_NUMBER"].nil? || ENV["BUILD_NUMBER"].empty?
+      UI.important 'nothing to deploy'
+      next
+    end
+
+    app_store_connect_api_key(
+      key_id: ENV["KEY_ID"],
+      issuer_id: ENV["ISSUER_ID"],
+      key_content: ENV["KEY_VALUE"]
+    )
+
+    password = SecureRandom.hex
+    keychain_name = "signing_temp"
+
+    create_keychain(
+      name: keychain_name,
+      password: password,
+      unlock: true
+    )
+
+    begin
+      import_certificate(
+        certificate_path: "distribution.p12",
+        certificate_password: ENV["CERTIFICATE_PASSWORD"],
+        keychain_password: password,
+        keychain_name: keychain_name
+      )
+
+      increment_build_number(
+        build_number: ENV["BUILD_NUMBER"],
+        xcodeproj: "whattomake.xcodeproj"
+      )
+
+      get_provisioning_profile(
+        readonly: true,
+        app_identifier: "amishpatel.whattomake",
+        provisioning_name: "ForkPlan App Store"
+      )
+      
+      update_code_signing_settings(
+        use_automatic_signing: false,
+        code_sign_identity: "Apple Distribution",
+        profile_name: "ForkPlan App Store",
+        targets: "whattomake"
+      )
+      
+      gym(
+        workspace: "whattomake.xcworkspace",
+        scheme: "whattomake",
+        export_method: "app-store",
+        destination: "generic/platform=iOS",
+        sdk: "iphoneos"
+      )
+
+      upload_to_testflight(
+        skip_submission: true,
+        app_platform: "ios",
+        changelog: last_git_commit[:message]
+      )
+    ensure
+      delete_keychain(name: keychain_name)
+    end
+  end
+end
