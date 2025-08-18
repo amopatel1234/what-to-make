@@ -91,8 +91,22 @@ platform :ios do
         keychain_name: keychain_name
       )
 
+      # Get the latest build number for this version
+      version = ENV["VERSION_NUMBER"]
+      begin
+        latest_build = latest_testflight_build_number(version: version)
+        build_number = latest_build + 1
+      rescue
+        build_number = 1 # First build for this version
+      end
+    
+      # Update version and build
+      increment_version_number(
+        version_number: version,
+        xcodeproj: "whattomake.xcodeproj"
+      )
       increment_build_number(
-        build_number: ENV["BUILD_NUMBER"],
+        build_number: build_number,
         xcodeproj: "whattomake.xcodeproj"
       )
 
