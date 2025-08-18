@@ -8,7 +8,6 @@ import SwiftUI
 import Observation
 
 struct GenerateMenuView: View {
-    @Environment(AppState.self) private var appState
     @Bindable var viewModel: GenerateMenuViewModel
     let weekDays = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
     
@@ -72,10 +71,6 @@ struct GenerateMenuView: View {
         }
         // Initial load
             .task {
-                await viewModel.loadAvailability()
-            }
-            // Refresh when debug actions bump the counter
-            .task(id: appState.refreshCounter) {
                 await viewModel.loadAvailability()
             }
     }
