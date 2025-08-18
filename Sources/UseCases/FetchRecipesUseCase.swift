@@ -21,5 +21,6 @@ struct FetchRecipesUseCase {
     /// Fetches all recipes currently stored.
     /// - Returns: An array of recipes.
     /// - Throws: Repository errors if fetching fails.
+    @MainActor
     func execute() async throws -> [Recipe] { try await repository.fetchAll() }
 }

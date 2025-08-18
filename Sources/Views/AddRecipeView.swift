@@ -9,7 +9,7 @@ import PhotosUI
 
 struct AddRecipeView: View {
     @Bindable var viewModel: AddRecipeViewModel
-
+    
     var body: some View {
         Form {
             Section(header: Text("Photo")) {
@@ -24,24 +24,24 @@ struct AddRecipeView: View {
                     Text("No photo selected")
                         .foregroundStyle(.secondary)
                 }
-
+                
                 PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
                     Label("Choose Photo", systemImage: "photo.on.rectangle")
                 }
-                .onChange(of: viewModel.selectedPhotoItem) { _ in
-                    viewModel.loadSelectedImage()
+                .onChange(of: viewModel.selectedPhotoItem, initial: false) {
+                    viewModel.loadSelectedImage() 
                 }
                 .accessibilityIdentifier("choosePhotoButton")
             }
-
+            
             Section(header: Text("Recipe")) {
                 TextField("Recipe Name", text: $viewModel.name)
                     .accessibilityIdentifier("recipeNameField")
-
+                
                 TextField("Notes", text: $viewModel.notes)
                     .accessibilityIdentifier("notesField")
             }
-
+            
             if let error = viewModel.errorMessage {
                 Section {
                     Text(error)

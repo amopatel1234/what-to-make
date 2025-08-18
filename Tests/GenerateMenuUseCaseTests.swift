@@ -8,7 +8,7 @@ import Testing
 struct GenerateMenuUseCaseTests {
     @Test
     func testThrowsWhenNoRecipesAvailable() async throws {
-        let recipeRepo = MockRecipeRepository()
+        let recipeRepo = await MockRecipeRepository()
         let menuRepo = MockMenuRepository()
         let useCase = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
         await #expect(throws: MenuError.noRecipesAvailable) {
@@ -20,7 +20,7 @@ struct GenerateMenuUseCaseTests {
     @Test
     func testGeneratesMenuForSelectedDays_persistsMenu_andIncrementsUsage() async throws {
         // Seed >=7 recipes to simulate real app readiness
-        let recipeRepo = MockRecipeRepository(); let menuRepo = MockMenuRepository()
+        let recipeRepo = await MockRecipeRepository(); let menuRepo = MockMenuRepository()
         for i in 1...8 { try await recipeRepo.add(Recipe(name: "R\(i)", notes: nil)) }
         let useCase = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
 
@@ -35,13 +35,13 @@ struct GenerateMenuUseCaseTests {
         #expect(menuRepo.menus.count == 1)
 
         // Usage increments on exactly the number of selected recipes
-        let incrementedCount = recipeRepo.recipes.filter { $0.usageCount > 0 }.count
+        let incrementedCount = await recipeRepo.recipes.filter { $0.usageCount > 0 }.count
         #expect(incrementedCount == days.count)
     }
 
     @Test
     func testDaysExceedingAvailableRecipes_selectsAtMostAvailable_andStillPersistsMenuDays() async throws {
-        let recipeRepo = MockRecipeRepository(); let menuRepo = MockMenuRepository()
+        let recipeRepo = await MockRecipeRepository(); let menuRepo = MockMenuRepository()
         for i in 1...5 { try await recipeRepo.add(Recipe(name: "R\(i)", notes: nil)) }
         let useCase = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
 
@@ -53,13 +53,13 @@ struct GenerateMenuUseCaseTests {
         #expect(menu.days == days)
         #expect(menuRepo.menus.count == 1)
 
-        let incrementedCount = recipeRepo.recipes.filter { $0.usageCount > 0 }.count
+        let incrementedCount = await recipeRepo.recipes.filter { $0.usageCount > 0 }.count
         #expect(incrementedCount == 5)
     }
 
     @Test
     func testEmptyDays_returnsEmptyMenu_noUsageIncrement_butPersistsMenu() async throws {
-        let recipeRepo = MockRecipeRepository(); let menuRepo = MockMenuRepository()
+        let recipeRepo = await MockRecipeRepository(); let menuRepo = MockMenuRepository()
         for i in 1...3 { try await recipeRepo.add(Recipe(name: "R\(i)", notes: nil)) }
         let useCase = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
 
@@ -69,7 +69,7 @@ struct GenerateMenuUseCaseTests {
         #expect(menu.days.isEmpty)
         #expect(menu.recipes.isEmpty)
         #expect(menuRepo.menus.count == 1)
-        let incrementedCount = recipeRepo.recipes.filter { $0.usageCount > 0 }.count
+        let incrementedCount = await recipeRepo.recipes.filter { $0.usageCount > 0 }.count
         #expect(incrementedCount == 0)
     }
 }
