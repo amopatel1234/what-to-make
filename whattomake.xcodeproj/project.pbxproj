@@ -37,6 +37,14 @@
 		3BAD92BC2E494F01009DCBAE /* MenuFlowSeededTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD92B92E494EC1009DCBAE /* MenuFlowSeededTests.swift */; };
 		3BAD92BD2E494F01009DCBAE /* UITestBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD92B72E494EA4009DCBAE /* UITestBase.swift */; };
 		3BAD92BE2E494F01009DCBAE /* RecipesAddOnSeededTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAD92BA2E494ED3009DCBAE /* RecipesAddOnSeededTests.swift */; };
+		3BAFB0C32E537D6A001B185B /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAFB0C22E537D6A001B185B /* Typography.swift */; };
+		3BAFB0C52E537D72001B185B /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAFB0C42E537D72001B185B /* Layout.swift */; };
+		3BAFB0C72E537D7C001B185B /* Buttons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAFB0C62E537D7C001B185B /* Buttons.swift */; };
+		3BAFB0C92E537E7C001B185B /* Chip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAFB0C82E537E7C001B185B /* Chip.swift */; };
+		3BAFB0CB2E537E99001B185B /* SectionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAFB0CA2E537E99001B185B /* SectionCard.swift */; };
+		3BAFB0CD2E537EBF001B185B /* DesignSystemCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAFB0CC2E537EBF001B185B /* DesignSystemCanvas.swift */; };
+		3BAFB0CF2E537FD0001B185B /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAFB0CE2E537FD0001B185B /* Theme.swift */; };
+		3BAFB0D02E538357001B185B /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAFB0C02E537D3E001B185B /* Colors.swift */; };
 		3BFF4A842E50B2C300022454 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A832E50B2C300022454 /* Tests.swift */; };
 		3BFF4A852E50B2C300022454 /* AddRecipeUseCaseThumbnailsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A7A2E50B2C300022454 /* AddRecipeUseCaseThumbnailsTests.swift */; };
 		3BFF4A862E50B2C300022454 /* DeleteRecipeUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BFF4A7D2E50B2C300022454 /* DeleteRecipeUseCaseTests.swift */; };
@@ -103,6 +111,14 @@
 		3BAD92B82E494EAD009DCBAE /* RecipesFlowBlankStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipesFlowBlankStateTests.swift; sourceTree = "<group>"; };
 		3BAD92B92E494EC1009DCBAE /* MenuFlowSeededTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuFlowSeededTests.swift; sourceTree = "<group>"; };
 		3BAD92BA2E494ED3009DCBAE /* RecipesAddOnSeededTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipesAddOnSeededTests.swift; sourceTree = "<group>"; };
+		3BAFB0C02E537D3E001B185B /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		3BAFB0C22E537D6A001B185B /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
+		3BAFB0C42E537D72001B185B /* Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Layout.swift; sourceTree = "<group>"; };
+		3BAFB0C62E537D7C001B185B /* Buttons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Buttons.swift; sourceTree = "<group>"; };
+		3BAFB0C82E537E7C001B185B /* Chip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chip.swift; sourceTree = "<group>"; };
+		3BAFB0CA2E537E99001B185B /* SectionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCard.swift; sourceTree = "<group>"; };
+		3BAFB0CC2E537EBF001B185B /* DesignSystemCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystemCanvas.swift; sourceTree = "<group>"; };
+		3BAFB0CE2E537FD0001B185B /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		3BFF4A682E507C5E00022454 /* UnitTestsPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UnitTestsPlan.xctestplan; sourceTree = "<group>"; };
 		3BFF4A692E507C6D00022454 /* UITestsPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UITestsPlan.xctestplan; sourceTree = "<group>"; };
 		3BFF4A7A2E50B2C300022454 /* AddRecipeUseCaseThumbnailsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecipeUseCaseThumbnailsTests.swift; sourceTree = "<group>"; };
@@ -182,6 +198,7 @@
 				3BAD92832E4937F6009DCBAE /* Repositories */,
 				3B5E9EA72AE08B3F00293473 /* Models */,
 				3B5E9EA62AE0853000293473 /* Application */,
+				3BAFB0BB2E537D0C001B185B /* DesignSystem */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -313,6 +330,21 @@
 				3BAD92982E4939C8009DCBAE /* AddRecipeView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		3BAFB0BB2E537D0C001B185B /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				3BAFB0CE2E537FD0001B185B /* Theme.swift */,
+				3BAFB0CC2E537EBF001B185B /* DesignSystemCanvas.swift */,
+				3BAFB0CA2E537E99001B185B /* SectionCard.swift */,
+				3BAFB0C82E537E7C001B185B /* Chip.swift */,
+				3BAFB0C62E537D7C001B185B /* Buttons.swift */,
+				3BAFB0C42E537D72001B185B /* Layout.swift */,
+				3BAFB0C22E537D6A001B185B /* Typography.swift */,
+				3BAFB0C02E537D3E001B185B /* Colors.swift */,
+			);
+			path = DesignSystem;
 			sourceTree = "<group>";
 		};
 		3BFF4A672E507C3900022454 /* TestPlans */ = {
@@ -455,27 +487,35 @@
 			buildActionMask = 2147483647;
 			files = (
 				3BAD929C2E493AA6009DCBAE /* GenerateMenuView.swift in Sources */,
+				3BAFB0D02E538357001B185B /* Colors.swift in Sources */,
+				3BAFB0CF2E537FD0001B185B /* Theme.swift in Sources */,
 				3BAD929D2E493AA6009DCBAE /* RecipesListView.swift in Sources */,
+				3BAFB0CD2E537EBF001B185B /* DesignSystemCanvas.swift in Sources */,
 				3BAD929E2E493AA6009DCBAE /* AddRecipeView.swift in Sources */,
 				3BAD929F2E493AA6009DCBAE /* GenerateMenuViewModel.swift in Sources */,
 				3BAD92B02E494333009DCBAE /* DeleteRecipeUseCase.swift in Sources */,
 				3BAD92A02E493AA6009DCBAE /* RecipesListViewModel.swift in Sources */,
 				3BAD92A12E493AA6009DCBAE /* AddRecipeViewModel.swift in Sources */,
+				3BAFB0CB2E537E99001B185B /* SectionCard.swift in Sources */,
 				3BAD92A22E493AA6009DCBAE /* FetchMenusUseCase.swift in Sources */,
 				3BAD92A32E493AA6009DCBAE /* GenerateMenuUseCase.swift in Sources */,
 				3BAD92A42E493AA6009DCBAE /* FetchRecipesUseCase.swift in Sources */,
 				3BAD92A52E493AA6009DCBAE /* AddRecipeUseCase.swift in Sources */,
 				3BAD92A62E493AA6009DCBAE /* MenuError.swift in Sources */,
+				3BAFB0C32E537D6A001B185B /* Typography.swift in Sources */,
 				3B47D5F72E49662F00E22A4B /* CountRecipesUseCase.swift in Sources */,
 				3BAD92A72E493AA6009DCBAE /* RecipeError.swift in Sources */,
+				3BAFB0C92E537E7C001B185B /* Chip.swift in Sources */,
 				3BAD92A82E493AA6009DCBAE /* SwiftDataMenuRepository.swift in Sources */,
 				3BAD92A92E493AA6009DCBAE /* SwiftDataRecipeRepository.swift in Sources */,
 				3BAD92AA2E493AA6009DCBAE /* MenuRepository.swift in Sources */,
 				3BAD92AB2E493AA6009DCBAE /* RecipeRepository.swift in Sources */,
 				3BAD92AC2E493AA6009DCBAE /* Menu.swift in Sources */,
 				3BAD92AD2E493AA6009DCBAE /* Recipe.swift in Sources */,
+				3BAFB0C52E537D72001B185B /* Layout.swift in Sources */,
 				3BAD92AE2E493AA6009DCBAE /* WeeklyMenuApp.swift in Sources */,
 				3B47D6022E4E3BE000E22A4B /* ImageCodec.swift in Sources */,
+				3BAFB0C72E537D7C001B185B /* Buttons.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
