@@ -11,63 +11,155 @@ struct RecipesView: View {
     @Bindable var listVM: RecipesListViewModel
     @State private var showAdd = false
     let makeAddVM: () -> AddRecipeViewModel
-    
+    @State var selectedRecipe: Recipe?
+
     var body: some View {
         NavigationStack {
             Group {
                 if listVM.recipes.isEmpty {
-                    VStack { // wrapper makes the identifier attach to a stable container
+                    // Empty state
+                    VStack(spacing: 16) {
                         ContentUnavailableView(
                             "No Recipes",
-                            systemImage: "book",
+                            systemImage: "fork.knife",
                             description: Text("Tap + to add your first recipe.")
                         )
                     }
+                    .padding(.horizontal, FpLayout.screenPadding)
                     .accessibilityIdentifier("emptyRecipesView")
-                    
-                } else {
-                    VStack {
-                        List {
-                            ForEach(listVM.recipes, id: \.id) { recipe in
-                                HStack {
-                                    if let base64 = recipe.thumbnailBase64, let thumb = ImageCodec.image(fromBase64: base64) {
-                                        Image(uiImage: thumb).resizable().scaledToFill()
-                                            .frame(width: 44, height: 44).clipShape(RoundedRectangle(cornerRadius: 8))
-                                    } else if let fn = recipe.imageFilename, let full = ImageStore.loadOriginal(named: fn) {
-                                        Image(uiImage: full).resizable().scaledToFill()
-                                            .frame(width: 44, height: 44).clipShape(RoundedRectangle(cornerRadius: 8))
-                                    } else {
-                                        Image(systemName: "fork.knife").frame(width: 44, height: 44).foregroundStyle(.secondary)
-                                    }
-                                    Text(recipe.name).accessibilityIdentifier("recipeName_\(recipe.name)")
-                                }
 
+                } else {
+                    // List of recipes
+                    List {
+                        ForEach(listVM.recipes, id: \.id) { recipe in
+                            HStack(spacing: 12) {
+                                // Thumbnail OR placeholder
+                                RecipeThumbView(base64: recipe.thumbnailBase64)
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(recipe.name)
+                                        .font(FpTypography.body)
+                                        .foregroundStyle(Color.fpLabel)
+                                        .accessibilityIdentifier("recipeName_\(recipe.name)")
+                                    
+                                    if let notes = recipe.notes, !notes.isEmpty {
+                                        Text(notes)
+                                            .font(FpTypography.caption)
+                                            .foregroundStyle(Color.fpSecondaryLabel)
+                                            .lineLimit(1)
+                                    }
+                                }
                             }
-                            .onDelete(perform: listVM.delete)
+                            .frame(minHeight: 56)
                         }
+                        .onDelete(perform: listVM.delete)
                     }
                     .accessibilityIdentifier("recipesList")
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)          // show fpBackground behind the list
                 }
             }
             .navigationTitle("Recipes")
+            .tint(Color.fpAccent)                             // local tint (remove if you apply fpAppTheme at root)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button { showAdd = true } label: { Image(systemName: "plus") }
-                        .accessibilityIdentifier("addRecipeButton")
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showAdd = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityIdentifier("addRecipeButton")
                 }
             }
-            .onAppear { listVM.load() }
+            .onAppear { listVM.load() } 
             .sheet(isPresented: $showAdd, onDismiss: { listVM.load() }) {
                 let addVM = makeAddVM()
                 NavigationStack {
                     AddRecipeView(viewModel: addVM)
                         .toolbar {
-                            ToolbarItem(placement: .cancellationAction) { Button("Cancel") { showAdd = false }.accessibilityIdentifier("cancelAddRecipeButton") }
-                            ToolbarItem(placement: .confirmationAction) { Button("Save") { Task { if await addVM.saveRecipe() { showAdd = false } } }.accessibilityIdentifier("saveRecipeButton") }
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Cancel") { showAdd = false }
+                                    .accessibilityIdentifier("cancelAddRecipeButton")
+                            }
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("Save") {
+                                    Task {
+                                        if await addVM.saveRecipe() { showAdd = false }
+                                    }
+                                }
+                                .accessibilityIdentifier("saveRecipeButton")
+                            }
                         }
                 }
-//                .presentationDetents([.medium, .large])
+            }
+            .background(Color.fpBackground)
+        }
+    }
+}
+
+/// Unified thumbnail/placeholder that matches the design system:
+/// - 44×44, 8pt radius
+/// - fpSurface background + subtle stroke for dark mode
+private struct RecipeThumbView: View {
+    let base64: String?
+
+    var body: some View {
+        ZStack {
+            // Surface background for both thumb and placeholder
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.fpSurface)
+                .frame(width: 44, height: 44)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.fpSeparator.opacity(0.25), lineWidth: 0.5)
+                )
+
+            if let base64, let ui = ImageCodec.image(fromBase64: base64) {
+                Image(uiImage: ui)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 44, height: 44)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .accessibilityHidden(true)
+            } else {
+                Image(systemName: "photo")
+                    .font(.system(size: 16, weight: .regular))
+                    .foregroundStyle(Color.fpSecondaryLabel)
+                    .accessibilityHidden(true)
             }
         }
     }
 }
+
+#if DEBUG
+@MainActor
+private final class PreviewMockRecipeRepository: RecipeRepository {
+    private var storage: [Recipe]
+    init(initial: [Recipe] = []) { self.storage = initial }
+    func add(_ recipe: Recipe) async throws { storage.append(recipe) }
+    func update(_ recipe: Recipe) async throws {
+        if let idx = storage.firstIndex(where: { $0.id == recipe.id }) { storage[idx] = recipe }
+    }
+    func delete(_ recipe: Recipe) async throws { storage.removeAll { $0.id == recipe.id } }
+    func fetchAll() async throws -> [Recipe] { storage }
+}
+
+#Preview("Empty") {
+    let repo = PreviewMockRecipeRepository(initial: [])
+    let fetch = FetchRecipesUseCase(repository: repo)
+    let delete = DeleteRecipeUseCase(repository: repo)
+    let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
+    return RecipesView(listVM: vm, makeAddVM: { AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: repo)) })
+}
+
+#Preview("With Recipes") {
+    let repo = PreviewMockRecipeRepository(initial: [
+        Recipe(name: "Pasta", notes: "Family favorite"),
+        Recipe(name: "Tacos", notes: "Tuesday special")
+    ])
+    let fetch = FetchRecipesUseCase(repository: repo)
+    let delete = DeleteRecipeUseCase(repository: repo)
+    let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
+    return RecipesView(listVM: vm, makeAddVM: { AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: repo)) })
+}
+#endif

@@ -8,44 +8,84 @@
 
 import SwiftUI
 
-// MARK: - Primary Button (filled)
+// MARK: - Primary (filled)
 public struct FpPrimaryButtonStyle: ButtonStyle {
     public init() {}
+
     public func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(FpTypography.heading)
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity)
-            .background(Color.fpAccent)
-            .foregroundStyle(.white)
-            .clipShape(RoundedRectangle(cornerRadius: FpLayout.controlCornerRadius))
-            .opacity(configuration.isPressed ? 0.88 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
+        FpPrimaryButton(configuration: configuration)
+    }
+
+    private struct FpPrimaryButton: View {
+        let configuration: Configuration
+        @Environment(\.isEnabled) private var isEnabled
+
+        var body: some View {
+            configuration.label
+                .font(FpTypography.heading)
+                .frame(maxWidth: .infinity, minHeight: 48)
+                .padding(.horizontal, 12)
+                .foregroundStyle(.white.opacity(isEnabled ? 1.0 : 0.7))
+                .background(isEnabled ? Color.fpAccent : Color.fpAccent.opacity(0.6))
+                .clipShape(RoundedRectangle(cornerRadius: FpLayout.controlCornerRadius))
+                .contentShape(RoundedRectangle(cornerRadius: FpLayout.controlCornerRadius))
+                .overlay(
+                    // subtle stroke to maintain shape on dark surfaces
+                    RoundedRectangle(cornerRadius: FpLayout.controlCornerRadius)
+                        .stroke(Color.fpSeparator.opacity(0.2), lineWidth: 0.5)
+                )
+                .opacity(configuration.isPressed && isEnabled ? 0.92 : 1.0)
+                .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
+                .allowsHitTesting(isEnabled)
+        }
     }
 }
 
-// MARK: - Secondary Button (outlined)
+// MARK: - Secondary (outlined)
 public struct FpSecondaryButtonStyle: ButtonStyle {
     public init() {}
+
     public func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(FpTypography.heading)
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: FpLayout.controlCornerRadius)
-                    .stroke(Color.fpAccent, lineWidth: 1.5)
-            )
-            .foregroundStyle(Color.fpAccent)
-            .opacity(configuration.isPressed ? 0.88 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
+        FpSecondaryButton(configuration: configuration)
+    }
+
+    private struct FpSecondaryButton: View {
+        let configuration: Configuration
+        @Environment(\.isEnabled) private var isEnabled
+
+        var body: some View {
+            configuration.label
+                .font(FpTypography.heading)
+                .frame(maxWidth: .infinity, minHeight: 48)
+                .padding(.horizontal, 12)
+                .foregroundStyle(labelColor)
+                .background(
+                    RoundedRectangle(cornerRadius: FpLayout.controlCornerRadius)
+                        .fill(Color.clear)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: FpLayout.controlCornerRadius)
+                        .strokeBorder(strokeColor, lineWidth: 1.5)
+                )
+                .contentShape(RoundedRectangle(cornerRadius: FpLayout.controlCornerRadius))
+                .opacity(configuration.isPressed && isEnabled ? 0.92 : 1.0)
+                .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
+        }
+
+        private var labelColor: Color {
+            isEnabled ? Color.fpAccent : Color.fpSecondaryLabel
+        }
+
+        private var strokeColor: Color {
+            isEnabled ? Color.fpAccent : Color.fpSeparator.opacity(0.6)
+        }
     }
 }
 
-// MARK: - Conveniences
+// MARK: - Convenience modifiers
 public extension Button {
-    func fpPrimary() -> some View { buttonStyle(FpPrimaryButtonStyle()) }
-    func fpSecondary() -> some View { buttonStyle(FpSecondaryButtonStyle()) }
+    @ViewBuilder func fpPrimary() -> some View { buttonStyle(FpPrimaryButtonStyle()) }
+    @ViewBuilder func fpSecondary() -> some View { buttonStyle(FpSecondaryButtonStyle()) }
 }
 
 public extension Toggle {

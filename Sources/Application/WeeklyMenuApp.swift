@@ -16,6 +16,7 @@ struct WeeklyMenuApp: App {
             let mode = StoreMode.current()
             if let container = StoreFactory.makeContainer(mode: mode) {
                 RootTabsView(mode: mode, container: container)
+                    .fpAppTheme()
                     .modelContainer(container)
             } else {
                 Text("Failed to initialise data store.")
