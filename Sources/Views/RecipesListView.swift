@@ -31,7 +31,7 @@ struct RecipesView: View {
                     // List of recipes
                     List {
                         ForEach(listVM.recipes, id: \.id) { recipe in
-                            NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                            NavigationLink(value: recipe) {
                                 HStack(spacing: 12) {
                                     // Thumbnail OR placeholder
                                     RecipeThumbView(base64: recipe.thumbnailBase64)
@@ -55,6 +55,9 @@ struct RecipesView: View {
                             .accessibilityIdentifier("recipeRow_\(recipe.name)")
                         }
                         .onDelete(perform: listVM.delete)
+                    }
+                    .navigationDestination(for: Recipe.self) { recipe in
+                        RecipeDetailView(recipe: recipe)
                     }
                     .accessibilityIdentifier("recipesList")
                     .listStyle(.plain)

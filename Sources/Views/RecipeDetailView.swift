@@ -7,13 +7,17 @@
 import SwiftUI
 
 struct RecipeDetailView: View {
-    let recipe: Recipe
+    @State private var viewModel: RecipeDetailViewModel
+    
+    init(recipe: Recipe) {
+        _viewModel = State(initialValue: RecipeDetailViewModel(recipe: recipe))
+    }
     
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // MARK: Recipe Image
-                if let imageFilename = recipe.imageFilename,
+                if let imageFilename = viewModel.recipe.imageFilename,
                    let originalImage = ImageStore.loadOriginal(named: imageFilename) {
                     // Show full-size original image
                     Image(uiImage: originalImage)
@@ -21,7 +25,7 @@ struct RecipeDetailView: View {
                         .scaledToFit()
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .accessibilityIdentifier("recipeDetailImage")
-                } else if let thumbnailBase64 = recipe.thumbnailBase64,
+                } else if let thumbnailBase64 = viewModel.recipe.thumbnailBase64,
                           let thumbnailImage = ImageCodec.image(fromBase64: thumbnailBase64) {
                     // Fallback to thumbnail if original not available
                     Image(uiImage: thumbnailImage)
@@ -50,14 +54,14 @@ struct RecipeDetailView: View {
                 // MARK: Recipe Details
                 VStack(alignment: .leading, spacing: 16) {
                     // Notes section
-                    if let notes = recipe.notes, !notes.isEmpty {
+                    if viewModel.hasNotes {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Notes")
                                 .font(FpTypography.heading3)
                                 .foregroundStyle(Color.fpLabel)
                                 .accessibilityIdentifier("recipeDetailNotesLabel")
                             
-                            Text(notes)
+                            Text(viewModel.notesText)
                                 .font(FpTypography.body)
                                 .foregroundStyle(Color.fpLabel)
                                 .accessibilityIdentifier("recipeDetailNotesText")
@@ -71,7 +75,7 @@ struct RecipeDetailView: View {
                             .foregroundStyle(Color.fpLabel)
                             .accessibilityIdentifier("recipeDetailUsageLabel")
                         
-                        Text("\(recipe.usageCount)")
+                        Text(viewModel.usageCountText)
                             .font(FpTypography.body)
                             .foregroundStyle(Color.fpSecondaryLabel)
                             .accessibilityIdentifier("recipeDetailUsageCount")
@@ -83,7 +87,7 @@ struct RecipeDetailView: View {
             }
             .padding(.top, FpLayout.screenPadding)
         }
-        .navigationTitle(recipe.name)
+        .navigationTitle(viewModel.recipe.name)
         .navigationBarTitleDisplayMode(.large)
         .background(Color.fpBackground)
         .accessibilityIdentifier("recipeDetailView")

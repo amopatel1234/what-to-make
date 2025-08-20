@@ -23,7 +23,7 @@ import SwiftData
 /// let recipe = Recipe(name: "Pasta", notes: "Family favorite")
 /// ```
 @Model
-final class Recipe {
+final class Recipe: Hashable {
     /// Stable unique identifier for the recipe.
     @Attribute(.unique) var id: UUID
     /// Required name of the recipe.
@@ -57,5 +57,14 @@ final class Recipe {
         self.usageCount = usageCount
         self.thumbnailBase64 = thumbnailBase64
         self.imageFilename = imageFilename
+    }
+    
+    // MARK: - Hashable Conformance
+    static func == (lhs: Recipe, rhs: Recipe) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
