@@ -5,6 +5,7 @@ import UIKit
 public extension Color {
     /// Primary brand accent (from Assets.xcassets > AccentColor).
     static var fpAccent: Color { .accentColor }
+    static var fpSecondaryColor: Color { .fpSecondary }
 
     // Semantic neutrals (system adaptive).
     static var fpBackground: Color { Color(uiColor: .systemBackground) }

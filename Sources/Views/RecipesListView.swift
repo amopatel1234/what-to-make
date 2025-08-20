@@ -11,7 +11,6 @@ struct RecipesView: View {
     @Bindable var listVM: RecipesListViewModel
     @State private var showAdd = false
     let makeAddVM: () -> AddRecipeViewModel
-    @State var selectedRecipe: Recipe?
 
     var body: some View {
         NavigationStack {

@@ -1,5 +1,5 @@
 //
-//  FpDesignSystemCanvas.swift
+//  DesignSystemCanvas.swift
 //  whattomake
 //
 //  Created by Amish Patel on 18/08/2025.
