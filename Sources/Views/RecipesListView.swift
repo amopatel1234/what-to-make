@@ -31,25 +31,28 @@ struct RecipesView: View {
                     // List of recipes
                     List {
                         ForEach(listVM.recipes, id: \.id) { recipe in
-                            HStack(spacing: 12) {
-                                // Thumbnail OR placeholder
-                                RecipeThumbView(base64: recipe.thumbnailBase64)
-                                
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(recipe.name)
-                                        .font(FpTypography.body)
-                                        .foregroundStyle(Color.fpLabel)
-                                        .accessibilityIdentifier("recipeName_\(recipe.name)")
+                            NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                                HStack(spacing: 12) {
+                                    // Thumbnail OR placeholder
+                                    RecipeThumbView(base64: recipe.thumbnailBase64)
                                     
-                                    if let notes = recipe.notes, !notes.isEmpty {
-                                        Text(notes)
-                                            .font(FpTypography.caption)
-                                            .foregroundStyle(Color.fpSecondaryLabel)
-                                            .lineLimit(1)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(recipe.name)
+                                            .font(FpTypography.body)
+                                            .foregroundStyle(Color.fpLabel)
+                                            .accessibilityIdentifier("recipeName_\(recipe.name)")
+                                        
+                                        if let notes = recipe.notes, !notes.isEmpty {
+                                            Text(notes)
+                                                .font(FpTypography.caption)
+                                                .foregroundStyle(Color.fpSecondaryLabel)
+                                                .lineLimit(1)
+                                        }
                                     }
                                 }
+                                .frame(minHeight: 56)
                             }
-                            .frame(minHeight: 56)
+                            .accessibilityIdentifier("recipeRow_\(recipe.name)")
                         }
                         .onDelete(perform: listVM.delete)
                     }
