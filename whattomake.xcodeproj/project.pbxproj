@@ -83,7 +83,6 @@
 		3B5E9E7D2AE07F9D00293473 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3B5E9E802AE07F9D00293473 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		3B5E9E822AE07F9D00293473 /* whattomake.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = whattomake.entitlements; sourceTree = "<group>"; };
-		3B5E9E832AE07F9D00293473 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3B5E9E882AE07F9D00293473 /* whattomakeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = whattomakeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B5E9E922AE07F9D00293473 /* whattomakeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = whattomakeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B64FDF52E560927001E5915 /* UpdateRecipesUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateRecipesUseCase.swift; sourceTree = "<group>"; };
@@ -247,7 +246,6 @@
 			children = (
 				3B5E9E7D2AE07F9D00293473 /* Assets.xcassets */,
 				3B5E9E822AE07F9D00293473 /* whattomake.entitlements */,
-				3B5E9E832AE07F9D00293473 /* Info.plist */,
 				3B5E9E7F2AE07F9D00293473 /* Preview Content */,
 			);
 			path = "Supporting Files";
@@ -701,7 +699,6 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Supporting Files/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Supporting Files/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = ForkPlan;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -734,7 +731,6 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Supporting Files/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Supporting Files/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = ForkPlan;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
