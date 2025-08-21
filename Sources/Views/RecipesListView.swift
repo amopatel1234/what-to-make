@@ -172,7 +172,8 @@ private final class PreviewMockRecipeRepository: RecipeRepository {
     let fetch = FetchRecipesUseCase(repository: repo)
     let delete = DeleteRecipeUseCase(repository: repo)
     let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
-    RecipesView(listVM: vm, makeAddVM: { _ in AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: repo), updateRecipeUseCase: UpdateRecipesUseCase(repository: repo))
+    RecipesView(listVM: vm, makeAddVM: { _ in
+        AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: repo), updateRecipeUseCase: UpdateRecipesUseCase(repository: repo))
     })
 }
 
