@@ -93,14 +93,14 @@ platform :ios do
 
 
       # --- Pre-bump: read what's configured in the project ---
-  	  pre_version = get_version_number(xcodeproj: xcodeproj)           # CFBundleShortVersionString
-  	  pre_build   = get_build_number(xcodeproj: xcodeproj)             # CFBundleVersion
+  	  pre_version = get_version_number(xcodeproj: xcodeproj, targets: "whattomake")           # CFBundleShortVersionString
+  	  pre_build   = get_build_number(xcodeproj: xcodeproj, targets: "whattomake")             # CFBundleVersion
   	  UI.message("Pre-bump -> version=#{pre_version}, build=#{pre_build}")
       
       # Get the latest build number for this version
       version = ENV["VERSION_NUMBER"]
       begin
-        latest_build = latest_testflight_build_number(version: version)
+        latest_build = latest_testflight_build_number(version: version,)
         build_number = latest_build + 1
       rescue
         build_number = 1 # First build for this version
@@ -109,16 +109,18 @@ platform :ios do
       # Update version and build
       increment_version_number(
         version_number: version,
-        xcodeproj: "whattomake.xcodeproj"
+        xcodeproj: "whattomake.xcodeproj",
+        targets: "whattomake"
       )
       increment_build_number(
         build_number: build_number,
-        xcodeproj: "whattomake.xcodeproj"
+        xcodeproj: "whattomake.xcodeproj",
+        targets: "whattomake"
       )
 
       # --- Post-bump: confirm what Fastlane set in the project ---
-  	  post_version = get_version_number(xcodeproj: xcodeproj)
-   	  post_build   = get_build_number(xcodeproj: xcodeproj)
+  	  post_version = get_version_number(xcodeproj: xcodeproj, targets: "whattomake")
+   	  post_build   = get_build_number(xcodeproj: xcodeproj, targets: "whattomake")
   	  UI.message("Post-bump -> version=#{post_version}, build=#{post_build}")
 
       get_provisioning_profile(
