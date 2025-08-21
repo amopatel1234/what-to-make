@@ -45,7 +45,8 @@ private struct RootTabsView: View {
         return TabView(selection: $selectedTab) {
             RecipesView(
                 listVM: RecipesListViewModel(fetchUseCase: fetchUseCase, deleteUseCase: deleteUseCase),
-                makeAddVM: { AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: recipeRepo)) }
+                makeAddVM: { recipe in
+                    AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: recipeRepo), updateRecipeUseCase: UpdateRecipesUseCase(repository: recipeRepo), existingRecipe: recipe) }
             )
             .tabItem { Label("Recipes", systemImage: "book") }
             .tag(0)

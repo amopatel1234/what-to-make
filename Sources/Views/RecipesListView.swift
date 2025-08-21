@@ -10,8 +10,9 @@ import Observation
 struct RecipesView: View {
     @Bindable var listVM: RecipesListViewModel
     @State private var showAdd = false
-    let makeAddVM: () -> AddRecipeViewModel
-
+    let makeAddVM: (Recipe?) -> AddRecipeViewModel
+    @State var selectedRecipe: Recipe? = nil
+    
     var body: some View {
         NavigationStack {
             Group {
@@ -26,7 +27,7 @@ struct RecipesView: View {
                     }
                     .padding(.horizontal, FpLayout.screenPadding)
                     .accessibilityIdentifier("emptyRecipesView")
-
+                    
                 } else {
                     // List of recipes
                     List {
@@ -50,6 +51,9 @@ struct RecipesView: View {
                                 }
                             }
                             .frame(minHeight: 56)
+                            .onTapGesture {
+                                selectedRecipe = recipe
+                            }
                         }
                         .onDelete(perform: listVM.delete)
                     }
@@ -70,9 +74,9 @@ struct RecipesView: View {
                     .accessibilityIdentifier("addRecipeButton")
                 }
             }
-            .onAppear { listVM.load() } 
+            .onAppear { listVM.load() }
             .sheet(isPresented: $showAdd, onDismiss: { listVM.load() }) {
-                let addVM = makeAddVM()
+                let addVM = makeAddVM(nil)
                 NavigationStack {
                     AddRecipeView(viewModel: addVM)
                         .toolbar {
@@ -91,6 +95,26 @@ struct RecipesView: View {
                         }
                 }
             }
+            .sheet(item: $selectedRecipe, onDismiss: { listVM.load() }) { recipe in
+                let editVM = makeAddVM(recipe)
+                NavigationStack {
+                    AddRecipeView(viewModel: editVM)
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Cancel") { selectedRecipe = nil }
+                                    .accessibilityIdentifier("cancelAddRecipeButton")
+                            }
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("Save") {
+                                    Task {
+                                        if await editVM.saveRecipe() { selectedRecipe = nil }
+                                    }
+                                }
+                                .accessibilityIdentifier("saveRecipeButton")
+                            }
+                        }
+                }
+            }
             .background(Color.fpBackground)
         }
     }
@@ -101,7 +125,7 @@ struct RecipesView: View {
 /// - fpSurface background + subtle stroke for dark mode
 private struct RecipeThumbView: View {
     let base64: String?
-
+    
     var body: some View {
         ZStack {
             // Surface background for both thumb and placeholder
@@ -112,7 +136,7 @@ private struct RecipeThumbView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.fpSeparator.opacity(0.25), lineWidth: 0.5)
                 )
-
+            
             if let base64, let ui = ImageCodec.image(fromBase64: base64) {
                 Image(uiImage: ui)
                     .resizable()
@@ -148,7 +172,8 @@ private final class PreviewMockRecipeRepository: RecipeRepository {
     let fetch = FetchRecipesUseCase(repository: repo)
     let delete = DeleteRecipeUseCase(repository: repo)
     let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
-    return RecipesView(listVM: vm, makeAddVM: { AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: repo)) })
+    RecipesView(listVM: vm, makeAddVM: { _ in AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: repo), updateRecipeUseCase: UpdateRecipesUseCase(repository: repo))
+    })
 }
 
 #Preview("With Recipes") {
@@ -159,6 +184,6 @@ private final class PreviewMockRecipeRepository: RecipeRepository {
     let fetch = FetchRecipesUseCase(repository: repo)
     let delete = DeleteRecipeUseCase(repository: repo)
     let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
-    return RecipesView(listVM: vm, makeAddVM: { AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: repo)) })
+    
 }
 #endif

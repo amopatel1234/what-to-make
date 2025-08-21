@@ -49,11 +49,32 @@ final class AddRecipeViewModel {
     var errorMessage: String?
 
     private let addRecipeUseCase: AddRecipeUseCase
+    private let updateRecipeUseCase: UpdateRecipesUseCase?
+    private let existingRecipe: Recipe?
+    
+    var isEditing: Bool {
+        existingRecipe != nil
+    }
 
     /// Creates a new instance with its required dependency.
     /// - Parameter addRecipeUseCase: The use case responsible for persisting recipes.
-    init(addRecipeUseCase: AddRecipeUseCase) {
+    init(addRecipeUseCase: AddRecipeUseCase,
+         updateRecipeUseCase: UpdateRecipesUseCase? = nil,
+         existingRecipe: Recipe? = nil) {
         self.addRecipeUseCase = addRecipeUseCase
+        self.updateRecipeUseCase = updateRecipeUseCase
+        self.existingRecipe = existingRecipe
+        
+        if let recipe = existingRecipe {
+            self.name = recipe.name
+            self.notes = recipe.notes ?? ""
+            self.thumbnailBase64 = recipe.thumbnailBase64
+            self.imageFilename = recipe.imageFilename
+            if let thumbnailBase64 = recipe.thumbnailBase64 {
+                self.previewImage = ImageCodec.image(fromBase64: thumbnailBase64)
+            }
+            
+        }
     }
 
     /// Processes raw image data loaded from the photo picker and updates UI state.
@@ -114,11 +135,20 @@ final class AddRecipeViewModel {
     /// - Returns: `true` when the recipe was saved successfully; otherwise `false`.
     func saveRecipe() async -> Bool {
         do {
-            try await addRecipeUseCase.execute(name: name, notes: notes.isEmpty ? nil : notes, thumbnailBase64: thumbnailBase64, imageFilename: imageFilename)
-            await MainActor.run { self.errorMessage = nil }
+            if let recipe = existingRecipe, let updateUseCase = updateRecipeUseCase {
+                try await updateUseCase.execute(recipe: recipe, name: name, notes: notes, thunbnailBase64: thumbnailBase64, imageFilename: imageFilename)
+            } else {
+                try await addRecipeUseCase.execute(name: name, notes: notes.isEmpty ? nil : notes, thumbnailBase64: thumbnailBase64, imageFilename: imageFilename)
+            }
+            
+            await MainActor.run {
+                self.errorMessage = nil
+            }
             return true
         } catch {
-            await MainActor.run { self.errorMessage = error.localizedDescription }
+            await MainActor.run {
+                self.errorMessage = error.localizedDescription
+            }
             return false
         }
     }
