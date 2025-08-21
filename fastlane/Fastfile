@@ -91,6 +91,12 @@ platform :ios do
         keychain_name: keychain_name
       )
 
+
+      # --- Pre-bump: read what's configured in the project ---
+  	  pre_version = get_version_number(xcodeproj: xcodeproj)           # CFBundleShortVersionString
+  	  pre_build   = get_build_number(xcodeproj: xcodeproj)             # CFBundleVersion
+  	  UI.message("Pre-bump -> version=#{pre_version}, build=#{pre_build}")
+      
       # Get the latest build number for this version
       version = ENV["VERSION_NUMBER"]
       begin
@@ -110,6 +116,11 @@ platform :ios do
         xcodeproj: "whattomake.xcodeproj"
       )
 
+      # --- Post-bump: confirm what Fastlane set in the project ---
+  	  post_version = get_version_number(xcodeproj: xcodeproj)
+   	  post_build   = get_build_number(xcodeproj: xcodeproj)
+  	  UI.message("Post-bump -> version=#{post_version}, build=#{post_build}")
+
       get_provisioning_profile(
         readonly: true,
         app_identifier: "amishpatel.whattomake",
@@ -123,7 +134,7 @@ platform :ios do
         targets: "whattomake"
       )
       
-      gym(
+      ipa_path = gym(
         workspace: "whattomake.xcworkspace",
         scheme: "whattomake",
         export_method: "app-store",
@@ -131,6 +142,23 @@ platform :ios do
         sdk: "iphoneos"
       )
 
+      UI.success("Built IPA at: #{ipa_path}")
+
+  	  # --- Inspect the IPA's embedded Info.plist (what ASC will read) ---
+  	  # Prints the two keys; this is definitive.
+  	  sh(%Q{
+    	set -o pipefail
+    	unzip -p "#{ipa_path}" "Payload/*.app/Info.plist" \
+      	| plutil -p - 2>/dev/null \
+      	| egrep 'CFBundleShortVersionString|CFBundleVersion' || true
+  	  })
+
+  	  # Optional: expose values to GitHub Actions outputs (handy for logs/annotations)
+  	  if ENV["GITHUB_OUTPUT"]
+      	sh(%Q{echo "marketing_version=#{post_version}" >> "$GITHUB_OUTPUT"})
+    	sh(%Q{echo "build_number=#{post_build}" >> "$GITHUB_OUTPUT"})
+  	  end
+  	  
       upload_to_testflight(
         skip_submission: true,
         app_platform: "ios",
