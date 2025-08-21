@@ -73,7 +73,7 @@ struct AddRecipeView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("Add Recipe")
+        .navigationTitle(viewModel.isEditing ? "Edit Recipe" : "Add Recipe")
         .scrollDismissesKeyboard(.interactively)
     }
 }
