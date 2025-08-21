@@ -22,7 +22,11 @@ struct UpdateRecipesUseCase {
                  imageFilename: String?) async throws {
         recipe.name = name
         recipe.notes = notes
-        recipe.thumbnailBase64 = thunbnailBase64
+                 thumbnailBase64: String?,
+                 imageFilename: String?) async throws {
+        recipe.name = name
+        recipe.notes = notes
+        recipe.thumbnailBase64 = thumbnailBase64
         recipe.imageFilename = imageFilename
         
         try await repository.update(recipe)
