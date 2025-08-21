@@ -93,8 +93,8 @@ platform :ios do
 
 
       # --- Pre-bump: read what's configured in the project ---
-  	  pre_version = get_version_number(xcodeproj: xcodeproj)           # CFBundleShortVersionString
-  	  pre_build   = get_build_number(xcodeproj: xcodeproj)             # CFBundleVersion
+  	  pre_version = get_version_number(xcodeproj: "whattomake.xcodeproj")           # CFBundleShortVersionString
+  	  pre_build   = get_build_number(xcodeproj: "whattomake.xcodeproj")             # CFBundleVersion
   	  UI.message("Pre-bump -> version=#{pre_version}, build=#{pre_build}")
       
       # Get the latest build number for this version
@@ -117,8 +117,8 @@ platform :ios do
       )
 
       # --- Post-bump: confirm what Fastlane set in the project ---
-  	  post_version = get_version_number(xcodeproj: xcodeproj)
-   	  post_build   = get_build_number(xcodeproj: xcodeproj)
+  	  post_version = get_version_number(xcodeproj: "whattomake.xcodeproj")
+   	  post_build   = get_build_number(xcodeproj: "whattomake.xcodeproj")
   	  UI.message("Post-bump -> version=#{post_version}, build=#{post_build}")
 
       get_provisioning_profile(
