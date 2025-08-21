@@ -136,7 +136,7 @@ final class AddRecipeViewModel {
     func saveRecipe() async -> Bool {
         do {
             if let recipe = existingRecipe, let updateUseCase = updateRecipeUseCase {
-                try await updateUseCase.execute(recipe: recipe, name: name, notes: notes, thunbnailBase64: thumbnailBase64, imageFilename: imageFilename)
+                try await updateUseCase.execute(recipe: recipe, name: name, notes: notes, thumbnailBase64: thumbnailBase64, imageFilename: imageFilename)
             } else {
                 try await addRecipeUseCase.execute(name: name, notes: notes.isEmpty ? nil : notes, thumbnailBase64: thumbnailBase64, imageFilename: imageFilename)
             }
