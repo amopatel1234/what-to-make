@@ -18,12 +18,10 @@ struct UpdateRecipesUseCase {
     func execute(recipe: Recipe,
                  name: String,
                  notes: String?,
-                 thunbnailBase64: String?,
+                 thumbnailBase64: String?,
                  imageFilename: String?) async throws {
         recipe.name = name
         recipe.notes = notes
-                 thumbnailBase64: String?,
-                 imageFilename: String?) async throws {
         recipe.name = name
         recipe.notes = notes
         recipe.thumbnailBase64 = thumbnailBase64
