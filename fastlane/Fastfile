@@ -111,8 +111,22 @@ platform :ios do
         build_number: build_number,
         xcodeproj: "whattomake.xcodeproj"
       )
+      
+      # Resolve repo root no matter where Fastlane runs from
+	  repo_root =
+  	  if ENV["GITHUB_WORKSPACE"] && File.directory?(ENV["GITHUB_WORKSPACE"])
+    	 ENV["GITHUB_WORKSPACE"]
+  	  else
+    	File.expand_path("..", __dir__)  # __dir__ is fastlane/; go up to repo root
+  	  end
 
-      xcodeproj_path = 'whattomake.xcodeproj'
+	  # Find your .xcodeproj at the repo root
+	  candidates = Dir[File.join(repo_root, "*.xcodeproj")]
+	  UI.user_error!("No .xcodeproj found in #{repo_root}") if candidates.empty?
+	  # If you have more than one, pick by name; otherwise take the first
+	  xcodeproj_path = candidates.find { |p| File.basename(p) == "whattomake.xcodeproj" } || candidates.first
+
+	  UI.message("Opening Xcode project at: #{xcodeproj_path}")
 	  target_names   = ['whattomake']     # add extension target names here if needed
 	  configs_to_set = ['Release']        # or %w[Debug Release] if you want both
 
