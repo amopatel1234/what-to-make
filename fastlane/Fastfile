@@ -106,15 +106,37 @@ platform :ios do
         build_number = 1 # First build for this version
       end
     
-      # Update version and build
-      increment_version_number(
-        version_number: version,
-        xcodeproj: "whattomake.xcodeproj"
-      )
+      # Update build number 
       increment_build_number(
         build_number: build_number,
         xcodeproj: "whattomake.xcodeproj"
       )
+
+      xcodeproj_path = 'whattomake.xcodeproj'
+	  target_names   = ['whattomake']     # add extension target names here if needed
+	  configs_to_set = ['Release']        # or %w[Debug Release] if you want both
+
+	  require 'xcodeproj'
+	  proj = Xcodeproj::Project.open(xcodeproj_path)
+
+	  # 1) Project-level configs (some projects read from here)
+	  proj.build_configurations.each do |cfg|
+  	  	next unless configs_to_set.include?(cfg.name)
+  	  	cfg.build_settings['MARKETING_VERSION'] = version
+	  end
+
+	  # 2) Target-level configs (Xcode resolves target > project)
+	  proj.targets.each do |t|
+  		next unless target_names.include?(t.name)
+  		t.build_configurations.each do |cfg|
+    	next unless configs_to_set.include?(cfg.name)
+    	cfg.build_settings['MARKETING_VERSION'] = version
+  		end
+	  end
+
+	  proj.save
+
+	  UI.message("Set MARKETING_VERSION=#{version} for #{target_names.join(', ')} [#{configs_to_set.join(', ')}]")
 
       # --- Post-bump: confirm what Fastlane set in the project ---
   	  post_version = get_version_number(xcodeproj: "whattomake.xcodeproj", target: "whattomake")
