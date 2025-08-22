@@ -90,12 +90,6 @@ platform :ios do
         keychain_password: password,
         keychain_name: keychain_name
       )
-
-
-      # --- Pre-bump: read what's configured in the project ---
-  	  pre_version = get_version_number(xcodeproj: "whattomake.xcodeproj", target: "whattomake")           # CFBundleShortVersionString
-  	  pre_build   = get_build_number(xcodeproj: "whattomake.xcodeproj")             # CFBundleVersion
-  	  UI.message("Pre-bump -> version=#{pre_version}, build=#{pre_build}")
       
       # Get the latest build number for this version
       version = ENV["VERSION_NUMBER"]
@@ -152,11 +146,6 @@ platform :ios do
 
 	  UI.message("Set MARKETING_VERSION=#{version} for #{target_names.join(', ')} [#{configs_to_set.join(', ')}]")
 
-      # --- Post-bump: confirm what Fastlane set in the project ---
-  	  post_version = get_version_number(xcodeproj: "whattomake.xcodeproj", target: "whattomake")
-   	  post_build   = get_build_number(xcodeproj: "whattomake.xcodeproj")
-  	  UI.message("Post-bump -> version=#{post_version}, build=#{post_build}")
-
       get_provisioning_profile(
         readonly: true,
         app_identifier: "amishpatel.whattomake",
@@ -191,8 +180,23 @@ platform :ios do
 
   	  # Optional: expose values to GitHub Actions outputs (handy for logs/annotations)
   	  if ENV["GITHUB_OUTPUT"]
-      	sh(%Q{echo "marketing_version=#{post_version}" >> "$GITHUB_OUTPUT"})
-    	sh(%Q{echo "build_number=#{post_build}" >> "$GITHUB_OUTPUT"})
+      	  # Parse values directly from the built IPA’s Info.plist
+  		  ipa_version = sh(%Q{
+    	  	unzip -p "#{ipa_path}" "Payload/*.app/Info.plist" \
+      	  	| plutil -extract CFBundleShortVersionString xml1 -o - - \
+      		| plutil -p - 2>/dev/null
+  		  }).strip.gsub(/["\n]/, '')
+
+  		  ipa_build = sh(%Q{
+    		unzip -p "#{ipa_path}" "Payload/*.app/Info.plist" \
+      		| plutil -extract CFBundleVersion xml1 -o - - \
+      		| plutil -p - 2>/dev/null
+  	  	  }).strip.gsub(/["\n]/, '')
+
+  		  UI.message("Exporting GitHub outputs -> version=#{ipa_version}, build=#{ipa_build}")
+
+  		  sh(%Q{echo "marketing_version=#{ipa_version}" >> "$GITHUB_OUTPUT"})
+  		  sh(%Q{echo "build_number=#{ipa_build}" >> "$GITHUB_OUTPUT"})
   	  end
   	  
       upload_to_testflight(
