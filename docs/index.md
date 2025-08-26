@@ -28,7 +28,7 @@ ForkPlan respects your privacy. The app is designed to work entirely **offline**
 
 ## Contact
 If you have any questions about this Privacy Policy, please contact:  
-📧 *your email address here*  
+📧 appsbyamop@gmail.com 
 
 ---
 
