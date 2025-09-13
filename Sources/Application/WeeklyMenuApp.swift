@@ -3,9 +3,8 @@
 //  whattomake
 //
 //  Created by Amish Patel on 10/08/2025.
+//  Updated by ChatGPT on 17/08/2025.
 //
-
-
 import SwiftUI
 import SwiftData
 
@@ -26,33 +25,28 @@ struct WeeklyMenuApp: App {
 }
 
 private struct RootTabsView: View {
-    
-    @State private var selectedTab: Int = 0 // 0 = Recipes, 1 = Menu
+    @State private var selectedTab: Int = 0
     let mode: StoreMode
     let container: ModelContainer
 
     @State private var didSeed = false
 
     var body: some View {
-        // Build repos & use cases from the provided container
-        let recipeRepo   = SwiftDataRecipeRepository(context: container.mainContext)
-        let menuRepo     = SwiftDataMenuRepository(context: container.mainContext)
-        let fetchUseCase = FetchRecipesUseCase(repository: recipeRepo)
-        let deleteUseCase = DeleteRecipeUseCase(repository: recipeRepo)
-        let generateUseCase = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
-        let countUseCase = CountRecipesUseCase(repository: recipeRepo)
+        let recipeRepo = SwiftDataRecipeRepository(context: container.mainContext)
+        let menuRepo   = SwiftDataMenuRepository(context: container.mainContext)
 
         return TabView(selection: $selectedTab) {
             RecipesView(
-                listVM: RecipesListViewModel(fetchUseCase: fetchUseCase, deleteUseCase: deleteUseCase),
+                listVM: RecipesListViewModel(repository: recipeRepo),
                 makeAddVM: { recipe in
-                    AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: recipeRepo), updateRecipeUseCase: UpdateRecipesUseCase(repository: recipeRepo), existingRecipe: recipe) }
+                    AddRecipeViewModel(repository: recipeRepo, existingRecipe: recipe)
+                }
             )
             .tabItem { Label("Recipes", systemImage: "book") }
             .tag(0)
 
-            GenerateMenuView(viewModel: GenerateMenuViewModel(generateUseCase: generateUseCase,
-                                                             countRecipesUseCase: countUseCase))
+            GenerateMenuView(viewModel: GenerateMenuViewModel(menuRepository: menuRepo,
+                                                                recipeRepository: recipeRepo))
                 .tabItem { Label("Menu", systemImage: "calendar") }
                 .tag(1)
         }
@@ -91,16 +85,13 @@ private struct StoreFactory {
 
     static func seedIfNeeded(mode: StoreMode, context: ModelContext) {
         guard mode == .inMemorySeeded else { return }
-
-            // Seed at least 8 recipes to satisfy the menu rule
-            for i in 1...8 {
-                let r = Recipe(
-                    name: "Seeded \(i)",
-                    notes: i.isMultiple(of: 2) ? "Note \(i)" : nil
-                )
-                context.insert(r)
-            }
-
-            do { try context.save() } catch { /* ignore seed errors in tests */ }
+        for i in 1...8 {
+            let r = Recipe(
+                name: "Seeded \(i)",
+                notes: i.isMultiple(of: 2) ? "Note \(i)" : nil
+            )
+            context.insert(r)
+        }
+        do { try context.save() } catch { }
     }
 }

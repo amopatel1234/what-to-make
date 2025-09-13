@@ -17,8 +17,7 @@ struct AddRecipeViewModelTests {
     @Test
     func testSaveRecipeSuccess() async throws {
         let repo = MockRecipeRepository()
-        let useCase = AddRecipeUseCase(repository: repo)
-        let vm = AddRecipeViewModel(addRecipeUseCase: useCase)
+        let vm = AddRecipeViewModel(repository: repo)
 
         vm.name = "Pasta"
         vm.notes = "Yum"
@@ -39,8 +38,7 @@ struct AddRecipeViewModelTests {
     @Test
     func testSaveRecipeFailsWhenNameEmpty() async throws {
         let repo = MockRecipeRepository()
-        let useCase = AddRecipeUseCase(repository: repo)
-        let vm = AddRecipeViewModel(addRecipeUseCase: useCase)
+        let vm = AddRecipeViewModel(repository: repo)
 
         vm.name = "   "
 
@@ -52,7 +50,7 @@ struct AddRecipeViewModelTests {
 
     @Test
     func testResetClearsState() async throws {
-        let vm = AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: MockRecipeRepository()))
+        let vm = AddRecipeViewModel(repository: MockRecipeRepository())
         vm.name = "X"
         vm.notes = "N"
         vm.errorMessage = "E"
@@ -67,8 +65,7 @@ struct AddRecipeViewModelTests {
     // MARK: - Image Loading Helpers
     private func makeViewModel() -> AddRecipeViewModel {
         let repo = MockRecipeRepository()
-        let add = AddRecipeUseCase(repository: repo)
-        return AddRecipeViewModel(addRecipeUseCase: add)
+        return AddRecipeViewModel(repository: repo)
     }
 
     private func makeJPEGData(color: UIColor = .red, size: CGSize = CGSize(width: 12, height: 12)) -> Data {

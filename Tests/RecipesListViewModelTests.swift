@@ -13,12 +13,10 @@ struct RecipesListViewModelTests {
     @Test
     func testLoadPopulatesRecipes() async throws {
         let repo = MockRecipeRepository()
-        try await repo.add(Recipe(name: "One", notes: nil))
-        try await repo.add(Recipe(name: "Two", notes: "N2"))
+        try await repo.addRecipe(name: "One", notes: nil, thumbnailBase64: nil, imageFilename: nil)
+        try await repo.addRecipe(name: "Two", notes: "N2", thumbnailBase64: nil, imageFilename: nil)
 
-        let fetch = FetchRecipesUseCase(repository: repo)
-        let delete = DeleteRecipeUseCase(repository: repo)
-        let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
+        let vm = RecipesListViewModel(repository: repo)
 
         vm.load()
         // wait for async Task in load()
@@ -34,12 +32,10 @@ struct RecipesListViewModelTests {
     @Test
     func testDeleteRemovesRecipeAndReloads() async throws {
         let repo = MockRecipeRepository()
-        try await repo.add(Recipe(name: "One", notes: nil))
-        try await repo.add(Recipe(name: "Two", notes: nil))
+        try await repo.addRecipe(name: "One", notes: nil, thumbnailBase64: nil, imageFilename: nil)
+        try await repo.addRecipe(name: "Two", notes: nil, thumbnailBase64: nil, imageFilename: nil)
 
-        let fetch = FetchRecipesUseCase(repository: repo)
-        let delete = DeleteRecipeUseCase(repository: repo)
-        let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
+        let vm = RecipesListViewModel(repository: repo)
 
         // initial load
         vm.load()

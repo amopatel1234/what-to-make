@@ -3,6 +3,7 @@
 //  whattomake
 //
 //  Created by Amish Patel on 10/08/2025.
+//  Updated by ChatGPT on 17/08/2025.
 //
 import Foundation
 import SwiftData
@@ -21,26 +22,36 @@ final class SwiftDataRecipeRepository: RecipeRepository {
         self.context = context
     }
 
-    /// Inserts a recipe and saves the context.
-    func add(_ recipe: Recipe) async throws {
+    func addRecipe(name: String, notes: String?, thumbnailBase64: String?, imageFilename: String?) async throws {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { throw RecipeError.emptyName }
+        let recipe = Recipe(name: trimmed, notes: notes, thumbnailBase64: thumbnailBase64, imageFilename: imageFilename)
         context.insert(recipe)
         try context.save()
     }
 
-    /// Saves pending changes for the provided recipe.
-    func update(_ recipe: Recipe) async throws {
+    func updateRecipe(_ recipe: Recipe, name: String, notes: String?, thumbnailBase64: String?, imageFilename: String?) async throws {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { throw RecipeError.emptyName }
+        recipe.name = trimmed
+        recipe.notes = notes
+        recipe.thumbnailBase64 = thumbnailBase64
+        recipe.imageFilename = imageFilename
         try context.save()
     }
 
-    /// Deletes a recipe and saves the context.
-    func delete(_ recipe: Recipe) async throws {
+    func deleteRecipe(_ recipe: Recipe) async throws {
         context.delete(recipe)
         try context.save()
     }
 
-    /// Fetches all recipes sorted by name ascending.
-    func fetchAll() async throws -> [Recipe] {
+    func fetchRecipes() async throws -> [Recipe] {
         let descriptor = FetchDescriptor<Recipe>(sortBy: [SortDescriptor(\.name)])
         return try context.fetch(descriptor)
+    }
+
+    func countRecipes() async throws -> Int {
+        let descriptor = FetchDescriptor<Recipe>()
+        return try context.fetch(descriptor).count
     }
 }

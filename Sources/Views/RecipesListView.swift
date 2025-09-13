@@ -154,26 +154,34 @@ private struct RecipeThumbView: View {
     }
 }
 
+
+
 #if DEBUG
 @MainActor
 private final class PreviewMockRecipeRepository: RecipeRepository {
     private var storage: [Recipe]
     init(initial: [Recipe] = []) { self.storage = initial }
-    func add(_ recipe: Recipe) async throws { storage.append(recipe) }
-    func update(_ recipe: Recipe) async throws {
-        if let idx = storage.firstIndex(where: { $0.id == recipe.id }) { storage[idx] = recipe }
+    func addRecipe(name: String, notes: String?, thumbnailBase64: String?, imageFilename: String?) async throws {
+        storage.append(Recipe(name: name, notes: notes, thumbnailBase64: thumbnailBase64, imageFilename: imageFilename))
     }
-    func delete(_ recipe: Recipe) async throws { storage.removeAll { $0.id == recipe.id } }
-    func fetchAll() async throws -> [Recipe] { storage }
+    func updateRecipe(_ recipe: Recipe, name: String, notes: String?, thumbnailBase64: String?, imageFilename: String?) async throws {
+        if let idx = storage.firstIndex(where: { $0.id == recipe.id }) {
+            storage[idx].name = name
+            storage[idx].notes = notes
+            storage[idx].thumbnailBase64 = thumbnailBase64
+            storage[idx].imageFilename = imageFilename
+        }
+    }
+    func deleteRecipe(_ recipe: Recipe) async throws { storage.removeAll { $0.id == recipe.id } }
+    func fetchRecipes() async throws -> [Recipe] { storage }
+    func countRecipes() async throws -> Int { storage.count }
 }
 
 #Preview("Empty") {
     let repo = PreviewMockRecipeRepository(initial: [])
-    let fetch = FetchRecipesUseCase(repository: repo)
-    let delete = DeleteRecipeUseCase(repository: repo)
-    let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
+    let vm = RecipesListViewModel(repository: repo)
     RecipesView(listVM: vm, makeAddVM: { _ in
-        AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: repo), updateRecipeUseCase: UpdateRecipesUseCase(repository: repo))
+        AddRecipeViewModel(repository: repo)
     })
 }
 
@@ -182,9 +190,7 @@ private final class PreviewMockRecipeRepository: RecipeRepository {
         Recipe(name: "Pasta", notes: "Family favorite"),
         Recipe(name: "Tacos", notes: "Tuesday special")
     ])
-    let fetch = FetchRecipesUseCase(repository: repo)
-    let delete = DeleteRecipeUseCase(repository: repo)
-    let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
-    
+    let vm = RecipesListViewModel(repository: repo)
+    RecipesView(listVM: vm, makeAddVM: { _ in AddRecipeViewModel(repository: repo) })
 }
 #endif

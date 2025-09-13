@@ -3,6 +3,7 @@
 //  whattomake
 //
 //  Created by Amish Patel on 10/08/2025.
+//  Updated by ChatGPT on 17/08/2025.
 //
 import Foundation
 import SwiftData
@@ -21,21 +22,33 @@ final class SwiftDataMenuRepository: MenuRepository {
         self.context = context
     }
 
-    /// Inserts a menu and saves the context.
     func add(_ menu: Menu) async throws {
         context.insert(menu)
         try context.save()
     }
 
-    /// Fetches all menus sorted by generated date descending.
     func fetchAll() async throws -> [Menu] {
         let descriptor = FetchDescriptor<Menu>(sortBy: [SortDescriptor(\.generatedDate, order: .reverse)])
         return try context.fetch(descriptor)
     }
 
-    /// Deletes a menu and saves the context.
     func delete(_ menu: Menu) async throws {
         context.delete(menu)
         try context.save()
+    }
+
+    func generateMenu(for days: [String]) async throws -> Menu {
+        let recipeDescriptor = FetchDescriptor<Recipe>()
+        var recipes = try context.fetch(recipeDescriptor)
+        guard !recipes.isEmpty else { throw MenuError.noRecipesAvailable }
+        recipes.shuffle()
+        let selected = Array(recipes.prefix(days.count))
+        for recipe in selected {
+            recipe.usageCount += 1
+        }
+        let menu = Menu(days: days, recipes: selected)
+        context.insert(menu)
+        try context.save()
+        return menu
     }
 }

@@ -13,10 +13,8 @@ struct GenerateMenuViewModelTests {
     @Test
     func testCanGenerateIsDisabledWhenBelowMinimumOrNoDays() async throws {
         let recipeRepo = MockRecipeRepository()
-        let menuRepo = MockMenuRepository()
-        let generate = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
-        let count = CountRecipesUseCase(repository: recipeRepo)
-        let vm = GenerateMenuViewModel(generateUseCase: generate, countRecipesUseCase: count)
+        let menuRepo = MockMenuRepository(recipeRepository: recipeRepo)
+        let vm = GenerateMenuViewModel(menuRepository: menuRepo, recipeRepository: recipeRepo)
 
         await vm.loadAvailability()
         #expect(vm.availableRecipeCount == 0)
@@ -29,12 +27,10 @@ struct GenerateMenuViewModelTests {
     @Test
     func testGenerateValidatesNoDaySelected() async throws {
         let recipeRepo = MockRecipeRepository()
-        let menuRepo = MockMenuRepository()
-        let generate = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
-        let count = CountRecipesUseCase(repository: recipeRepo)
-        let vm = GenerateMenuViewModel(generateUseCase: generate, countRecipesUseCase: count)
+        let menuRepo = MockMenuRepository(recipeRepository: recipeRepo)
+        let vm = GenerateMenuViewModel(menuRepository: menuRepo, recipeRepository: recipeRepo)
 
-        for i in 1...7 { try await recipeRepo.add(Recipe(name: "R\(i)", notes: nil)) }
+        for i in 1...7 { try await recipeRepo.addRecipe(name: "R\(i)", notes: nil, thumbnailBase64: nil, imageFilename: nil) }
         await vm.loadAvailability()
         #expect(vm.availableRecipeCount == 7)
 
