@@ -90,7 +90,7 @@ xcodebuild \
   -workspace whattomake.xcworkspace \
   -scheme whattomake \
   -testPlan UnitTestsPlan \
-  -destination 'platform=iOS Simulator,name=iPhone 15' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   test
 
 # UI tests via test plan
@@ -98,7 +98,7 @@ xcodebuild \
   -workspace whattomake.xcworkspace \
   -scheme whattomake \
   -testPlan UITestsPlan \
-  -destination 'platform=iOS Simulator,name=iPhone 15' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   test
 ```
 

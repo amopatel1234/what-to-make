@@ -25,8 +25,8 @@ The codebase follows a clean architecture style:
 
 Requirements:
 
-- macOS with Xcode 15+ for local development
-- iOS 17+ simulator/runtime
+- macOS with Xcode 26+ for local development
+- iOS 26+ simulator/runtime
 - Ruby/Bundler for Fastlane-based automation
 
 Open the project with:
@@ -46,7 +46,7 @@ Notes:
 
 - The shared Xcode scheme is `whattomake`.
 - The built app product in the shared scheme is currently `ForkPlan.app`, so do not assume the app bundle name matches the repository name.
-- `fastlane/Fastfile` currently selects `/Applications/Xcode_16.4.app` explicitly in CI-oriented lanes.
+- Fastlane now relies on the default Xcode selected on the machine or GitHub runner image.
 
 ## Build and test commands
 
@@ -57,7 +57,7 @@ xcodebuild \
   -workspace whattomake.xcworkspace \
   -scheme whattomake \
   -testPlan UnitTestsPlan \
-  -destination 'platform=iOS Simulator,name=iPhone 15' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   test
 ```
 
@@ -68,7 +68,7 @@ xcodebuild \
   -workspace whattomake.xcworkspace \
   -scheme whattomake \
   -testPlan UITestsPlan \
-  -destination 'platform=iOS Simulator,name=iPhone 15' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   test
 ```
 
