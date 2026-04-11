@@ -25,8 +25,8 @@ The codebase follows a clean architecture style:
 
 Requirements:
 
-- macOS with Xcode 15+ for local development
-- iOS 17+ simulator/runtime
+- macOS with Xcode 26+ for local development
+- iOS 26+ simulator/runtime
 - Ruby/Bundler for Fastlane-based automation
 
 Open the project with:
@@ -46,7 +46,7 @@ Notes:
 
 - The shared Xcode scheme is `whattomake`.
 - The built app product in the shared scheme is currently `ForkPlan.app`, so do not assume the app bundle name matches the repository name.
-- `fastlane/Fastfile` currently selects `/Applications/Xcode_16.4.app` explicitly in CI-oriented lanes.
+- Fastlane now relies on the default Xcode selected on the machine or GitHub runner image.
 
 ## Build and test commands
 
@@ -57,7 +57,7 @@ xcodebuild \
   -workspace whattomake.xcworkspace \
   -scheme whattomake \
   -testPlan UnitTestsPlan \
-  -destination 'platform=iOS Simulator,name=iPhone 15' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   test
 ```
 
@@ -68,7 +68,7 @@ xcodebuild \
   -workspace whattomake.xcworkspace \
   -scheme whattomake \
   -testPlan UITestsPlan \
-  -destination 'platform=iOS Simulator,name=iPhone 15' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   test
 ```
 
@@ -195,13 +195,10 @@ CI and release-related files:
 - `.github/workflows/pull-request.yml`
 - `.github/workflows/merged.yml`
 - `fastlane/Fastfile`
-- `sonar-project.properties`
-- `scripts/xccov-to-sonarqube-generic.sh`
 
 Important automation details:
 
-- SonarCloud analysis is configured for `Sources` and `Tests`
-- Fastlane `runUnitTests` generates an `.xcresult` bundle and converts coverage for SonarCloud
+- Fastlane `runUnitTests` runs the unit test plan configured for the workspace and scheme
 - Fastlane `deploy` increments the build number, updates the marketing version, builds the app, and uploads to TestFlight
 
 ## Commit and review guidance
@@ -231,6 +228,8 @@ Guidance:
 
 Allowed prefixes enforced by the hook:
 
+- `build`
+- `ci`
 - `docs`
 - `fix`
 - `feat`
@@ -242,6 +241,8 @@ Allowed prefixes enforced by the hook:
 
 Meaning of the common types used in this repo:
 
+- `build`: changes to build tooling, packaging, dependency/runtime setup, or generated build inputs
+- `ci`: changes to GitHub Actions, Fastlane automation, or other CI/CD workflow configuration
 - `feat`: a new user-facing or developer-facing feature
 - `fix`: a bug fix
 - `docs`: documentation-only changes

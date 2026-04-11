@@ -2,13 +2,13 @@ name: Merged
 
 on:
   push:
-    branches: [ main, develop]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     name: Build app and deploy
-    runs-on: macos-15
+    runs-on: macos-26
     permissions:
       contents: write
     
