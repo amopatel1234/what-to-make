@@ -9,7 +9,12 @@ You are helping on an iOS app called "WeeklyMenu". Follow these constraints:
 - Debug menu in debug builds or via -debug-menu arg: clear DB, seed recipes/menu, reset usage, refresh AppState.
 - In UI, render menu rows from snapshot values (day + recipe name) not live model objects to avoid diff crashes.
 - Tests: Swift Testing for units, XCUITest for UI. No mixing of prod/test code unless necessary for debug seeding.
-- When writing commit messages follow conventional commits syntax and prefix message with docs|fix|feat|chore|style|refactor|perf|test and use ! if there are breaking changes for example "feat!: this is a breaking change"
+- When writing commit messages follow Conventional Commits syntax: `<type>[optional scope][optional !]: <description>`
+- Allowed types in this repo are `docs|fix|feat|chore|style|refactor|perf|test`
+- Use `feat` for new features and `fix` for bug fixes; these are the main types with SemVer meaning in the Conventional Commits spec
+- Use `!` immediately before `:` to mark a breaking change, for example `feat!: remove legacy menu flow`
+- A `BREAKING CHANGE:` footer may also be used to explain breaking impact in more detail
+- Scope is optional and should only be used when it adds real clarity; most commits should omit it
+- If scope is used, keep it short and concrete, for example `fix(menu): handle empty state`
 - When writing documentation for code use swift standard DocC format, keep it clear and concise and where applicable give example useage 
 - When code reviewing look out for common spelling mistakes and obvious errors
-
