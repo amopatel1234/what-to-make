@@ -195,13 +195,10 @@ CI and release-related files:
 - `.github/workflows/pull-request.yml`
 - `.github/workflows/merged.yml`
 - `fastlane/Fastfile`
-- `sonar-project.properties`
-- `scripts/xccov-to-sonarqube-generic.sh`
 
 Important automation details:
 
-- SonarCloud analysis is configured for `Sources` and `Tests`
-- Fastlane `runUnitTests` generates an `.xcresult` bundle and converts coverage for SonarCloud
+- Fastlane `runUnitTests` runs the unit test plan configured for the workspace and scheme
 - Fastlane `deploy` increments the build number, updates the marketing version, builds the app, and uploads to TestFlight
 
 ## Commit and review guidance

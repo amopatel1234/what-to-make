@@ -30,34 +30,6 @@ platform :ios do
       testplan: ENV["TEST_PLAN"],
       result_bundle: true,
     )
-    
-    sh(
-      "bash ${WORKSPACE}/scripts/xccov-to-sonarqube-generic.sh ${WORKSPACE}/fastlane/test_output/${SCHEME}.xcresult > ${WORKSPACE}/fastlane/test_output/sonarqube-generic-coverage.xml"
-    )
-    
-    if ENV['PR_NUMBER']
-      # PR build - include PR-specific parameters
-      sonar(
-        pull_request_branch: ENV['SOURCE_BRANCH'],
-        pull_request_base: ENV['TARGET_BRANCH'], 
-        pull_request_key: ENV['PR_NUMBER'],
-        project_version: "1.0",
-        project_language: "swift",
-        sonar_token: ENV['SONAR_TOKEN'],
-        sonar_url: "https://sonarcloud.io",
-        sonar_runner_args: "-Dproject.settings=${WORKSPACE}/sonar-project.properties -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=- -Dsonar.coverageReportPaths=${WORKSPACE}/fastlane/test_output/sonarqube-generic-coverage.xml"
-      )
-    else
-      # Main branch build - no PR parameters
-      sonar(
-        branch: ENV['GITHUB_REF_NAME'],
-        project_version: "1.0",
-        project_language: "swift", 
-        sonar_token: ENV['SONAR_TOKEN'],
-        sonar_url: "https://sonarcloud.io",
-        sonar_runner_args: "-Dproject.settings=${WORKSPACE}/sonar-project.properties -Dsonar.c.file.suffixes=- -Dsonar.cpp.file.suffixes=- -Dsonar.objc.file.suffixes=- -Dsonar.coverageReportPaths=${WORKSPACE}/fastlane/test_output/sonarqube-generic-coverage.xml"
-      )
-    end
   end
   
   desc "Deploy to App Store Connect"
