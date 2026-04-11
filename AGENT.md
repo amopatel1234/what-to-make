@@ -231,6 +231,8 @@ Guidance:
 
 Allowed prefixes enforced by the hook:
 
+- `build`
+- `ci`
 - `docs`
 - `fix`
 - `feat`
@@ -242,6 +244,8 @@ Allowed prefixes enforced by the hook:
 
 Meaning of the common types used in this repo:
 
+- `build`: changes to build tooling, packaging, dependency/runtime setup, or generated build inputs
+- `ci`: changes to GitHub Actions, Fastlane automation, or other CI/CD workflow configuration
 - `feat`: a new user-facing or developer-facing feature
 - `fix`: a bug fix
 - `docs`: documentation-only changes
