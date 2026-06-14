@@ -32,7 +32,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 | Concurrency | Swift Concurrency | `async`/`await` only — **no Combine** |
 | Unit tests | Swift Testing | `@Test`, `#expect`; import `@testable import ForkPlan` |
 | UI tests | XCUITest | Launch-argument store modes |
-| CI/CD | Fastlane + GitHub Actions | `macos-15` runners |
+| CI/CD | Fastlane + GitHub Actions | `macos-26` runners |
 | Build | Xcode **26+** (local) | Workspace: `whattomake.xcworkspace`, scheme: `whattomake` |
 | App product | `ForkPlan.app` | Differs from repo name `what-to-make` / `whattomake` |
 
@@ -156,7 +156,7 @@ SCHEME="whattomake" TEST_PLAN="UnitTestsPlan" \
 bundle exec fastlane runUnitTests
 ```
 
-**CI/release:** PR checks in `.github/workflows/pull-request.yml` (unit tests via Fastlane on `macos-15`). Merged-branch workflow handles versioning and TestFlight deploy via `fastlane deploy`.
+**CI/release:** PR checks in `.github/workflows/pull-request.yml` (Conventional Commit title validation + unit tests via `fastlane runUnitTests` on `macos-26`, using the runner’s preinstalled Fastlane). Merged-branch workflow in `.github/workflows/merged.yml` runs [Oliver-Binns/Versioning](https://github.com/Oliver-Binns/Versioning) to create GitHub releases/tags from commit semantics; TestFlight deploy runs only when Versioning produces a new release (skips `chore`/`docs`/`ci`/etc. merges to save CI minutes). **Two version tracks:** GitHub release semver is automated; App Store `MARKETING_VERSION` is set manually in Xcode before release; Fastlane reads marketing version from the project and increments `CURRENT_PROJECT_VERSION` from the latest TestFlight build for that marketing version.
 
 **Commits:** Conventional Commits enforced by `hooks/commit-msg`.
 
