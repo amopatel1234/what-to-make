@@ -11,22 +11,23 @@ jobs:
     runs-on: macos-26
     permissions:
       contents: write
-    
+
     steps:
       - name: Add path globally
         run: echo "/usr/local/bin" >> $GITHUB_PATH
 
       - name: Checkout
         uses: actions/checkout@v4
-          
+
       - name: Increment Version
         id: versioning
-        uses: Oliver-Binns/Versioning@main
+        uses: Oliver-Binns/Versioning@v1.5.0
         with:
           ACTION_TYPE: 'Release'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Distribution P12
+        if: steps.versioning.outputs.release_version != ''
         run: |
           if [ -z "$CERTIFICATE_VALUE" ]; then
             echo "Error: DISTRIBUTION_CERTIFICATE secret is not set"
@@ -37,10 +38,11 @@ jobs:
           CERTIFICATE_VALUE: ${{ secrets.DISTRIBUTION_CERTIFICATE }}
 
       - name: Deploy
+        if: steps.versioning.outputs.release_version != ''
         run: fastlane deploy
         env:
           ISSUER_ID: "69a6de86-2dd0-47e3-e053-5b8c7c11a4d1"
           KEY_ID: "6986A95Z65"
           KEY_VALUE: ${{ secrets.KEY_VALUE }}
           CERTIFICATE_PASSWORD: ${{ secrets.DISTRIBUTION_PASSWORD }}
-          VERSION_NUMBER: ${{ steps.versioning.outputs.release_version }}
+          RELEASE_VERSION: ${{ steps.versioning.outputs.release_version }}

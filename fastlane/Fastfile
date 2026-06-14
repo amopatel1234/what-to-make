@@ -15,15 +15,17 @@
 
 default_platform(:ios)
 platform :ios do
+  PROJECT_NAME = "whattomake.xcodeproj"
+  APP_IDENTIFIER = "amishpatel.whattomake"
+  PROVISIONING_PROFILE_NAME = "ForkPlan App Store"
 
   desc "Run unit test and upload test coverage"
   lane :runUnitTests do
-    # Validate required environment variables
     required_vars = ['WORKSPACE', 'WORKSPACE_FILENAME', 'SCHEME', 'TEST_PLAN']
     required_vars.each do |var|
       UI.user_error!("Missing required environment variable: #{var}") unless ENV[var]
     end
-    
+
     run_tests(
       workspace: ENV["WORKSPACE_FILENAME"],
       scheme: ENV["SCHEME"],
@@ -31,13 +33,22 @@ platform :ios do
       result_bundle: true,
     )
   end
-  
+
   desc "Deploy to App Store Connect"
   lane :deploy do
-    if ENV["VERSION_NUMBER"].nil? || ENV["VERSION_NUMBER"].empty?
-      UI.important 'nothing to deploy'
+    release_version = ENV["RELEASE_VERSION"]
+    if release_version.nil? || release_version.empty?
+      UI.important("Nothing to deploy: no GitHub release was created for this merge")
       next
     end
+
+    marketing_version = get_version_number(
+      xcodeproj: PROJECT_NAME,
+      configuration: "Release"
+    )
+
+    UI.message("GitHub release version: #{release_version}")
+    UI.message("App Store marketing version (from Xcode): #{marketing_version}")
 
     app_store_connect_api_key(
       key_id: ENV["KEY_ID"],
@@ -61,75 +72,32 @@ platform :ios do
         keychain_password: password,
         keychain_name: keychain_name
       )
-      
-      # Get the latest build number for this version
-      version = ENV["VERSION_NUMBER"]
-      begin
-        latest_build = latest_testflight_build_number(version: version)
-        build_number = latest_build + 1
-      rescue
-        build_number = 1 # First build for this version
-      end
-    
-      # Update build number 
+
+      build_number = latest_testflight_build_number(
+        app_identifier: APP_IDENTIFIER,
+        version: marketing_version
+      ) + 1
+
       increment_build_number(
         build_number: build_number,
-        xcodeproj: "whattomake.xcodeproj"
+        xcodeproj: PROJECT_NAME
       )
-      
-      # Resolve repo root no matter where Fastlane runs from
-	  repo_root =
-  	  if ENV["GITHUB_WORKSPACE"] && File.directory?(ENV["GITHUB_WORKSPACE"])
-    	 ENV["GITHUB_WORKSPACE"]
-  	  else
-    	File.expand_path("..", __dir__)  # __dir__ is fastlane/; go up to repo root
-  	  end
 
-	  # Find your .xcodeproj at the repo root
-	  candidates = Dir[File.join(repo_root, "*.xcodeproj")]
-	  UI.user_error!("No .xcodeproj found in #{repo_root}") if candidates.empty?
-	  # If you have more than one, pick by name; otherwise take the first
-	  xcodeproj_path = candidates.find { |p| File.basename(p) == "whattomake.xcodeproj" } || candidates.first
-
-	  UI.message("Opening Xcode project at: #{xcodeproj_path}")
-	  target_names   = ['whattomake']     # add extension target names here if needed
-	  configs_to_set = ['Release']        # or %w[Debug Release] if you want both
-
-	  require 'xcodeproj'
-	  proj = Xcodeproj::Project.open(xcodeproj_path)
-
-	  # 1) Project-level configs (some projects read from here)
-	  proj.build_configurations.each do |cfg|
-  	  	next unless configs_to_set.include?(cfg.name)
-  	  	cfg.build_settings['MARKETING_VERSION'] = version
-	  end
-
-	  # 2) Target-level configs (Xcode resolves target > project)
-	  proj.targets.each do |t|
-  		next unless target_names.include?(t.name)
-  		t.build_configurations.each do |cfg|
-    	next unless configs_to_set.include?(cfg.name)
-    	cfg.build_settings['MARKETING_VERSION'] = version
-  		end
-	  end
-
-	  proj.save
-
-	  UI.message("Set MARKETING_VERSION=#{version} for #{target_names.join(', ')} [#{configs_to_set.join(', ')}]")
+      UI.message("Build number for #{marketing_version}: #{build_number}")
 
       get_provisioning_profile(
         readonly: true,
-        app_identifier: "amishpatel.whattomake",
-        provisioning_name: "ForkPlan App Store"
+        app_identifier: APP_IDENTIFIER,
+        provisioning_name: PROVISIONING_PROFILE_NAME
       )
-      
+
       update_code_signing_settings(
         use_automatic_signing: false,
         code_sign_identity: "Apple Distribution",
-        profile_name: "ForkPlan App Store",
+        profile_name: PROVISIONING_PROFILE_NAME,
         targets: "whattomake"
       )
-      
+
       ipa_path = gym(
         workspace: "whattomake.xcworkspace",
         scheme: "whattomake",
@@ -140,36 +108,6 @@ platform :ios do
 
       UI.success("Built IPA at: #{ipa_path}")
 
-  	  # --- Inspect the IPA's embedded Info.plist (what ASC will read) ---
-  	  # Prints the two keys; this is definitive.
-  	  sh(%Q{
-    	set -o pipefail
-    	unzip -p "#{ipa_path}" "Payload/*.app/Info.plist" \
-      	| plutil -p - 2>/dev/null \
-      	| egrep 'CFBundleShortVersionString|CFBundleVersion' || true
-  	  })
-
-  	  # Optional: expose values to GitHub Actions outputs (handy for logs/annotations)
-  	  if ENV["GITHUB_OUTPUT"]
-      	  # Parse values directly from the built IPA’s Info.plist
-  		  ipa_version = sh(%Q{
-    	  	unzip -p "#{ipa_path}" "Payload/*.app/Info.plist" \
-      	  	| plutil -extract CFBundleShortVersionString xml1 -o - - \
-      		| plutil -p - 2>/dev/null
-  		  }).strip.gsub(/["\n]/, '')
-
-  		  ipa_build = sh(%Q{
-    		unzip -p "#{ipa_path}" "Payload/*.app/Info.plist" \
-      		| plutil -extract CFBundleVersion xml1 -o - - \
-      		| plutil -p - 2>/dev/null
-  	  	  }).strip.gsub(/["\n]/, '')
-
-  		  UI.message("Exporting GitHub outputs -> version=#{ipa_version}, build=#{ipa_build}")
-
-  		  sh(%Q{echo "marketing_version=#{ipa_version}" >> "$GITHUB_OUTPUT"})
-  		  sh(%Q{echo "build_number=#{ipa_build}" >> "$GITHUB_OUTPUT"})
-  	  end
-  	  
       upload_to_testflight(
         skip_submission: true,
         app_platform: "ios",

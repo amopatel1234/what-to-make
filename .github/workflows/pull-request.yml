@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [ opened, reopened, synchronize, ready_for_review ]
     branches: [ main, develop ]
-    
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -24,10 +24,10 @@ jobs:
 
       - name: Validate Pull Request Name
         id: versioning
-        uses: Oliver-Binns/Versioning@main
+        uses: Oliver-Binns/Versioning@v1.5.0
         with:
           ACTION_TYPE: 'Validate'
-          
+
       - name: Run Unit Tests
         env:
           WORKSPACE: ${{ github.workspace }}
