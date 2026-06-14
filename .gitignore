@@ -91,3 +91,8 @@ iOSInjectionProject/
 .DS_Store
 Tests/.DS_Store
 .DS_Store
+
+.agents/
+_bmad/
+_bmad-output
+.DS_Store

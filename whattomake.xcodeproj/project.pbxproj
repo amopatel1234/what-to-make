@@ -78,7 +78,6 @@
 /* Begin PBXFileReference section */
 		3B47D5F62E49662F00E22A4B /* CountRecipesUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountRecipesUseCase.swift; sourceTree = "<group>"; };
 		3B47D6012E4E3BE000E22A4B /* ImageCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCodec.swift; sourceTree = "<group>"; };
-		3B47D6052E4F0EAD00E22A4B /* Context.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Context.md; sourceTree = "<group>"; };
 		3B5E9E742AE07F9B00293473 /* ForkPlan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ForkPlan.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B5E9E7D2AE07F9D00293473 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3B5E9E802AE07F9D00293473 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -159,18 +158,9 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		3B47D6032E4F0EA200E22A4B /* Docs */ = {
-			isa = PBXGroup;
-			children = (
-				3B47D6052E4F0EAD00E22A4B /* Context.md */,
-			);
-			path = Docs;
-			sourceTree = "<group>";
-		};
 		3B5E9E6B2AE07F9B00293473 = {
 			isa = PBXGroup;
 			children = (
-				3B47D6032E4F0EA200E22A4B /* Docs */,
 				3B5E9E762AE07F9B00293473 /* Sources */,
 				3B5E9EA52AE0850A00293473 /* Supporting Files */,
 				3BFF4A672E507C3900022454 /* TestPlans */,
@@ -695,7 +685,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Supporting Files/whattomake.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 0;
 				DEVELOPMENT_ASSET_PATHS = "\"Supporting Files/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -712,7 +702,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = amishpatel.whattomake;
 				PRODUCT_NAME = ForkPlan;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -732,7 +722,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Supporting Files/whattomake.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 0;
 				DEVELOPMENT_ASSET_PATHS = "\"Supporting Files/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -749,7 +739,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = amishpatel.whattomake;
 				PRODUCT_NAME = ForkPlan;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
