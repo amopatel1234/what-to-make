@@ -94,14 +94,14 @@ User action (view)
 | Recipe list | `@Query(sort: \Recipe.name)` |
 | Latest menu | `@Query` via `Menu.latestDescriptor()` → `menus.first` |
 | Day toggles | `@AppStorage` via `DaySelectionStorage` + `AppStorageKey` |
-| Transient UI | `@State` or thin `@Observable` coordinator |
+| Transient UI | `@State` or thin `@Observable` coordinator (transitional until Epic 1 ViewModel deletion) |
 | Writes | `@Environment(\.modelContext)` in views / `MenuPersistence` |
 | Async UI | `Task { @MainActor in ... }` |
 
 **SwiftUI patterns:**
 
 - `@Query` auto-loads data — do not wire manual fetch/load paths.
-- Thin `@Observable` coordinators hold transient UI state only (validation messages, generation in-flight).
+- Thin `@Observable` coordinators hold transient UI state only (validation messages, generation in-flight) — transitional until Epic 1 ViewModel deletion; do not add new ViewModels.
 - Menu list rows must render from **snapshot value tuples** `(day: String, name: String)`, not live `@Model` objects — prevents Form diffing crashes.
 - Map before `ForEach`: `Array(zip(menu.days, menu.recipes.map(\.name)))`.
 - Dynamic `@Query` filters: use subview `init` with `_query = Query(...)` — never inline predicate on changing `@State`.
@@ -111,7 +111,7 @@ User action (view)
 
 - Normal launches use a **persistent** `ModelContainer` only — no launch-argument store modes.
 - Menu lifecycle: **delete-before-insert** on regenerate — `MenuPersistence.replaceMenu(with:in:)` deletes all existing `Menu` records before inserting the new one.
-- Latest menu: `@Query(sort: \Menu.generatedDate, order: .reverse)` → display `menus.first`.
+- Latest menu: `@Query` via `Menu.latestDescriptor()` → display `menus.first`.
 - Recipe fields: `name` (required), `notes` (optional), `usageCount`, `thumbnailBase64`, `imageFilename`.
 - Menu fields: `generatedDate`, `days`, `recipes` (snapshot of selected recipes).
 - **No ingredient list** in the current product — do not reintroduce ingredient-related logic, identifiers, or tests.
@@ -220,7 +220,7 @@ bundle exec fastlane runUnitTests
 
 Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor`, `perf`, `test`. Scope is optional; prefer unscoped messages unless scope adds clarity (e.g. `fix(menu): handle empty state`).
 
-**PR review priorities** (see `.github/copilot-instructions.md`):
+**PR review priorities** (see `.github/copilot-instructions.md` — **stale until Epic 2**; still describes legacy Clean Architecture):
 
 1. Functional regressions
 2. Data-loss / persistence risks
