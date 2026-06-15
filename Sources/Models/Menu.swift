@@ -14,6 +14,10 @@ import SwiftData
 /// at the time of generation. The UI should render rows from this snapshot
 /// (day + recipe name) to avoid diffing against live, mutable models.
 ///
+/// **Delete semantics:** ``recipes`` uses ``Relationship/deleteRule`` `.nullify`.
+/// Deleting a menu snapshot (e.g. during delete-before-insert regenerate) removes the
+/// ``Menu`` record only — linked ``Recipe`` records remain in the library.
+///
 /// Example
 /// ```swift
 /// let menu = Menu(days: ["Mon", "Wed"], recipes: [r1, r2])
@@ -27,6 +31,10 @@ final class Menu {
     /// The ordered list of day identifiers (e.g., "Mon", "Tue").
     var days: [String]
     /// The recipes chosen for the corresponding ``days`` entries.
+    ///
+    /// Delete rule `.nullify`: removing this menu does not delete recipes.
+    /// The menu holds references to recipes as they existed at generation time.
+    @Relationship(deleteRule: .nullify)
     var recipes: [Recipe]
 
     /// Creates a new menu snapshot.
