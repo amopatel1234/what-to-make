@@ -24,6 +24,8 @@ bundle install
 
 ## Tests
 
+Unit and future snapshot tests run on the pinned **iPhone 17 Pro** simulator. See [`docs/project-context.md`](docs/project-context.md) for the snapshot re-record workflow.
+
 ```bash
 # Unit tests
 xcodebuild \

@@ -18,6 +18,7 @@ platform :ios do
   PROJECT_NAME = "whattomake.xcodeproj"
   APP_IDENTIFIER = "amishpatel.whattomake"
   PROVISIONING_PROFILE_NAME = "ForkPlan App Store"
+  PINNED_TEST_DESTINATION = "platform=iOS Simulator,name=iPhone 17 Pro"
 
   desc "Run unit test and upload test coverage"
   lane :runUnitTests do
@@ -30,6 +31,8 @@ platform :ios do
       workspace: ENV["WORKSPACE_FILENAME"],
       scheme: ENV["SCHEME"],
       testplan: ENV["TEST_PLAN"],
+      destination: PINNED_TEST_DESTINATION,
+      ensure_devices_found: true,
       result_bundle: true,
     )
   end

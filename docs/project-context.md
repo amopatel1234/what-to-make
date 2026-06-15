@@ -141,7 +141,7 @@ Sources/
   DesignSystem/  unchanged
 Tests/
   Fixtures/      makeTestContainer() (Story 0.3)
-  __Snapshots__/ iPhone17Pro-iOS26/ (Story 0.5+)
+  __Snapshots__/ iPhone17Pro-iOS26/ (see Tests/__Snapshots__/iPhone17Pro-iOS26/README.md)
 ```
 
 ### Testing Rules
@@ -157,9 +157,24 @@ Tests/
 **Snapshot tests (`Tests/`):**
 
 - Library: Point-Free **swift-snapshot-testing** (`import SnapshotTesting`); linked to `whattomakeTests` only.
-- Baselines: `Tests/__Snapshots__/iPhone17Pro-iOS26/` — light mode, fixed locale, standard Dynamic Type.
+- Baselines: `Tests/__Snapshots__/iPhone17Pro-iOS26/` — see [`Tests/__Snapshots__/iPhone17Pro-iOS26/README.md`](../Tests/__Snapshots__/iPhone17Pro-iOS26/README.md) for slug convention and recording workflow.
 - Re-record locally only: `RECORD_SNAPSHOTS=1` — **never** in CI.
 - Snapshot tests seed data directly via `makeTestContainer()` — no launch arguments.
+
+**Device slug mapping:**
+
+| Simulator destination | Device slug folder |
+|-----------------------|-------------------|
+| `platform=iOS Simulator,name=iPhone 17 Pro` | `Tests/__Snapshots__/iPhone17Pro-iOS26/` |
+
+**Baseline recording settings** (Epic 2 snapshot tests must apply):
+
+| Setting | Required value | Notes |
+|---------|----------------|-------|
+| Color scheme | Light | `.preferredColorScheme(.light)` or `@Environment(\.colorScheme)` override in test host |
+| Locale | `en_US` | Set via test `Locale` environment or view modifier — pick one approach and document for Epic 2 |
+| Dynamic Type | Standard (`.large` / default) | Do not use accessibility sizes in baseline snapshots |
+| Simulator | iPhone 17 Pro | Must match CI Fastfile destination |
 
 **Removed (do not reintroduce):**
 
@@ -204,13 +219,13 @@ RECORD_SNAPSHOTS=1 xcodebuild -workspace whattomake.xcworkspace -scheme whattoma
   -testPlan UnitTestsPlan \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
 
-# CI-equivalent via Fastlane
+# CI-equivalent via Fastlane (pinned iPhone 17 Pro via PINNED_TEST_DESTINATION in Fastfile)
 WORKSPACE="$PWD" WORKSPACE_FILENAME="whattomake.xcworkspace" \
 SCHEME="whattomake" TEST_PLAN="UnitTestsPlan" \
 bundle exec fastlane runUnitTests
 ```
 
-**CI/release:** PR checks in `.github/workflows/pull-request.yml` (Conventional Commit title validation + unit tests via `fastlane runUnitTests` on `macos-26`, using the runner's preinstalled Fastlane). Merged-branch workflow in `.github/workflows/merged.yml` runs [Oliver-Binns/Versioning](https://github.com/Oliver-Binns/Versioning) to create GitHub releases/tags from commit semantics; TestFlight deploy runs only when Versioning produces a new release (skips `chore`/`docs`/`ci`/etc. merges to save CI minutes). **Two version tracks:** GitHub release semver is automated; App Store `MARKETING_VERSION` is set manually in Xcode before release; Fastlane reads marketing version from the project and increments `CURRENT_PROJECT_VERSION` from the latest TestFlight build for that marketing version.
+**CI/release:** PR checks in `.github/workflows/pull-request.yml` (Conventional Commit title validation + unit tests via `fastlane runUnitTests` on `macos-26`, using the runner's preinstalled Fastlane). The `runUnitTests` lane pins the test destination to **iPhone 17 Pro** via `PINNED_TEST_DESTINATION` in `fastlane/Fastfile`. Merged-branch workflow in `.github/workflows/merged.yml` runs [Oliver-Binns/Versioning](https://github.com/Oliver-Binns/Versioning) to create GitHub releases/tags from commit semantics; TestFlight deploy runs only when Versioning produces a new release (skips `chore`/`docs`/`ci`/etc. merges to save CI minutes). **Two version tracks:** GitHub release semver is automated; App Store `MARKETING_VERSION` is set manually in Xcode before release; Fastlane reads marketing version from the project and increments `CURRENT_PROJECT_VERSION` from the latest TestFlight build for that marketing version.
 
 **Commits:** Conventional Commits enforced by `hooks/commit-msg`.
 
