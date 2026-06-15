@@ -59,6 +59,7 @@
 		3C0A00022E60A00100000002 /* SnapshotTestingSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00012E60A00100000001 /* SnapshotTestingSmokeTests.swift */; };
 		3C0A00112E60B00300000002 /* TestModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00102E60B00300000001 /* TestModelContainer.swift */; };
 		3C0A00132E60B00300000004 /* TestModelContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00122E60B00300000003 /* TestModelContainerTests.swift */; };
+		3C0A00162E60C00400000002 /* MenuEmptyStateCopy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00152E60C00400000001 /* MenuEmptyStateCopy.swift */; };
 		3C0A00052E60A00100000005 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3C0A00042E60A00100000004 /* SnapshotTesting */; };
 /* End PBXBuildFile section */
 
@@ -138,6 +139,7 @@
 		3C0A00012E60A00100000001 /* SnapshotTestingSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotTestingSmokeTests.swift; sourceTree = "<group>"; };
 		3C0A00102E60B00300000001 /* TestModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestModelContainer.swift; sourceTree = "<group>"; };
 		3C0A00122E60B00300000003 /* TestModelContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestModelContainerTests.swift; sourceTree = "<group>"; };
+		3C0A00152E60C00400000001 /* MenuEmptyStateCopy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuEmptyStateCopy.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -196,6 +198,7 @@
 				3BAD928B2E49390A009DCBAE /* UseCases */,
 				3BAD92832E4937F6009DCBAE /* Repositories */,
 				3B5E9EA72AE08B3F00293473 /* Models */,
+				3C0A00172E60C00400000003 /* Helpers */,
 				3B5E9EA62AE0853000293473 /* Application */,
 				3BAFB0BB2E537D0C001B185B /* DesignSystem */,
 			);
@@ -296,6 +299,14 @@
 				3C0A00102E60B00300000001 /* TestModelContainer.swift */,
 			);
 			path = Fixtures;
+			sourceTree = "<group>";
+		};
+		3C0A00172E60C00400000003 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				3C0A00152E60C00400000001 /* MenuEmptyStateCopy.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		3BAD928B2E49390A009DCBAE /* UseCases */ = {
@@ -528,6 +539,7 @@
 				3BAD92AA2E493AA6009DCBAE /* MenuRepository.swift in Sources */,
 				3BAD92AB2E493AA6009DCBAE /* RecipeRepository.swift in Sources */,
 				3BAD92AC2E493AA6009DCBAE /* Menu.swift in Sources */,
+				3C0A00162E60C00400000002 /* MenuEmptyStateCopy.swift in Sources */,
 				3BAD92AD2E493AA6009DCBAE /* Recipe.swift in Sources */,
 				3BAFB0C52E537D72001B185B /* Layout.swift in Sources */,
 				3BAD92AE2E493AA6009DCBAE /* WeeklyMenuApp.swift in Sources */,
