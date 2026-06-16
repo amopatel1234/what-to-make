@@ -50,3 +50,10 @@ final class Menu {
         self.recipes = recipes
     }
 }
+
+extension Menu {
+    /// Fetch descriptor for the latest generated menu (`generatedDate` descending).
+    static func latestDescriptor() -> FetchDescriptor<Menu> {
+        FetchDescriptor(sortBy: [SortDescriptor(\Menu.generatedDate, order: .reverse)])
+    }
+}
