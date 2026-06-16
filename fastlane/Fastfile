@@ -76,10 +76,16 @@ platform :ios do
         keychain_name: keychain_name
       )
 
-      build_number = latest_testflight_build_number(
-        app_identifier: APP_IDENTIFIER,
-        version: marketing_version
-      ) + 1
+      begin
+        latest_build = latest_testflight_build_number(
+          app_identifier: APP_IDENTIFIER,
+          version: marketing_version
+        )
+        build_number = latest_build + 1
+      rescue => e
+        UI.important("No TestFlight builds found for #{marketing_version}: #{e.message}")
+        build_number = 1
+      end
 
       increment_build_number(
         build_number: build_number,
