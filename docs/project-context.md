@@ -235,6 +235,8 @@ bundle exec fastlane runUnitTests
 
 Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor`, `perf`, `test`. Scope is optional; prefer unscoped messages unless scope adds clarity (e.g. `fix(menu): handle empty state`).
 
+**PR descriptions:** Short prose only — 2–3 paragraphs summarizing what changed and why. Do **not** include a test plan, checklist, or `## Summary` / `## Test plan` sections; CI runs tests automatically.
+
 **PR review priorities** (see `.github/copilot-instructions.md` — **stale until Epic 2**; still describes legacy Clean Architecture):
 
 1. Functional regressions
