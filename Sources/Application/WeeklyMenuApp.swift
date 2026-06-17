@@ -11,6 +11,10 @@ import SwiftData
 
 @main
 struct WeeklyMenuApp: App {
+    init() {
+        DaySelectionStorage.registerDefaults()
+    }
+
     var body: some Scene {
         let mode = StoreMode.current()
         WindowGroup {

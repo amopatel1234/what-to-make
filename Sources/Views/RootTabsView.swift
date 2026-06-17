@@ -19,11 +19,8 @@ struct RootTabsView: View {
 
     var body: some View {
         let recipeRepo = SwiftDataRecipeRepository(context: modelContext)
-        let menuRepo = SwiftDataMenuRepository(context: modelContext)
         let fetchUseCase = FetchRecipesUseCase(repository: recipeRepo)
         let deleteUseCase = DeleteRecipeUseCase(repository: recipeRepo)
-        let generateUseCase = GenerateMenuUseCase(recipeRepository: recipeRepo, menuRepository: menuRepo)
-        let countUseCase = CountRecipesUseCase(repository: recipeRepo)
 
         TabView(selection: $selectedTab) {
             RecipesView(
@@ -39,12 +36,7 @@ struct RootTabsView: View {
             .tabItem { Label("Recipes", systemImage: "book") }
             .tag(0)
 
-            GenerateMenuView(
-                viewModel: GenerateMenuViewModel(
-                    generateUseCase: generateUseCase,
-                    countRecipesUseCase: countUseCase
-                )
-            )
+            GenerateMenuView()
             .tabItem { Label("Menu", systemImage: "calendar") }
             .tag(1)
         }
