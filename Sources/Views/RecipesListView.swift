@@ -5,19 +5,19 @@
 //  Created by Amish Patel on 10/08/2025.
 //
 import SwiftUI
-import Observation
+import SwiftData
 
 struct RecipesView: View {
-    @Bindable var listVM: RecipesListViewModel
+    @Query(sort: \Recipe.name) private var recipes: [Recipe]
+    @Environment(\.modelContext) private var modelContext
     @State private var showAdd = false
-    let makeAddVM: (Recipe?) -> AddRecipeViewModel
-    @State var selectedRecipe: Recipe? = nil
-    
+    @State private var selectedRecipe: Recipe?
+    @State private var deleteErrorMessage: String?
+
     var body: some View {
         NavigationStack {
             Group {
-                if listVM.recipes.isEmpty {
-                    // Empty state
+                if recipes.isEmpty {
                     VStack(spacing: 16) {
                         ContentUnavailableView(
                             "No Recipes",
@@ -27,21 +27,19 @@ struct RecipesView: View {
                     }
                     .padding(.horizontal, FpLayout.screenPadding)
                     .accessibilityIdentifier("emptyRecipesView")
-                    
+
                 } else {
-                    // List of recipes
                     List {
-                        ForEach(listVM.recipes, id: \.id) { recipe in
+                        ForEach(recipes, id: \.id) { recipe in
                             HStack(spacing: 12) {
-                                // Thumbnail OR placeholder
                                 RecipeThumbView(base64: recipe.thumbnailBase64)
-                                
+
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(recipe.name)
                                         .font(FpTypography.body)
                                         .foregroundStyle(Color.fpLabel)
                                         .accessibilityIdentifier("recipeName_\(recipe.name)")
-                                    
+
                                     if let notes = recipe.notes, !notes.isEmpty {
                                         Text(notes)
                                             .font(FpTypography.caption)
@@ -55,15 +53,15 @@ struct RecipesView: View {
                                 selectedRecipe = recipe
                             }
                         }
-                        .onDelete(perform: listVM.delete)
+                        .onDelete(perform: deleteRecipes)
                     }
                     .accessibilityIdentifier("recipesList")
                     .listStyle(.plain)
-                    .scrollContentBackground(.hidden)          // show fpBackground behind the list
+                    .scrollContentBackground(.hidden)
                 }
             }
             .navigationTitle("Recipes")
-            .tint(Color.fpAccent)                             // local tint (remove if you apply fpAppTheme at root)
+            .tint(Color.fpAccent)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -74,48 +72,83 @@ struct RecipesView: View {
                     .accessibilityIdentifier("addRecipeButton")
                 }
             }
-            .onAppear { listVM.load() }
-            .sheet(isPresented: $showAdd, onDismiss: { listVM.load() }) {
-                let addVM = makeAddVM(nil)
-                NavigationStack {
-                    AddRecipeView(viewModel: addVM)
-                        .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
-                                Button("Cancel") { showAdd = false }
-                                    .accessibilityIdentifier("cancelAddRecipeButton")
-                            }
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button("Save") {
-                                    Task {
-                                        if await addVM.saveRecipe() { showAdd = false }
-                                    }
-                                }
-                                .accessibilityIdentifier("saveRecipeButton")
-                            }
-                        }
-                }
+            .sheet(isPresented: $showAdd) {
+                AddRecipeSheetContent(existingRecipe: nil, onDismiss: { showAdd = false })
             }
-            .sheet(item: $selectedRecipe, onDismiss: { listVM.load() }) { recipe in
-                let editVM = makeAddVM(recipe)
-                NavigationStack {
-                    AddRecipeView(viewModel: editVM)
-                        .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
-                                Button("Cancel") { selectedRecipe = nil }
-                                    .accessibilityIdentifier("cancelAddRecipeButton")
-                            }
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button("Save") {
-                                    Task {
-                                        if await editVM.saveRecipe() { selectedRecipe = nil }
-                                    }
-                                }
-                                .accessibilityIdentifier("saveRecipeButton")
-                            }
-                        }
+            .sheet(item: $selectedRecipe) { recipe in
+                AddRecipeSheetContent(existingRecipe: recipe, onDismiss: { selectedRecipe = nil })
+            }
+            .alert("Could Not Delete Recipe", isPresented: deleteErrorPresented) {
+                Button("OK", role: .cancel) { deleteErrorMessage = nil }
+            } message: {
+                if let deleteErrorMessage {
+                    Text(deleteErrorMessage)
                 }
             }
             .background(Color.fpBackground)
+        }
+    }
+
+    private var deleteErrorPresented: Binding<Bool> {
+        Binding(
+            get: { deleteErrorMessage != nil },
+            set: { if !$0 { deleteErrorMessage = nil } }
+        )
+    }
+
+    private func deleteRecipes(at offsets: IndexSet) {
+        for index in offsets {
+            let recipe = recipes[index]
+            if let filename = recipe.imageFilename {
+                ImageStore.delete(named: filename)
+            }
+            modelContext.delete(recipe)
+        }
+        do {
+            try modelContext.save()
+            deleteErrorMessage = nil
+        } catch {
+            deleteErrorMessage = error.localizedDescription
+        }
+    }
+}
+
+private struct AddRecipeSheetContent: View {
+    let existingRecipe: Recipe?
+    let onDismiss: () -> Void
+    @State private var coordinator: AddRecipeCoordinator
+    @Environment(\.modelContext) private var modelContext
+
+    init(existingRecipe: Recipe?, onDismiss: @escaping () -> Void) {
+        self.existingRecipe = existingRecipe
+        self.onDismiss = onDismiss
+        let coordinator = AddRecipeCoordinator()
+        if let existingRecipe {
+            coordinator.load(from: existingRecipe)
+        }
+        _coordinator = State(initialValue: coordinator)
+    }
+
+    var body: some View {
+        NavigationStack {
+            AddRecipeView(existingRecipe: existingRecipe, coordinator: coordinator)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel", action: onDismiss)
+                            .accessibilityIdentifier("cancelAddRecipeButton")
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            Task { @MainActor in
+                                if await coordinator.save(existingRecipe: existingRecipe, in: modelContext) {
+                                    onDismiss()
+                                }
+                            }
+                        }
+                        .disabled(coordinator.isSaving)
+                        .accessibilityIdentifier("saveRecipeButton")
+                    }
+                }
         }
     }
 }
@@ -125,10 +158,9 @@ struct RecipesView: View {
 /// - fpSurface background + subtle stroke for dark mode
 private struct RecipeThumbView: View {
     let base64: String?
-    
+
     var body: some View {
         ZStack {
-            // Surface background for both thumb and placeholder
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color.fpSurface)
                 .frame(width: 44, height: 44)
@@ -136,7 +168,7 @@ private struct RecipeThumbView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.fpSeparator.opacity(0.25), lineWidth: 0.5)
                 )
-            
+
             if let base64, let ui = ImageCodec.image(fromBase64: base64) {
                 Image(uiImage: ui)
                     .resizable()
@@ -155,36 +187,17 @@ private struct RecipeThumbView: View {
 }
 
 #if DEBUG
-@MainActor
-private final class PreviewMockRecipeRepository: RecipeRepository {
-    private var storage: [Recipe]
-    init(initial: [Recipe] = []) { self.storage = initial }
-    func add(_ recipe: Recipe) async throws { storage.append(recipe) }
-    func update(_ recipe: Recipe) async throws {
-        if let idx = storage.firstIndex(where: { $0.id == recipe.id }) { storage[idx] = recipe }
-    }
-    func delete(_ recipe: Recipe) async throws { storage.removeAll { $0.id == recipe.id } }
-    func fetchAll() async throws -> [Recipe] { storage }
-}
-
 #Preview("Empty") {
-    let repo = PreviewMockRecipeRepository(initial: [])
-    let fetch = FetchRecipesUseCase(repository: repo)
-    let delete = DeleteRecipeUseCase(repository: repo)
-    let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
-    RecipesView(listVM: vm, makeAddVM: { _ in
-        AddRecipeViewModel(addRecipeUseCase: AddRecipeUseCase(repository: repo), updateRecipeUseCase: UpdateRecipesUseCase(repository: repo))
-    })
+    RecipesView()
+        .modelContainer(for: Recipe.self, inMemory: true)
 }
 
 #Preview("With Recipes") {
-    let repo = PreviewMockRecipeRepository(initial: [
-        Recipe(name: "Pasta", notes: "Family favorite"),
-        Recipe(name: "Tacos", notes: "Tuesday special")
-    ])
-    let fetch = FetchRecipesUseCase(repository: repo)
-    let delete = DeleteRecipeUseCase(repository: repo)
-    let vm = RecipesListViewModel(fetchUseCase: fetch, deleteUseCase: delete)
-    
+    let container = try! ModelContainer(for: Recipe.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    let context = container.mainContext
+    context.insert(Recipe(name: "Pasta", notes: "Family favorite"))
+    context.insert(Recipe(name: "Tacos", notes: "Tuesday special"))
+    return RecipesView()
+        .modelContainer(container)
 }
 #endif
