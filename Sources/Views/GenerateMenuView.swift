@@ -6,14 +6,6 @@
 //
 import SwiftUI
 import SwiftData
-import Observation
-
-@MainActor
-@Observable
-final class GenerateMenuCoordinator {
-    var errorMessage: String?
-    var isGenerating = false
-}
 
 struct GenerateMenuView: View {
     @Query(sort: \Recipe.name) private var recipes: [Recipe]
