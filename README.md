@@ -35,14 +35,6 @@ xcodebuild \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   test
 
-# UI tests
-xcodebuild \
-  -workspace whattomake.xcworkspace \
-  -scheme whattomake \
-  -testPlan UITestsPlan \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-  test
-
 # Same as CI
 WORKSPACE="$PWD" WORKSPACE_FILENAME="whattomake.xcworkspace" \
 SCHEME="whattomake" TEST_PLAN="UnitTestsPlan" \
