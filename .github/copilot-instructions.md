@@ -35,7 +35,7 @@ This repository is an iOS app built with:
 - SwiftData
 - Swift Concurrency (`async`/`await`)
 - Swift Testing for unit tests
-- XCUITest for UI tests
+- swift-snapshot-testing for visual regression tests (Epic 2)
 
 Current product rules:
 
@@ -126,13 +126,6 @@ Important identifiers:
 - `menuItem_<Day>`
 - `menuRecipesRequirementMessage`
 - `menuValidationMessage`
-- `debug_*`
-
-Protect these launch-argument test hooks:
-
-- `-ui-tests-blank`
-- `-ui-tests-seeded`
-- `-debug-menu`
 
 ## Repo-specific review rules
 
@@ -157,8 +150,6 @@ You should call out missing or weak coverage when a diff affects:
 - recipe persistence
 - image handling
 - accessibility identifiers
-- launch-argument behavior
-- view model state transitions
 - error handling paths
 
 Missing tests are especially important when the changed behavior is user-visible, persistence-related, or async.
