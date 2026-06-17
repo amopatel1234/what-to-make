@@ -67,7 +67,7 @@ final class AddRecipeCoordinator {
 
         if existingRecipe == nil {
             guard !name.trimmingCharacters(in: .whitespaces).isEmpty else {
-                errorMessage = RecipeError.emptyName.localizedDescription
+                errorMessage = "Recipe name is required."
                 return false
             }
         }
