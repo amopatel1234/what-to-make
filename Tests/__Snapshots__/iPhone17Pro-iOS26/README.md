@@ -42,6 +42,6 @@ RECORD_SNAPSHOTS=1 xcodebuild -workspace whattomake.xcworkspace -scheme whattoma
 
 ## CI
 
-Never set `RECORD_SNAPSHOTS=1` in GitHub Actions. **Compare mode on CI is deferred to Story 2.2** — baselines are recorded locally on iPhone 17 Pro; the `macos-26` runner renders differently. `SnapshotTestConfiguration` skips snapshot assertions on CI (`GITHUB_ACTIONS`/`CI`, or `/Users/runner` home when env vars do not propagate through `TEST_HOST`). Unit tests still run on CI; snapshot compare runs locally before merge.
+Never set `RECORD_SNAPSHOTS=1` in GitHub Actions. **Compare mode on CI is deferred to Story 2.2** — baselines are recorded locally on iPhone 17 Pro; the `macos-26` runner renders differently. `SnapshotTestConfiguration` skips snapshot assertions on CI (detected via env vars or `/Users/runner/` in the test bundle path when `TEST_HOST` swallows workflow env). Unit tests still run on CI; snapshot compare runs locally before merge.
 
 See `docs/project-context.md` → Testing Rules → Snapshot tests for full workflow documentation.

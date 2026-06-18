@@ -15,13 +15,13 @@ enum SnapshotTestConfiguration {
 
     /// True when running on GitHub Actions / CI (compare and record both disabled).
     ///
-    /// `GITHUB_ACTIONS` from the workflow step often does not propagate into `TEST_HOST`
-    /// (`ForkPlan.app`); fall back to runner home path on GitHub-hosted macOS.
+    /// Workflow env vars (`GITHUB_ACTIONS`, etc.) often do not propagate into `TEST_HOST`
+    /// (`ForkPlan.app`). The test `.xctest` bundle path on GitHub-hosted macOS includes
+    /// `/Users/runner/`.
     static var isCI: Bool {
         let env = ProcessInfo.processInfo.environment
         if env["GITHUB_ACTIONS"] == "true" || env["CI"] == "true" { return true }
-        if env["HOME"] == "/Users/runner" { return true }
-        return FileManager.default.fileExists(atPath: "/Users/runner")
+        return Bundle.allBundles.contains { $0.bundlePath.contains("/Users/runner/") }
     }
 
     static let snapshotDirectory: String = {
