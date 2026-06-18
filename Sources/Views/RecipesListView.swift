@@ -124,7 +124,7 @@ private struct AddRecipeSheetContent: View {
         self.onDismiss = onDismiss
         let coordinator = AddRecipeCoordinator()
         if let existingRecipe {
-            coordinator.load(from: existingRecipe)
+            coordinator.loadExistingRecipe(from: existingRecipe)
         }
         _coordinator = State(initialValue: coordinator)
     }
