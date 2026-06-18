@@ -94,10 +94,10 @@ struct GenerateMenuView: View {
 
                 // MARK: Generated menu (value snapshot for stability)
                 if let menu = latestMenu {
-                    let rows: [(day: String, name: String)] = {
-                        let names = menu.recipes.map { $0.name }
-                        return Array(zip(menu.days, names))
-                    }()
+                    let rowNames = menu.recipeNames.isEmpty
+                        ? menu.recipes.map(\.name)
+                        : menu.recipeNames
+                    let rows: [(day: String, name: String)] = Array(zip(menu.days, rowNames))
 
                     Section("Generated Menu") {
                         ForEach(rows, id: \.day) { row in

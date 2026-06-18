@@ -8,9 +8,18 @@ Committed reference PNGs for visual regression testing (Epic 2+).
 
 ## Current status
 
-No PNG baselines yet. Reference images will be recorded in Epic 2 Story 2.1 (`RecipeSnapshotTests`, `MenuSnapshotTests`).
+Four reference PNGs committed for Epic 2 Story 2.1:
 
-Do not commit ad-hoc PNGs outside the Epic 2 snapshot workflow.
+| File | Screen |
+|------|--------|
+| `emptyRecipesList.recipes-empty.png` | Empty recipe list |
+| `recipesListWithData.recipes-with-data.png` | Recipe list with seeded data |
+| `emptyMenuState.menu-empty.png` | Generate menu — empty state |
+| `generatedMenuState.menu-generated.png` | Generate menu — generated Mon/Wed/Fri |
+
+On-disk pattern: `{testFunctionName}.{named}.png` (flat folder, custom `snapshotDirectory`).
+
+Do not commit ad-hoc PNGs outside this workflow.
 
 ## Recording baselines (local only)
 
@@ -33,6 +42,6 @@ RECORD_SNAPSHOTS=1 xcodebuild -workspace whattomake.xcworkspace -scheme whattoma
 
 ## CI
 
-Never set `RECORD_SNAPSHOTS=1` in GitHub Actions. CI runs snapshot tests in compare-only mode on the pinned simulator.
+Never set `RECORD_SNAPSHOTS=1` in GitHub Actions. **Compare mode on CI is deferred to Story 2.2** — baselines are recorded locally on iPhone 17 Pro; the `macos-26` runner renders differently. `SnapshotTestConfiguration` skips snapshot assertions on CI (detected via env vars or `/Users/runner/` in the test bundle path when `TEST_HOST` swallows workflow env). Unit tests still run on CI; snapshot compare runs locally before merge.
 
 See `docs/project-context.md` → Testing Rules → Snapshot tests for full workflow documentation.
