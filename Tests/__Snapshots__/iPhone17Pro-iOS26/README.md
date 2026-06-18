@@ -8,9 +8,18 @@ Committed reference PNGs for visual regression testing (Epic 2+).
 
 ## Current status
 
-No PNG baselines yet. Reference images will be recorded in Epic 2 Story 2.1 (`RecipeSnapshotTests`, `MenuSnapshotTests`).
+Four reference PNGs committed for Epic 2 Story 2.1:
 
-Do not commit ad-hoc PNGs outside the Epic 2 snapshot workflow.
+| File | Screen |
+|------|--------|
+| `emptyRecipesList.recipes-empty.png` | Empty recipe list |
+| `recipesListWithData.recipes-with-data.png` | Recipe list with seeded data |
+| `emptyMenuState.menu-empty.png` | Generate menu — empty state |
+| `generatedMenuState.menu-generated.png` | Generate menu — generated Mon/Wed/Fri |
+
+On-disk pattern: `{testFunctionName}.{named}.png` (flat folder, custom `snapshotDirectory`).
+
+Do not commit ad-hoc PNGs outside this workflow.
 
 ## Recording baselines (local only)
 

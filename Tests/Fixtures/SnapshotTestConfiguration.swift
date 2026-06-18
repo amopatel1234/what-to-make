@@ -1,0 +1,88 @@
+//
+//  SnapshotTestConfiguration.swift
+//  whattomake
+//
+
+import Foundation
+import SnapshotTesting
+import SwiftUI
+import Testing
+@testable import ForkPlan
+
+enum SnapshotTestConfiguration {
+    static let snapshotWidth: CGFloat = 402
+    static let snapshotHeight: CGFloat = 874
+
+    static let snapshotDirectory: String = {
+        let testsRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent() // Fixtures
+            .deletingLastPathComponent() // Tests
+        return testsRoot
+            .appendingPathComponent("__Snapshots__/iPhone17Pro-iOS26")
+            .path()
+    }()
+
+    static var recordMode: SnapshotTestingConfiguration.Record {
+        let isCI = ProcessInfo.processInfo.environment["CI"] == "true"
+            || ProcessInfo.processInfo.environment["GITHUB_ACTIONS"] == "true"
+        if isCI { return .never }
+        if ProcessInfo.processInfo.environment["RECORD_SNAPSHOTS"] == "1" { return .all }
+        return .never
+    }
+
+    static func imageStrategy<V: View>() -> Snapshotting<V, UIImage> {
+        .image(layout: .fixed(width: snapshotWidth, height: snapshotHeight))
+    }
+
+    static func applyBaselineEnvironment<V: View>(to view: V) -> some View {
+        view
+            .preferredColorScheme(.light)
+            .environment(\.locale, Locale(identifier: "en_US"))
+            .environment(\.sizeCategory, .large)
+            .transaction { transaction in
+                transaction.animation = nil
+            }
+            .fpAppTheme()
+    }
+
+    /// Wraps `@Query`-driven views so snapshot hosting sees a stable hierarchy.
+    static func queryReady<V: View>(_ view: V) -> some View {
+        view
+    }
+
+    /// Asserts a SwiftUI snapshot against the shared device slug directory.
+    static func assertBaselineSnapshot<V: View>(
+        of view: V,
+        named name: String,
+        fileID: StaticString = #fileID,
+        file: StaticString = #filePath,
+        testName: String = #function,
+        line: UInt = #line,
+        column: UInt = #column
+    ) {
+        withSnapshotTesting(record: recordMode) {
+            let failure = verifySnapshot(
+                of: view,
+                as: imageStrategy(),
+                named: name,
+                snapshotDirectory: snapshotDirectory,
+                fileID: fileID,
+                file: file,
+                testName: testName,
+                line: line,
+                column: column
+            )
+            if let message = failure {
+                Issue.record(
+                    Comment(rawValue: message),
+                    sourceLocation: SourceLocation(
+                        fileID: fileID.description,
+                        filePath: file.description,
+                        line: Int(line),
+                        column: Int(column)
+                    )
+                )
+            }
+        }
+    }
+}

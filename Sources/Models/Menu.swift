@@ -30,6 +30,8 @@ final class Menu {
     var generatedDate: Date
     /// The ordered list of day identifiers (e.g., "Mon", "Tue").
     var days: [String]
+    /// Ordered recipe display names captured at generation time (parallel to ``days``).
+    var recipeNames: [String]
     /// The recipes chosen for the corresponding ``days`` entries.
     ///
     /// Delete rule `.nullify`: removing this menu does not delete recipes.
@@ -48,6 +50,7 @@ final class Menu {
         self.generatedDate = generatedDate
         self.days = days
         self.recipes = recipes
+        self.recipeNames = recipes.map(\.name)
     }
 }
 
