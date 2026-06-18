@@ -14,9 +14,14 @@ enum SnapshotTestConfiguration {
     static let snapshotHeight: CGFloat = 874
 
     /// True when running on GitHub Actions / CI (compare and record both disabled).
+    ///
+    /// `GITHUB_ACTIONS` from the workflow step often does not propagate into `TEST_HOST`
+    /// (`ForkPlan.app`); fall back to runner home path on GitHub-hosted macOS.
     static var isCI: Bool {
-        ProcessInfo.processInfo.environment["CI"] == "true"
-            || ProcessInfo.processInfo.environment["GITHUB_ACTIONS"] == "true"
+        let env = ProcessInfo.processInfo.environment
+        if env["GITHUB_ACTIONS"] == "true" || env["CI"] == "true" { return true }
+        if env["HOME"] == "/Users/runner" { return true }
+        return FileManager.default.fileExists(atPath: "/Users/runner")
     }
 
     static let snapshotDirectory: String = {
