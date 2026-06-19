@@ -11,8 +11,8 @@ You must prioritise review in this order:
 1. Functional regressions
 2. Data-loss or persistence risks
 3. SwiftUI state-management or concurrency defects
-4. Architecture boundary violations
-5. Accessibility or UI test regressions
+4. Architecture boundary violations (reintroduced layers, logic in views)
+5. Snapshot test / accessibility regressions
 6. Missing tests for changed behavior
 7. Maintainability issues that create real future risk
 
@@ -30,12 +30,12 @@ If there are no actionable findings, say so clearly.
 
 This repository is an iOS app built with:
 
-- Swift
-- SwiftUI
+- Swift 6 (strict concurrency rollout per-target)
+- SwiftUI + Observation (`@Query`, `@Observable` coordinators)
 - SwiftData
-- Swift Concurrency (`async`/`await`)
+- Swift Concurrency (`async`/`await`) — no Combine
 - Swift Testing for unit tests
-- swift-snapshot-testing for visual regression tests (Epic 2)
+- swift-snapshot-testing for visual regression tests
 
 Current product rules:
 
@@ -49,19 +49,26 @@ Current product rules:
 
 ## Architecture rules
 
-The intended structure is:
+The intended structure is SwiftUI-native:
 
-- Views are light and mostly declarative
-- View models own UI-facing state
-- Use cases contain application logic
-- Repositories isolate SwiftData persistence details
+```
+Views (@Query + @State) → Models ← SwiftData
+                         Helpers/ (pure logic)
+                         DesignSystem/
+```
+
+- **Views** — declarative UI; `@Query` for reads, `@Environment(\.modelContext)` for writes
+- **Models** — SwiftData `@Model` types and image helpers
+- **Helpers** — pure logic: `MenuGenerator`, `DaySelectionStorage`, `MenuPersistence`
+- **Coordinators** — thin `@Observable` types for transient UI state only (validation messages, in-flight generation)
 
 You should flag changes that:
 
-- move business logic into SwiftUI views without good reason
-- bypass use case or repository boundaries without clear justification
-- mix persistence logic directly into UI code
+- move business logic into SwiftUI view `body` without extracting to Helpers
+- reintroduce use cases, repositories, or ViewModels
+- introduce Combine publishers or `@Published`
 - add production complexity only to support tests
+- bypass `MenuPersistence.replaceMenu` or delete-before-insert menu lifecycle
 
 Do not request an architectural rewrite if the existing pattern is still being followed adequately.
 
@@ -79,19 +86,19 @@ You must flag changes that:
 
 Pay extra attention to:
 
-- `@Observable` view models
+- `@Observable` coordinators
 - `.task`
 - `Form`
 - async loading flows
 - error-state transitions
 
-Generated menu UI must continue to render from stable snapshot values such as day + recipe name, not from live mutable model state.
+Generated menu UI must continue to render from stable snapshot value tuples `(day: String, name: String)` or `Menu.recipeNames`, not from live mutable `@Model` iteration in `Form`.
 
 ## Persistence and storage rules
 
 SwiftData is the source of truth for app data.
 
-Review model, repository, and image-storage changes carefully.
+Review model, persistence helper, and image-storage changes carefully.
 
 Current image design:
 
@@ -106,11 +113,13 @@ You must flag changes that could:
 - blur the separation between inline thumbnail data and on-disk originals
 - silently change persistence semantics
 
-## UI test contract
+Menu lifecycle uses delete-before-insert via `MenuPersistence.replaceMenu(with:in:)`.
 
-Accessibility identifiers are part of the app’s contract with UI tests.
+## Accessibility and VoiceOver
 
-Treat identifier changes as breaking unless the tests are updated in the same pull request.
+Accessibility identifiers support **VoiceOver continuity** (NFR3), not an XCUITest contract — XCUITest was removed in Epic 1.
+
+Treat identifier changes as user-facing regressions when they break VoiceOver discoverability.
 
 Important identifiers:
 
@@ -127,6 +136,18 @@ Important identifiers:
 - `menuRecipesRequirementMessage`
 - `menuValidationMessage`
 
+## Snapshot test review triggers
+
+Flag changes that:
+
+- modify baseline PNGs without intentional UI change or runner-aligned re-record
+- change `SnapshotTestConfiguration` (layout, record mode, CI detection)
+- reintroduce CI compare skip (`guard !isCI` in assert path)
+- set `RECORD_SNAPSHOTS` or `ALLOW_CI_SNAPSHOT_RECORD` in `.github/workflows/`
+- render menu rows from live `@Model` objects instead of stable tuples / `recipeNames`
+
+Baselines live in `Tests/__Snapshots__/iPhone17Pro-iOS26/` and must match the pinned **iPhone 17 Pro** simulator on `macos-26` CI.
+
 ## Repo-specific review rules
 
 You should flag changes that conflict with these expectations:
@@ -136,6 +157,7 @@ You should flag changes that conflict with these expectations:
 - prefer Swift Concurrency over older async patterns
 - preserve the current recipe and menu product rules
 - do not reintroduce stale ingredient-related logic, identifiers, comments, or tests
+- do not reintroduce mock repositories — tests use `makeTestContainer()`
 
 The repo currently has naming inconsistencies such as `whattomake` and `ForkPlan`. Ignore that unless a change introduces a real build, import, packaging, or test problem.
 
@@ -150,6 +172,7 @@ You should call out missing or weak coverage when a diff affects:
 - recipe persistence
 - image handling
 - accessibility identifiers
+- snapshot baselines
 - error handling paths
 
 Missing tests are especially important when the changed behavior is user-visible, persistence-related, or async.

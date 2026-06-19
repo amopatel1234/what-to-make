@@ -13,7 +13,7 @@ enum SnapshotTestConfiguration {
     static let snapshotWidth: CGFloat = 402
     static let snapshotHeight: CGFloat = 874
 
-    /// True when running on GitHub Actions / CI (compare and record both disabled).
+    /// True when running on GitHub Actions / CI (record guard only — compare runs on CI).
     ///
     /// Workflow env vars (`GITHUB_ACTIONS`, etc.) often do not propagate into `TEST_HOST`
     /// (`ForkPlan.app`). The test `.xctest` bundle path on GitHub-hosted macOS includes
@@ -34,9 +34,13 @@ enum SnapshotTestConfiguration {
     }()
 
     static var recordMode: SnapshotTestingConfiguration.Record {
-        if isCI { return .never }
-        if ProcessInfo.processInfo.environment["RECORD_SNAPSHOTS"] == "1" { return .all }
-        return .never
+        guard ProcessInfo.processInfo.environment["RECORD_SNAPSHOTS"] == "1" else {
+            return .never
+        }
+        if isCI && ProcessInfo.processInfo.environment["ALLOW_CI_SNAPSHOT_RECORD"] != "1" {
+            return .never
+        }
+        return .all
     }
 
     static func imageStrategy<V: View>() -> Snapshotting<V, UIImage> {
@@ -69,10 +73,6 @@ enum SnapshotTestConfiguration {
         line: UInt = #line,
         column: UInt = #column
     ) {
-        // Story 2.2: baselines are recorded locally; macos-26 CI renders differently until
-        // compare mode is configured for the pinned runner (re-record or perceptual tolerance).
-        guard !isCI else { return }
-
         withSnapshotTesting(record: recordMode) {
             let failure = verifySnapshot(
                 of: view,

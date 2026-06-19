@@ -24,10 +24,10 @@ bundle install
 
 ## Tests
 
-Unit and future snapshot tests run on the pinned **iPhone 17 Pro** simulator. See [`docs/project-context.md`](docs/project-context.md) for the snapshot re-record workflow.
+Unit and snapshot tests run on the pinned **iPhone 17 Pro** simulator. See [`Tests/__Snapshots__/iPhone17Pro-iOS26/README.md`](Tests/__Snapshots__/iPhone17Pro-iOS26/README.md) for re-recording baselines (scheme env vars) and CI compare mode.
 
 ```bash
-# Unit tests
+# Unit and snapshot tests (pinned simulator)
 xcodebuild \
   -workspace whattomake.xcworkspace \
   -scheme whattomake \
