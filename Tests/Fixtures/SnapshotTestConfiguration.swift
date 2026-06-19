@@ -44,7 +44,13 @@ enum SnapshotTestConfiguration {
     }
 
     static func imageStrategy<V: View>() -> Snapshotting<V, UIImage> {
-        .image(layout: .fixed(width: snapshotWidth, height: snapshotHeight))
+        // Tolerance for macos-26 runner vs local dev Mac GPU/font rendering (Story 2.2).
+        // Re-record baselines on macos-26 when possible; see snapshot README → CI compare mode.
+        .image(
+            precision: 0.98,
+            perceptualPrecision: 0.98,
+            layout: .fixed(width: snapshotWidth, height: snapshotHeight)
+        )
     }
 
     static func applyBaselineEnvironment<V: View>(to view: V) -> some View {

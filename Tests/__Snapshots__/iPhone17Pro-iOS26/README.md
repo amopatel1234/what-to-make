@@ -63,6 +63,8 @@ PR checks on `macos-26` run snapshot **compare** (not record) via `fastlane runU
 - One-off runner re-record (if needed): separate `workflow_dispatch` with `RECORD_SNAPSHOTS=1` **and** `ALLOW_CI_SNAPSHOT_RECORD=1` — not merged into PR workflows
 - `SnapshotTestConfiguration.isCI` blocks recording on CI unless `ALLOW_CI_SNAPSHOT_RECORD=1` is set
 
-If CI compare fails after a UI change, download failure attachments, verify dimensions (402×874), and commit updated PNGs.
+If CI compare fails after a UI change, download failure attachments from the PR workflow `test-results` artifact (`.xcresult`) or verify dimensions (402×874) and commit updated PNGs.
+
+Compare uses `precision: 0.98` and `perceptualPrecision: 0.98` in `SnapshotTestConfiguration` to tolerate minor macos-26 vs dev Mac rendering drift until baselines are re-recorded on the runner.
 
 See `docs/project-context.md` → Testing Rules → Snapshot tests for full workflow documentation.

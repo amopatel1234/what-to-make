@@ -35,3 +35,11 @@ jobs:
           SCHEME: "whattomake"
           TEST_PLAN: "UnitTestsPlan"
         run: fastlane runUnitTests
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: fastlane/test_output/
+          if-no-files-found: ignore
