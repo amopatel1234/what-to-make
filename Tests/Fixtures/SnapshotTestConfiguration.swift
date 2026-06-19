@@ -13,7 +13,7 @@ enum SnapshotTestConfiguration {
     static let snapshotWidth: CGFloat = 402
     static let snapshotHeight: CGFloat = 874
 
-    /// True when running on GitHub Actions / CI (compare and record both disabled).
+    /// True when running on GitHub Actions / CI (record guard only — compare runs on CI).
     ///
     /// Workflow env vars (`GITHUB_ACTIONS`, etc.) often do not propagate into `TEST_HOST`
     /// (`ForkPlan.app`). The test `.xctest` bundle path on GitHub-hosted macOS includes
@@ -34,13 +34,23 @@ enum SnapshotTestConfiguration {
     }()
 
     static var recordMode: SnapshotTestingConfiguration.Record {
-        if isCI { return .never }
-        if ProcessInfo.processInfo.environment["RECORD_SNAPSHOTS"] == "1" { return .all }
-        return .never
+        guard ProcessInfo.processInfo.environment["RECORD_SNAPSHOTS"] == "1" else {
+            return .never
+        }
+        if isCI && ProcessInfo.processInfo.environment["ALLOW_CI_SNAPSHOT_RECORD"] != "1" {
+            return .never
+        }
+        return .all
     }
 
     static func imageStrategy<V: View>() -> Snapshotting<V, UIImage> {
-        .image(layout: .fixed(width: snapshotWidth, height: snapshotHeight))
+        // Tolerance for macos-26 runner vs local dev Mac GPU/font rendering (Story 2.2).
+        // Re-record baselines on macos-26 when possible; see snapshot README → CI compare mode.
+        .image(
+            precision: 0.98,
+            perceptualPrecision: 0.98,
+            layout: .fixed(width: snapshotWidth, height: snapshotHeight)
+        )
     }
 
     static func applyBaselineEnvironment<V: View>(to view: V) -> some View {
@@ -69,10 +79,6 @@ enum SnapshotTestConfiguration {
         line: UInt = #line,
         column: UInt = #column
     ) {
-        // Story 2.2: baselines are recorded locally; macos-26 CI renders differently until
-        // compare mode is configured for the pinned runner (re-record or perceptual tolerance).
-        guard !isCI else { return }
-
         withSnapshotTesting(record: recordMode) {
             let failure = verifySnapshot(
                 of: view,

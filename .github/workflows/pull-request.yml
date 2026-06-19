@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build and test on pinned iPhone 17 Pro simulator
+    name: Build, unit, and snapshot tests on pinned iPhone 17 Pro simulator
     if: github.event.pull_request.draft == false
     runs-on: macos-26
 
@@ -28,10 +28,18 @@ jobs:
         with:
           ACTION_TYPE: 'Validate'
 
-      - name: Run Unit Tests
+      - name: Run unit and snapshot tests
         env:
           WORKSPACE: ${{ github.workspace }}
           WORKSPACE_FILENAME: "whattomake.xcworkspace"
           SCHEME: "whattomake"
           TEST_PLAN: "UnitTestsPlan"
         run: fastlane runUnitTests
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: fastlane/test_output/
+          if-no-files-found: ignore

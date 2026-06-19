@@ -159,7 +159,9 @@ Tests/
 - Library: Point-Free **swift-snapshot-testing** (`import SnapshotTesting`); linked to `whattomakeTests` only.
 - Baselines: `Tests/__Snapshots__/iPhone17Pro-iOS26/` — see [`Tests/__Snapshots__/iPhone17Pro-iOS26/README.md`](../Tests/__Snapshots__/iPhone17Pro-iOS26/README.md) for slug convention and recording workflow.
 - Re-record locally only: `RECORD_SNAPSHOTS=1` — **never** in CI.
+- Shell `RECORD_SNAPSHOTS=1 xcodebuild …` often does not reach `TEST_HOST` (`ForkPlan.app`); use Xcode scheme Test env vars or test-plan env for reliable recording (see snapshot README).
 - Snapshot tests seed data directly via `makeTestContainer()` — no launch arguments.
+- CI runs snapshot **compare** on `macos-26` via `fastlane runUnitTests`; compare uses documented `precision: 0.98` / `perceptualPrecision: 0.98` to tolerate dev-Mac vs runner drift until baselines are re-recorded on `macos-26` (see snapshot README → CI compare mode).
 
 **Device slug mapping:**
 
@@ -225,7 +227,7 @@ SCHEME="whattomake" TEST_PLAN="UnitTestsPlan" \
 bundle exec fastlane runUnitTests
 ```
 
-**CI/release:** PR checks in `.github/workflows/pull-request.yml` (Conventional Commit title validation + unit tests via `fastlane runUnitTests` on `macos-26`, using the runner's preinstalled Fastlane). The `runUnitTests` lane pins the test destination to **iPhone 17 Pro** via `PINNED_TEST_DESTINATION` in `fastlane/Fastfile`. Merged-branch workflow in `.github/workflows/merged.yml` runs [Oliver-Binns/Versioning](https://github.com/Oliver-Binns/Versioning) to create GitHub releases/tags from commit semantics; TestFlight deploy runs only when Versioning produces a new release (skips `chore`/`docs`/`ci`/etc. merges to save CI minutes). **Two version tracks:** GitHub release semver is automated; App Store `MARKETING_VERSION` is set manually in Xcode before release; Fastlane reads marketing version from the project and increments `CURRENT_PROJECT_VERSION` from the latest TestFlight build for that marketing version.
+**CI/release:** PR checks in `.github/workflows/pull-request.yml` (Conventional Commit title validation + unit **and snapshot** tests via `fastlane runUnitTests` on `macos-26`, using the runner's preinstalled Fastlane). Snapshot compare runs on the pinned **iPhone 17 Pro** simulator — not skipped on CI. The `runUnitTests` lane pins the test destination via `PINNED_TEST_DESTINATION` in `fastlane/Fastfile`. Merged-branch workflow in `.github/workflows/merged.yml` runs [Oliver-Binns/Versioning](https://github.com/Oliver-Binns/Versioning) to create GitHub releases/tags from commit semantics; TestFlight deploy runs only when Versioning produces a new release (skips `chore`/`docs`/`ci`/etc. merges to save CI minutes). **Two version tracks:** GitHub release semver is automated; App Store `MARKETING_VERSION` is set manually in Xcode before release; Fastlane reads marketing version from the project and increments `CURRENT_PROJECT_VERSION` from the latest TestFlight build for that marketing version.
 
 **Commits:** Conventional Commits enforced by `hooks/commit-msg`.
 
@@ -237,7 +239,7 @@ Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor
 
 **PR descriptions:** Short prose only — 2–3 paragraphs summarizing what changed and why. Do **not** include a test plan, checklist, or `## Summary` / `## Test plan` sections; CI runs tests automatically.
 
-**PR review priorities** (see `.github/copilot-instructions.md` — **stale until Epic 2**; still describes legacy Clean Architecture):
+**PR review priorities** (see `.github/copilot-instructions.md`):
 
 1. Functional regressions
 2. Data-loss / persistence risks
@@ -290,4 +292,4 @@ Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor
 - Review quarterly for outdated rules.
 - Remove rules that become obvious over time.
 
-Last Updated: 2026-06-15
+Last Updated: 2026-06-19

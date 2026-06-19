@@ -21,7 +21,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios runUnitTests
 ```
 
-Run unit test and upload test coverage
+Run unit and snapshot tests (UnitTestsPlan) on pinned iPhone 17 Pro simulator
 
 ### ios deploy
 
