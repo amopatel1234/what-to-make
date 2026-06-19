@@ -1,0 +1,33 @@
+{
+  "configurations" : [
+    {
+      "id" : "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+      "name" : "Record on CI",
+      "options" : {
+        "environmentVariableEntries" : [
+          {
+            "key" : "RECORD_SNAPSHOTS",
+            "value" : "1"
+          },
+          {
+            "key" : "ALLOW_CI_SNAPSHOT_RECORD",
+            "value" : "1"
+          }
+        ]
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:whattomake.xcodeproj",
+        "identifier" : "3B5E9E872AE07F9D00293473",
+        "name" : "whattomakeTests"
+      }
+    }
+  ],
+  "version" : 1
+}

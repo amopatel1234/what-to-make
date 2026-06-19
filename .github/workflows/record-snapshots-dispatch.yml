@@ -1,0 +1,32 @@
+# One-off baseline recording on macos-26 — remove before merging Story 2.2 PR.
+# Trigger manually via Actions → Record Snapshots (dispatch only) → Run workflow.
+
+name: Record Snapshots (dispatch only)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  record:
+    name: Re-record snapshot baselines on macos-26
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Record snapshots on pinned iPhone 17 Pro simulator
+        run: |
+          xcodebuild -workspace whattomake.xcworkspace \
+            -scheme record-snapshots \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -only-testing:whattomakeTests/RecipeSnapshotTests \
+            -only-testing:whattomakeTests/MenuSnapshotTests \
+            test
+
+      - name: Upload baseline PNGs
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshot-baselines-iPhone17Pro-iOS26
+          path: Tests/__Snapshots__/iPhone17Pro-iOS26/*.png
+          if-no-files-found: error

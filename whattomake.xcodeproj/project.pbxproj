@@ -79,6 +79,7 @@
 		3BAFB0CC2E537EBF001B185B /* DesignSystemCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystemCanvas.swift; sourceTree = "<group>"; };
 		3BAFB0CE2E537FD0001B185B /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		3BFF4A682E507C5E00022454 /* UnitTestsPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UnitTestsPlan.xctestplan; sourceTree = "<group>"; };
+		3C2A00402E71220000000001 /* RecordSnapshotsPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = RecordSnapshotsPlan.xctestplan; sourceTree = "<group>"; };
 		3C0A00012E60A00100000001 /* SnapshotTestingSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotTestingSmokeTests.swift; sourceTree = "<group>"; };
 		3C0A00102E60B00300000001 /* TestModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestModelContainer.swift; sourceTree = "<group>"; };
 		3C0A00122E60B00300000003 /* TestModelContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestModelContainerTests.swift; sourceTree = "<group>"; };
@@ -250,6 +251,7 @@
 			isa = PBXGroup;
 			children = (
 				3BFF4A682E507C5E00022454 /* UnitTestsPlan.xctestplan */,
+				3C2A00402E71220000000001 /* RecordSnapshotsPlan.xctestplan */,
 			);
 			path = TestPlans;
 			sourceTree = "<group>";
