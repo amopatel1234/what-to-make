@@ -161,7 +161,7 @@ Tests/
 - Re-record locally only: `RECORD_SNAPSHOTS=1` — **never** in CI.
 - Shell `RECORD_SNAPSHOTS=1 xcodebuild …` often does not reach `TEST_HOST` (`ForkPlan.app`); use Xcode scheme Test env vars or test-plan env for reliable recording (see snapshot README).
 - Snapshot tests seed data directly via `makeTestContainer()` — no launch arguments.
-- CI runs snapshot **compare** on `macos-26` via `fastlane runUnitTests`; baselines must match runner rendering (see snapshot README → CI compare mode).
+- CI runs snapshot **compare** on `macos-26` via `fastlane runUnitTests`; compare uses documented `precision: 0.98` / `perceptualPrecision: 0.98` to tolerate dev-Mac vs runner drift until baselines are re-recorded on `macos-26` (see snapshot README → CI compare mode).
 
 **Device slug mapping:**
 
