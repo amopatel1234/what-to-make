@@ -29,6 +29,7 @@ enum ImageCodec {
     ///   - maxDimension: Largest width/height to scale to while preserving aspect ratio. Defaults to 600.
     ///   - quality: JPEG compression quality in the range 0.0...1.0. Defaults to 0.7.
     /// - Returns: JPEG-encoded data, or `nil` if encoding fails.
+    @MainActor
     static func jpegData(_ image: UIImage, maxDimension: CGFloat = 600, quality: CGFloat = 0.7) -> Data? {
         let size = image.size
         let scale = min(1, maxDimension / max(size.width, size.height))
@@ -45,6 +46,7 @@ enum ImageCodec {
     /// Generates a Base64-encoded JPEG thumbnail string from the image.
     /// - Parameter image: Source image to downscale and encode.
     /// - Returns: Base64 string or `nil` when encoding fails.
+    @MainActor
     static func base64JPEGThumbnail(from image: UIImage) -> String? {
         guard let data = jpegData(image) else { return nil }
         return data.base64EncodedString()
@@ -53,6 +55,7 @@ enum ImageCodec {
     /// Decodes a Base64 string into a UIImage.
     /// - Parameter base64: Base64-encoded JPEG/PNG data.
     /// - Returns: A UIImage if decoding succeeds, otherwise `nil`.
+    @MainActor
     static func image(fromBase64 base64: String) -> UIImage? {
         guard let data = Data(base64Encoded: base64) else { return nil }
         return UIImage(data: data)
@@ -78,6 +81,7 @@ enum ImageStoreError: Error {
 /// ```
 enum ImageStore {
     /// Directory for storing original images (created if needed).
+    @MainActor
     static var dir: URL {
         let fm = FileManager.default
         if let base = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
@@ -97,6 +101,7 @@ enum ImageStore {
     ///   - quality: JPEG compression quality (0.0...1.0). Defaults to 0.85.
     /// - Returns: The generated filename for later retrieval.
     /// - Throws: ``ImageStoreError/jpegEncodingFailed`` if JPEG encoding fails, or file I/O errors.
+    @MainActor
     static func saveOriginal(_ image: UIImage, quality: CGFloat = 0.85) throws -> String {
         let name = "img_\(UUID().uuidString.prefix(8)).jpg"
         let url = dir.appendingPathComponent(name)
@@ -108,6 +113,7 @@ enum ImageStore {
     /// Loads a previously saved original image by filename.
     /// - Parameter filename: The on-disk image filename returned by ``saveOriginal(_:quality:)``.
     /// - Returns: The UIImage if found and decoded, otherwise `nil`.
+    @MainActor
     static func loadOriginal(named filename: String) -> UIImage? {
         let url = dir.appendingPathComponent(filename)
         guard let data = try? Data(contentsOf: url) else { return nil }
@@ -116,6 +122,7 @@ enum ImageStore {
 
     /// Deletes the on-disk image file with the provided filename.
     /// - Parameter filename: The stored image filename.
+    @MainActor
     static func delete(named filename: String) {
         try? FileManager.default.removeItem(at: dir.appendingPathComponent(filename))
     }

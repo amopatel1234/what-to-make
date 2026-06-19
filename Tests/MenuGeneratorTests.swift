@@ -4,14 +4,20 @@
 //
 
 @testable import ForkPlan
+import Foundation
 import Testing
 
-@MainActor
 @Suite
 struct MenuGeneratorTests {
+    private func makeInputs(count: Int, namePrefix: String = "Recipe") -> [RecipeSelectionInput] {
+        (1...count).map {
+            RecipeSelectionInput(id: UUID(), name: "\(namePrefix) \($0)", usageCount: 0)
+        }
+    }
+
     @Test
     func selectReturnsAtMostDayCount() {
-        let recipes = (1...10).map { Recipe(name: "Recipe \($0)") }
+        let recipes = makeInputs(count: 10)
         let days = ["Mon", "Wed", "Fri"]
         let selected = MenuGenerator.select(from: recipes, forDays: days)
         #expect(selected.count == days.count)
@@ -19,7 +25,7 @@ struct MenuGeneratorTests {
 
     @Test
     func selectReturnsCountMinOfRecipesAndDays() {
-        let recipes = (1...3).map { Recipe(name: "Recipe \($0)") }
+        let recipes = makeInputs(count: 3)
         let days = ["Mon", "Tue", "Wed", "Thu", "Fri"]
         let selected = MenuGenerator.select(from: recipes, forDays: days)
         #expect(selected.count == recipes.count)
@@ -27,7 +33,7 @@ struct MenuGeneratorTests {
 
     @Test
     func selectReturnsMembersOfInputArray() {
-        let recipes = (1...5).map { Recipe(name: "Recipe \($0)") }
+        let recipes = makeInputs(count: 5)
         let days = ["Mon", "Wed"]
         let selected = MenuGenerator.select(from: recipes, forDays: days)
         let inputNames = Set(recipes.map(\.name))
@@ -38,7 +44,7 @@ struct MenuGeneratorTests {
 
     @Test
     func selectReturnsNoDuplicateRecipes() {
-        let recipes = (1...10).map { Recipe(name: "Recipe \($0)") }
+        let recipes = makeInputs(count: 10)
         let days = ["Mon", "Tue", "Wed", "Thu", "Fri"]
         let selected = MenuGenerator.select(from: recipes, forDays: days)
         let names = selected.map(\.name)
@@ -47,7 +53,7 @@ struct MenuGeneratorTests {
 
     @Test
     func selectWithEmptyDaysReturnsEmpty() {
-        let recipes = [Recipe(name: "Recipe 1")]
+        let recipes = [RecipeSelectionInput(id: UUID(), name: "Recipe 1", usageCount: 0)]
         let selected = MenuGenerator.select(from: recipes, forDays: [])
         #expect(selected.isEmpty)
     }
@@ -60,7 +66,7 @@ struct MenuGeneratorTests {
 
     @Test
     func selectWithMoreDaysThanRecipesReturnsAllRecipes() {
-        let recipes = (1...3).map { Recipe(name: "Recipe \($0)") }
+        let recipes = makeInputs(count: 3)
         let days = ["Mon", "Tue", "Wed", "Thu", "Fri"]
         let selected = MenuGenerator.select(from: recipes, forDays: days)
         #expect(selected.count == recipes.count)

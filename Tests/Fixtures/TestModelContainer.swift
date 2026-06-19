@@ -10,6 +10,7 @@ import SwiftData
 /// Creates an in-memory SwiftData container for unit and snapshot tests.
 ///
 /// - Throws: If `ModelContainer` initialization fails.
+@MainActor
 func makeTestContainer() throws -> ModelContainer {
     let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
     return try ModelContainer(
@@ -27,6 +28,7 @@ func makeTestContainer() throws -> ModelContainer {
 ///   - notesEvery: When set, every Nth recipe gets a note (default 2).
 ///   - usageCount: Initial usage count for each recipe.
 /// - Returns: Inserted recipes sorted by name ascending.
+@MainActor
 func seedRecipes(
     in context: ModelContext,
     count: Int = 8,
@@ -54,6 +56,7 @@ func seedRecipes(
 ///   - recipes: Recipes corresponding to days (caller supplies — does not auto-create).
 ///   - generatedDate: Menu generation timestamp.
 /// - Returns: The inserted menu after save.
+@MainActor
 func seedMenu(
     in context: ModelContext,
     days: [String],

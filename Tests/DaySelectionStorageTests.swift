@@ -7,6 +7,7 @@
 import SwiftUI
 import Testing
 
+@MainActor
 @Suite
 struct DaySelectionStorageTests {
     @Test

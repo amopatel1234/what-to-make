@@ -140,7 +140,13 @@ struct GenerateMenuView: View {
             await Task.yield()
 
             let orderedDays = DaySelectionStorage.orderedDays(from: selectedDays)
-            let selectedRecipes = MenuGenerator.select(from: recipes, forDays: orderedDays)
+            let inputs = recipes.map {
+                RecipeSelectionInput(id: $0.id, name: $0.name, usageCount: $0.usageCount)
+            }
+            let selectedInputs = MenuGenerator.select(from: inputs, forDays: orderedDays)
+            let selectedRecipes = selectedInputs.compactMap { input in
+                recipes.first { $0.id == input.id }
+            }
             let menu = Menu(days: orderedDays, recipes: selectedRecipes)
 
             do {

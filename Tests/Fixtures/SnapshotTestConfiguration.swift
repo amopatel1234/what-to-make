@@ -53,6 +53,7 @@ enum SnapshotTestConfiguration {
         )
     }
 
+    @MainActor
     static func applyBaselineEnvironment<V: View>(to view: V) -> some View {
         view
             .preferredColorScheme(.light)
@@ -70,6 +71,7 @@ enum SnapshotTestConfiguration {
     }
 
     /// Asserts a SwiftUI snapshot against the shared device slug directory.
+    @MainActor
     static func assertBaselineSnapshot<V: View>(
         of view: V,
         named name: String,

@@ -15,6 +15,7 @@ enum MenuPersistence {
     ///   - menu: The menu snapshot to persist.
     ///   - context: SwiftData model context for writes.
     /// - Throws: Fetch, delete, or save errors from SwiftData.
+    @MainActor
     static func replaceMenu(with menu: Menu, in context: ModelContext) throws {
         let existing = try context.fetch(FetchDescriptor<Menu>())
         for existingMenu in existing {
