@@ -33,6 +33,7 @@
 		3C0A00212E60E00600000002 /* MenuGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00202E60E00600000001 /* MenuGeneratorTests.swift */; };
 		3C0A00232E60E00600000004 /* DaySelectionStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00222E60E00600000003 /* DaySelectionStorageTests.swift */; };
 		3C0A00252E60E00600000006 /* MenuPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00242E60E00600000005 /* MenuPersistenceTests.swift */; };
+		3C0A002D2E60F00800000002 /* MenuPersistenceIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A002C2E60F00800000001 /* MenuPersistenceIntegrationTests.swift */; };
 		3C0A00272E60F00700000002 /* SnapshotTestConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00262E60F00700000001 /* SnapshotTestConfiguration.swift */; };
 		3C0A00292E60F00700000004 /* RecipeSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00282E60F00700000003 /* RecipeSnapshotTests.swift */; };
 		3C0A002B2E60F00700000006 /* MenuSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A002A2E60F00700000005 /* MenuSnapshotTests.swift */; };
@@ -85,6 +86,7 @@
 		3C0A00202E60E00600000001 /* MenuGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuGeneratorTests.swift; sourceTree = "<group>"; };
 		3C0A00222E60E00600000003 /* DaySelectionStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySelectionStorageTests.swift; sourceTree = "<group>"; };
 		3C0A00242E60E00600000005 /* MenuPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuPersistenceTests.swift; sourceTree = "<group>"; };
+		3C0A002C2E60F00800000001 /* MenuPersistenceIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuPersistenceIntegrationTests.swift; sourceTree = "<group>"; };
 		3C0A00262E60F00700000001 /* SnapshotTestConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotTestConfiguration.swift; sourceTree = "<group>"; };
 		3C0A00282E60F00700000003 /* RecipeSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeSnapshotTests.swift; sourceTree = "<group>"; };
 		3C0A002A2E60F00700000005 /* MenuSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuSnapshotTests.swift; sourceTree = "<group>"; };
@@ -160,6 +162,7 @@
 				3C0A00222E60E00600000003 /* DaySelectionStorageTests.swift */,
 				3C0A00202E60E00600000001 /* MenuGeneratorTests.swift */,
 				3C0A00242E60E00600000005 /* MenuPersistenceTests.swift */,
+				3C0A002C2E60F00800000001 /* MenuPersistenceIntegrationTests.swift */,
 				3C0A002A2E60F00700000005 /* MenuSnapshotTests.swift */,
 				3C0A00282E60F00700000003 /* RecipeSnapshotTests.swift */,
 				3C0A00012E60A00100000001 /* SnapshotTestingSmokeTests.swift */,
@@ -393,6 +396,7 @@
 				3C0A00232E60E00600000004 /* DaySelectionStorageTests.swift in Sources */,
 				3C0A00212E60E00600000002 /* MenuGeneratorTests.swift in Sources */,
 				3C0A00252E60E00600000006 /* MenuPersistenceTests.swift in Sources */,
+				3C0A002D2E60F00800000002 /* MenuPersistenceIntegrationTests.swift in Sources */,
 				3C0A002B2E60F00700000006 /* MenuSnapshotTests.swift in Sources */,
 				3C0A00292E60F00700000004 /* RecipeSnapshotTests.swift in Sources */,
 				3C0A00022E60A00100000002 /* SnapshotTestingSmokeTests.swift in Sources */,
