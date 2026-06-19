@@ -19,6 +19,37 @@ func makeTestContainer() throws -> ModelContainer {
     )
 }
 
+/// Creates a unique temporary directory for disk-backed SwiftData tests (FR6 relaunch simulation).
+///
+/// Returns the `.store` file URL inside a UUID-named temp directory. The caller **must**
+/// remove the parent directory in `defer` after the test completes:
+/// `try? FileManager.default.removeItem(at: storeURL.deletingLastPathComponent())`.
+///
+/// - Throws: If the temp directory cannot be created.
+@MainActor
+func makePersistentTestStoreURL() throws -> URL {
+    let directory = FileManager.default.temporaryDirectory
+        .appending(path: "ForkPlanTestStore-\(UUID().uuidString)", directoryHint: .isDirectory)
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    return directory.appending(path: "TestStore.store")
+}
+
+/// Opens a disk-backed `ModelContainer` at `storeURL` — mirrors production persistence, not in-memory.
+///
+/// Use the same `storeURL` across container instances to simulate app relaunch after the first
+/// container is deallocated.
+///
+/// - Parameter storeURL: Store file URL from ``makePersistentTestStoreURL()``.
+/// - Throws: If `ModelContainer` initialization fails.
+@MainActor
+func makePersistentTestContainer(storeURL: URL) throws -> ModelContainer {
+    let configuration = ModelConfiguration(url: storeURL)
+    return try ModelContainer(
+        for: Recipe.self, Menu.self,
+        configurations: configuration
+    )
+}
+
 /// Seeds recipes into the context and saves.
 ///
 /// - Parameters:
