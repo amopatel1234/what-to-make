@@ -5,6 +5,7 @@ An iOS app for saving recipes and generating a randomized weekly menu. Built wit
 ## Requirements
 
 - macOS with **Xcode 26+**
+- **Swift 6.0** with strict concurrency enabled
 - **iOS 26+** simulator/runtime
 - Ruby/Bundler (for Fastlane CI automation)
 

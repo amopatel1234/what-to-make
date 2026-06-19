@@ -30,7 +30,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 | Layer | Technology | Version / Notes |
 |-------|-----------|-----------------|
 | Platform | iOS | Deployment target **26.0** |
-| Language | Swift | **6** (strict concurrency; per-target rollout) |
+| Language | Swift | **6.0** (language mode; strict concurrency `complete` on both targets) |
 | UI | SwiftUI + Observation | `@Query`, `@Observable` coordinators, `@Bindable` |
 | Persistence | SwiftData | `@Query` reads; `modelContext` writes |
 | Concurrency | Swift Concurrency | `async`/`await` only — **no Combine** |
@@ -50,7 +50,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 ### Language-Specific Rules
 
-- Use **Swift 6** with **strict concurrency** — enable `SWIFT_STRICT_CONCURRENCY = complete` per-target; roll out models/tests first, main app target last.
+- Use **Swift 6.0** with **`SWIFT_STRICT_CONCURRENCY = complete`** on both `whattomake` and `whattomakeTests` targets (Debug + Release).
 - Use **Swift Concurrency only** — do not introduce Combine publishers, `@Published`, or Combine-based state.
 - Mark UI-touching code with **`@MainActor`** — views, coordinators, and persistence writes that touch the UI.
 - Pure helpers (`MenuGenerator`, `DaySelectionStorage`) are **non-isolated value types** — do **not** put `@MainActor` on `MenuGenerator`.
@@ -81,7 +81,9 @@ Views (@Query + @State) → Models ← SwiftData
 ```
 User action (view)
   → validate (≥ 7 recipes, ≥ 1 day)
-  → MenuGenerator.select() [pure struct, no @MainActor]
+  → map recipes → RecipeSelectionInput [Sendable snapshot]
+  → MenuGenerator.select(from:forDays:) [pure struct, no @MainActor]
+  → compactMap selected inputs back to Recipe by id
   → increment usageCount on selected recipes
   → MenuPersistence.replaceMenu(with:in:) [delete-before-insert]
   → @Query auto-updates view
@@ -152,7 +154,7 @@ Tests/
 - Import: `@testable import ForkPlan` (module name, not repo name).
 - Use **`makeTestContainer()`** in `Tests/Fixtures/TestModelContainer.swift` — in-memory `ModelContainer`, direct seed; no launch arguments.
 - Test plan: `TestPlans/UnitTestsPlan.xctestplan` → target `whattomakeTests`.
-- Test target: `SWIFT_STRICT_CONCURRENCY = complete`.
+- Test target: `SWIFT_VERSION = 6.0`, `SWIFT_STRICT_CONCURRENCY = complete` (same as app target).
 
 **Snapshot tests (`Tests/`):**
 
