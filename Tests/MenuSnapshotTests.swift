@@ -35,9 +35,14 @@ struct MenuSnapshotTests {
         )
         UserDefaults.standard.set("Mon,Wed,Fri", forKey: selectedDaysKey)
 
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let wednesdayReferenceDate = calendar.date(from: DateComponents(year: 2026, month: 6, day: 17))!
+
         let view = SnapshotTestConfiguration.applyBaselineEnvironment(
             to: SnapshotTestConfiguration.queryReady(
                 GenerateMenuView()
+                    .environment(\.menuReferenceDate, wednesdayReferenceDate)
                     .modelContainer(container)
             )
         )

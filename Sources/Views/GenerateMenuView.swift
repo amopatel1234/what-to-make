@@ -11,6 +11,7 @@ struct GenerateMenuView: View {
     @Query(sort: \Recipe.name) private var recipes: [Recipe]
     @Query private var menus: [Menu]
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.menuReferenceDate) private var menuReferenceDate
     @State private var coordinator = GenerateMenuCoordinator()
     @AppStorage(AppStorageKey.selectedDays.rawValue) private var selectedDaysRaw = DaySelectionStorage.defaultValue
     @State private var showNewPlanSheet = false
@@ -76,20 +77,15 @@ struct GenerateMenuView: View {
             ? menu.recipes.map(\.name)
             : menu.recipeNames
         let rows: [(day: String, name: String)] = Array(zip(menu.days, rowNames))
+        let highlight = MenuHighlightDay.resolve(menuDays: menu.days, on: menuReferenceDate)
 
         return List {
             ForEach(rows, id: \.day) { row in
-                Section {
-                    Text(row.name)
-                        .font(FpTypography.body)
-                        .foregroundStyle(Color.fpLabel)
-                        .accessibilityIdentifier("menuItem_\(row.day)")
-                } header: {
-                    Text(row.day)
-                        .font(FpTypography.caption)
-                        .foregroundStyle(Color.fpSecondaryLabel)
-                        .textCase(.uppercase)
-                }
+                MenuDaySectionRow(
+                    day: row.day,
+                    recipeName: row.name,
+                    highlight: highlight
+                )
             }
 
             Section {
@@ -179,6 +175,60 @@ struct GenerateMenuView: View {
             } catch {
                 coordinator.errorMessage = error.localizedDescription
             }
+        }
+    }
+}
+
+// MARK: - Menu day row
+
+private struct MenuDaySectionRow: View {
+    let day: String
+    let recipeName: String
+    let highlight: MenuHighlightDay.Result?
+
+    private var isHighlighted: Bool { highlight?.day == day }
+
+    private var badgeLabel: String? {
+        guard isHighlighted, let kind = highlight?.kind else { return nil }
+        switch kind {
+        case .today: return "Today"
+        case .upNext: return "Up next"
+        }
+    }
+
+    var body: some View {
+        Section {
+            Text(recipeName)
+                .font(FpTypography.body)
+                .foregroundStyle(Color.fpLabel)
+                .accessibilityIdentifier("menuItem_\(day)")
+                .listRowBackground(rowBackground)
+        } header: {
+            HStack(spacing: 8) {
+                Text(day)
+                    .font(FpTypography.caption)
+                    .foregroundStyle(isHighlighted ? Color.fpAccent : Color.fpSecondaryLabel)
+                    .textCase(.uppercase)
+
+                if let badgeLabel {
+                    Text(badgeLabel)
+                        .font(FpTypography.caption)
+                        .foregroundStyle(Color.fpAccent)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color.fpAccent.opacity(0.15))
+                        .clipShape(Capsule())
+                        .accessibilityIdentifier("menuHighlight_\(day)")
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var rowBackground: some View {
+        if isHighlighted {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.fpAccent.opacity(0.1))
         }
     }
 }
