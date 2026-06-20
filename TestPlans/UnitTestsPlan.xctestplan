@@ -9,6 +9,7 @@
     }
   ],
   "defaultOptions" : {
+    "maximumParallelTestCount" : 1,
     "testTimeoutsEnabled" : true
   },
   "testTargets" : [
