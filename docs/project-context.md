@@ -21,8 +21,6 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 **Brownfield refactor:** This is an in-place architectural reset of `whattomake.xcworkspace` — not a greenfield project. Align existing code with the target SwiftUI-native patterns below.
 
-**Extended source of truth:** `_bmad-output/planning-artifacts/architecture.md` documents refactor sequencing and ADRs. This file distills actionable rules only — do not duplicate epic/story prose here.
-
 ---
 
 ## Technology Stack & Versions
@@ -241,7 +239,7 @@ Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor
 
 **PR descriptions:** Short prose only — 2–3 paragraphs summarizing what changed and why. Do **not** include a test plan, checklist, or `## Summary` / `## Test plan` sections; CI runs tests automatically.
 
-**PR review priorities** (see `.github/copilot-instructions.md`):
+**PR review priorities:**
 
 1. Functional regressions
 2. Data-loss / persistence risks
