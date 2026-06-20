@@ -49,7 +49,6 @@ bundle exec fastlane runUnitTests
 | [`AGENTS.md`](AGENTS.md) | AI agents (auto-discovered) | Entry point — points to project-context + commit rules |
 | [`docs/project-context.md`](docs/project-context.md) | AI agents & developers | Implementation rules, architecture, testing contracts |
 | [`docs/index.md`](docs/index.md) | App users | Privacy policy (GitHub Pages) |
-| [`.github/copilot-instructions.md`](.github/copilot-instructions.md) | PR reviewers | Code review priorities |
 
 ## License
 
