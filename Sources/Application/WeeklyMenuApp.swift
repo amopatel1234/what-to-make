@@ -11,6 +11,8 @@ import SwiftData
 
 @main
 struct WeeklyMenuApp: App {
+    private static let isRunningUnderTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+
     init() {
         DaySelectionStorage.registerDefaults()
     }
@@ -20,6 +22,6 @@ struct WeeklyMenuApp: App {
             RootTabsView()
                 .fpAppTheme()
         }
-        .modelContainer(for: [Recipe.self, Menu.self])
+        .modelContainer(for: [Recipe.self, Menu.self], inMemory: Self.isRunningUnderTests)
     }
 }

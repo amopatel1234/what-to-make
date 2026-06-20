@@ -10,7 +10,7 @@ import SwiftUI
 import Testing
 
 @MainActor
-@Suite
+@Suite(.serialized)
 struct RecipeSnapshotTests {
     @Test
     func emptyRecipesList() throws {
