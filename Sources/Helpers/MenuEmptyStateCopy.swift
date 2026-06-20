@@ -7,9 +7,11 @@
 
 import Foundation
 
-/// UX copy constants for the Generate Menu screen empty state.
+/// UX copy constants for the Menu tab empty state.
 enum MenuEmptyStateCopy {
-    /// Coaching message when no menu exists yet (UX-DR3).
-    /// Epic 1 Story 1.2 wires this into `GenerateMenuView` via `@Query`.
-    static let message = "No menu yet — select days and tap Generate"
+    /// Title when no menu exists yet (UX-DR3).
+    static let title = "No menu yet"
+
+    /// Coaching description below the empty-state hero.
+    static let description = "Choose the days you need dinner, then generate your week."
 }

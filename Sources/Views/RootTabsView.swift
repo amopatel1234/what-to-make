@@ -13,12 +13,12 @@ struct RootTabsView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            RecipesView()
-                .tabItem { Label("Recipes", systemImage: "book") }
-                .tag(0)
-
             GenerateMenuView()
                 .tabItem { Label("Menu", systemImage: "calendar") }
+                .tag(0)
+
+            RecipesView()
+                .tabItem { Label("Recipes", systemImage: "book") }
                 .tag(1)
         }
     }

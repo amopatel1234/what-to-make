@@ -37,11 +37,13 @@
 		3C0A00272E60F00700000002 /* SnapshotTestConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00262E60F00700000001 /* SnapshotTestConfiguration.swift */; };
 		3C0A00292E60F00700000004 /* RecipeSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00282E60F00700000003 /* RecipeSnapshotTests.swift */; };
 		3C0A002B2E60F00700000006 /* MenuSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A002A2E60F00700000005 /* MenuSnapshotTests.swift */; };
+		3C0A00332E62001000000004 /* MenuHighlightDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00322E62001000000003 /* MenuHighlightDayTests.swift */; };
 		3C0A00162E60C00400000002 /* MenuEmptyStateCopy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00152E60C00400000001 /* MenuEmptyStateCopy.swift */; };
 		3C0A001C2E60D00500000005 /* AppStorageKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00182E60D00500000001 /* AppStorageKey.swift */; };
 		3C0A001D2E60D00500000006 /* DaySelectionStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00192E60D00500000002 /* DaySelectionStorage.swift */; };
 		3C0A001E2E60D00500000007 /* MenuGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A001A2E60D00500000003 /* MenuGenerator.swift */; };
 		3C0A001F2E60D00500000008 /* MenuPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A001B2E60D00500000004 /* MenuPersistence.swift */; };
+		3C0A00312E62001000000002 /* MenuHighlightDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00302E62001000000001 /* MenuHighlightDay.swift */; };
 		3C0A00052E60A00100000005 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3C0A00042E60A00100000004 /* SnapshotTesting */; };
 /* End PBXBuildFile section */
 
@@ -95,6 +97,8 @@
 		3C0A00192E60D00500000002 /* DaySelectionStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySelectionStorage.swift; sourceTree = "<group>"; };
 		3C0A001A2E60D00500000003 /* MenuGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuGenerator.swift; sourceTree = "<group>"; };
 		3C0A001B2E60D00500000004 /* MenuPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuPersistence.swift; sourceTree = "<group>"; };
+		3C0A00302E62001000000001 /* MenuHighlightDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuHighlightDay.swift; sourceTree = "<group>"; };
+		3C0A00322E62001000000003 /* MenuHighlightDayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuHighlightDayTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +165,7 @@
 			children = (
 				3C0A00222E60E00600000003 /* DaySelectionStorageTests.swift */,
 				3C0A00202E60E00600000001 /* MenuGeneratorTests.swift */,
+				3C0A00322E62001000000003 /* MenuHighlightDayTests.swift */,
 				3C0A00242E60E00600000005 /* MenuPersistenceTests.swift */,
 				3C0A002C2E60F00800000001 /* MenuPersistenceIntegrationTests.swift */,
 				3C0A002A2E60F00700000005 /* MenuSnapshotTests.swift */,
@@ -216,6 +221,7 @@
 				3C0A00192E60D00500000002 /* DaySelectionStorage.swift */,
 				3C0A001A2E60D00500000003 /* MenuGenerator.swift */,
 				3C0A001B2E60D00500000004 /* MenuPersistence.swift */,
+				3C0A00302E62001000000001 /* MenuHighlightDay.swift */,
 				3C0A00152E60C00400000001 /* MenuEmptyStateCopy.swift */,
 			);
 			path = Helpers;
@@ -381,6 +387,7 @@
 				3C0A001D2E60D00500000006 /* DaySelectionStorage.swift in Sources */,
 				3C0A001E2E60D00500000007 /* MenuGenerator.swift in Sources */,
 				3C0A001F2E60D00500000008 /* MenuPersistence.swift in Sources */,
+				3C0A00312E62001000000002 /* MenuHighlightDay.swift in Sources */,
 				3BAD92AD2E493AA6009DCBAE /* Recipe.swift in Sources */,
 				3BAFB0C52E537D72001B185B /* Layout.swift in Sources */,
 				3BAD92AE2E493AA6009DCBAE /* WeeklyMenuApp.swift in Sources */,
@@ -395,6 +402,7 @@
 			files = (
 				3C0A00232E60E00600000004 /* DaySelectionStorageTests.swift in Sources */,
 				3C0A00212E60E00600000002 /* MenuGeneratorTests.swift in Sources */,
+				3C0A00332E62001000000004 /* MenuHighlightDayTests.swift in Sources */,
 				3C0A00252E60E00600000006 /* MenuPersistenceTests.swift in Sources */,
 				3C0A002D2E60F00800000002 /* MenuPersistenceIntegrationTests.swift in Sources */,
 				3C0A002B2E60F00700000006 /* MenuSnapshotTests.swift in Sources */,
