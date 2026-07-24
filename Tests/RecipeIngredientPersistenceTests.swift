@@ -35,6 +35,17 @@ struct RecipeIngredientPersistenceTests {
         #expect(sortedIngredients[1].name == "olive oil")
     }
 
+    /// Guards lightweight migration of stores created before `containsMeat` existed:
+    /// a mandatory attribute without a schema default fails to migrate in place.
+    @Test
+    func containsMeatHasSchemaDefaultForMigration() {
+        let schema = Schema([Recipe.self, Menu.self, RecipeIngredient.self])
+        let recipeEntity = schema.entities.first { $0.name == "Recipe" }
+        let containsMeatAttribute = recipeEntity?.attributes.first { $0.name == "containsMeat" }
+        #expect(containsMeatAttribute != nil)
+        #expect(containsMeatAttribute?.defaultValue != nil)
+    }
+
     @Test
     func deletingRecipeCascadesToIngredients() throws {
         let container = try makeTestContainer()

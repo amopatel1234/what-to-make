@@ -44,11 +44,14 @@ final class Recipe {
     var imageFilename: String?       // e.g., "img_9F3C2A.jpg"
 
     /// Whether this recipe contains meat (manual toggle for future menu filtering).
-    var containsMeat: Bool
+    ///
+    /// The inline default is required: SwiftData lightweight migration rejects a new
+    /// mandatory attribute without one, which fails to load pre-existing stores.
+    var containsMeat: Bool = false
 
     /// Ingredient lines belonging to this recipe.
     @Relationship(deleteRule: .cascade, inverse: \RecipeIngredient.recipe)
-    var ingredients: [RecipeIngredient]
+    var ingredients: [RecipeIngredient] = []
 
     /// Creates a recipe model.
     /// - Parameters:
