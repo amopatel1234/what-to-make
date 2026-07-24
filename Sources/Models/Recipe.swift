@@ -17,6 +17,8 @@ import SwiftData
 /// - ``usageCount``: Incremented when included in a generated menu.
 /// - ``thumbnailBase64``: Optional Base64 JPEG thumbnail for fast list rendering.
 /// - ``imageFilename``: Optional filename of the original image on disk (via ``ImageStore``).
+/// - ``containsMeat``: Whether the recipe includes meat (user-set).
+/// - ``ingredients``: Ordered ingredient lines for the recipe.
 ///
 /// Example
 /// ```swift
@@ -41,6 +43,16 @@ final class Recipe {
     /// Filename for the original full-resolution image stored in ``ImageStore``.
     var imageFilename: String?       // e.g., "img_9F3C2A.jpg"
 
+    /// Whether this recipe contains meat (manual toggle for future menu filtering).
+    ///
+    /// The inline default is required: SwiftData lightweight migration rejects a new
+    /// mandatory attribute without one, which fails to load pre-existing stores.
+    var containsMeat: Bool = false
+
+    /// Ingredient lines belonging to this recipe.
+    @Relationship(deleteRule: .cascade, inverse: \RecipeIngredient.recipe)
+    var ingredients: [RecipeIngredient] = []
+
     /// Creates a recipe model.
     /// - Parameters:
     ///   - id: Unique identifier (auto-generated if omitted).
@@ -49,13 +61,18 @@ final class Recipe {
     ///   - usageCount: Initial usage count (defaults to 0).
     ///   - thumbnailBase64: Optional Base64 thumbnail.
     ///   - imageFilename: Optional original image filename in ``ImageStore``.
+    ///   - containsMeat: Whether the recipe contains meat (defaults to `false`).
+    ///   - ingredients: Initial ingredient lines (defaults to empty).
     init(id: UUID = UUID(), name: String, notes: String? = nil,
-         usageCount: Int = 0, thumbnailBase64: String? = nil, imageFilename: String? = nil) {
+         usageCount: Int = 0, thumbnailBase64: String? = nil, imageFilename: String? = nil,
+         containsMeat: Bool = false, ingredients: [RecipeIngredient] = []) {
         self.id = id
         self.name = name
         self.notes = notes
         self.usageCount = usageCount
         self.thumbnailBase64 = thumbnailBase64
         self.imageFilename = imageFilename
+        self.containsMeat = containsMeat
+        self.ingredients = ingredients
     }
 }

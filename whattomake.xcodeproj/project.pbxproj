@@ -44,6 +44,10 @@
 		3C0A001E2E60D00500000007 /* MenuGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A001A2E60D00500000003 /* MenuGenerator.swift */; };
 		3C0A001F2E60D00500000008 /* MenuPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A001B2E60D00500000004 /* MenuPersistence.swift */; };
 		3C0A00312E62001000000002 /* MenuHighlightDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00302E62001000000001 /* MenuHighlightDay.swift */; };
+		3C0A00412E63002000000002 /* RecipeIngredient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00402E63002000000001 /* RecipeIngredient.swift */; };
+		3C0A00432E63002000000004 /* IngredientFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00422E63002000000003 /* IngredientFormatting.swift */; };
+		3C0A00452E63002000000006 /* IngredientFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00442E63002000000005 /* IngredientFormattingTests.swift */; };
+		3C0A00472E63002000000008 /* RecipeIngredientPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00462E63002000000007 /* RecipeIngredientPersistenceTests.swift */; };
 		3C0A00052E60A00100000005 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3C0A00042E60A00100000004 /* SnapshotTesting */; };
 /* End PBXBuildFile section */
 
@@ -99,6 +103,10 @@
 		3C0A001B2E60D00500000004 /* MenuPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuPersistence.swift; sourceTree = "<group>"; };
 		3C0A00302E62001000000001 /* MenuHighlightDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuHighlightDay.swift; sourceTree = "<group>"; };
 		3C0A00322E62001000000003 /* MenuHighlightDayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuHighlightDayTests.swift; sourceTree = "<group>"; };
+		3C0A00402E63002000000001 /* RecipeIngredient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeIngredient.swift; sourceTree = "<group>"; };
+		3C0A00422E63002000000003 /* IngredientFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientFormatting.swift; sourceTree = "<group>"; };
+		3C0A00442E63002000000005 /* IngredientFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientFormattingTests.swift; sourceTree = "<group>"; };
+		3C0A00462E63002000000007 /* RecipeIngredientPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeIngredientPersistenceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,6 +178,8 @@
 				3C0A002C2E60F00800000001 /* MenuPersistenceIntegrationTests.swift */,
 				3C0A002A2E60F00700000005 /* MenuSnapshotTests.swift */,
 				3C0A00282E60F00700000003 /* RecipeSnapshotTests.swift */,
+				3C0A00442E63002000000005 /* IngredientFormattingTests.swift */,
+				3C0A00462E63002000000007 /* RecipeIngredientPersistenceTests.swift */,
 				3C0A00012E60A00100000001 /* SnapshotTestingSmokeTests.swift */,
 				3C0A00122E60B00300000003 /* TestModelContainerTests.swift */,
 				3C0A00142E60B00300000005 /* Fixtures */,
@@ -201,6 +211,7 @@
 				3B47D6012E4E3BE000E22A4B /* ImageCodec.swift */,
 				3BAD92812E4937D4009DCBAE /* Menu.swift */,
 				3BAD92802E4937C9009DCBAE /* Recipe.swift */,
+				3C0A00402E63002000000001 /* RecipeIngredient.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -223,6 +234,7 @@
 				3C0A001B2E60D00500000004 /* MenuPersistence.swift */,
 				3C0A00302E62001000000001 /* MenuHighlightDay.swift */,
 				3C0A00152E60C00400000001 /* MenuEmptyStateCopy.swift */,
+				3C0A00422E63002000000003 /* IngredientFormatting.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -389,6 +401,8 @@
 				3C0A001F2E60D00500000008 /* MenuPersistence.swift in Sources */,
 				3C0A00312E62001000000002 /* MenuHighlightDay.swift in Sources */,
 				3BAD92AD2E493AA6009DCBAE /* Recipe.swift in Sources */,
+				3C0A00412E63002000000002 /* RecipeIngredient.swift in Sources */,
+				3C0A00432E63002000000004 /* IngredientFormatting.swift in Sources */,
 				3BAFB0C52E537D72001B185B /* Layout.swift in Sources */,
 				3BAD92AE2E493AA6009DCBAE /* WeeklyMenuApp.swift in Sources */,
 				3B47D6022E4E3BE000E22A4B /* ImageCodec.swift in Sources */,
@@ -407,6 +421,8 @@
 				3C0A002D2E60F00800000002 /* MenuPersistenceIntegrationTests.swift in Sources */,
 				3C0A002B2E60F00700000006 /* MenuSnapshotTests.swift in Sources */,
 				3C0A00292E60F00700000004 /* RecipeSnapshotTests.swift in Sources */,
+				3C0A00452E63002000000006 /* IngredientFormattingTests.swift in Sources */,
+				3C0A00472E63002000000008 /* RecipeIngredientPersistenceTests.swift in Sources */,
 				3C0A00022E60A00100000002 /* SnapshotTestingSmokeTests.swift in Sources */,
 				3C0A00272E60F00700000002 /* SnapshotTestConfiguration.swift in Sources */,
 				3C0A00112E60B00300000002 /* TestModelContainer.swift in Sources */,

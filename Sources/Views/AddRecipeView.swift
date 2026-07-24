@@ -11,7 +11,12 @@ struct AddRecipeView: View {
     let existingRecipe: Recipe?
     @Bindable var coordinator: AddRecipeCoordinator
     @FocusState private var focusedField: Field?
-    enum Field { case name, notes }
+    enum Field: Hashable {
+        case name, notes
+        case ingredientName(UUID)
+        case ingredientAmount(UUID)
+        case ingredientCustomUnit(UUID)
+    }
 
     private var isEditing: Bool { existingRecipe != nil }
 
@@ -63,6 +68,32 @@ struct AddRecipeView: View {
                     .accessibilityIdentifier("notesField")
             }
 
+            // MARK: Diet
+            Section("Diet") {
+                Toggle("Contains meat", isOn: $coordinator.containsMeat)
+                    .font(FpTypography.body)
+                    .accessibilityIdentifier("containsMeatToggle")
+            }
+
+            // MARK: Ingredients
+            Section("Ingredients") {
+                ForEach($coordinator.ingredientDrafts) { $draft in
+                    IngredientDraftRow(
+                        draft: $draft,
+                        focusedField: $focusedField,
+                        onDelete: { coordinator.removeIngredient(id: draft.id) }
+                    )
+                }
+
+                Button {
+                    coordinator.addIngredient()
+                } label: {
+                    Label("Add ingredient", systemImage: "plus.circle.fill")
+                        .font(FpTypography.body)
+                }
+                .accessibilityIdentifier("addIngredientButton")
+            }
+
             // MARK: Error
             if let error = coordinator.errorMessage {
                 Section {
@@ -78,3 +109,71 @@ struct AddRecipeView: View {
         .scrollDismissesKeyboard(.interactively)
     }
 }
+
+private struct IngredientDraftRow: View {
+    @Binding var draft: IngredientDraft
+    var focusedField: FocusState<AddRecipeView.Field?>.Binding
+    let onDelete: () -> Void
+
+    private var rowID: String { draft.id.uuidString }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top, spacing: 8) {
+                TextField("Ingredient", text: $draft.name)
+                    .font(FpTypography.body)
+                    .textInputAutocapitalization(.words)
+                    .focused(focusedField, equals: .ingredientName(draft.id))
+                    .accessibilityIdentifier("ingredientNameField_\(rowID)")
+
+                Button(role: .destructive, action: onDelete) {
+                    Image(systemName: "trash")
+                }
+                .accessibilityIdentifier("deleteIngredientButton_\(rowID)")
+            }
+
+            HStack(spacing: 8) {
+                TextField("Amount", text: $draft.amountText)
+                    .font(FpTypography.body)
+                    .keyboardType(.decimalPad)
+                    .focused(focusedField, equals: .ingredientAmount(draft.id))
+                    .accessibilityIdentifier("ingredientAmountField_\(rowID)")
+
+                if draft.usesCustomUnit {
+                    TextField("Unit", text: $draft.customUnit)
+                        .font(FpTypography.body)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled(true)
+                        .focused(focusedField, equals: .ingredientCustomUnit(draft.id))
+                        .accessibilityIdentifier("ingredientUnitField_\(rowID)")
+                } else {
+                    Picker("Unit", selection: $draft.selectedUnit) {
+                        Text("None").tag("")
+                        ForEach(IngredientUnitOption.presetUnits, id: \.self) { unit in
+                            Text(unit).tag(unit)
+                        }
+                        Text(IngredientUnitOption.custom.rawValue).tag(IngredientUnitOption.custom.rawValue)
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .accessibilityIdentifier("ingredientUnitField_\(rowID)")
+                    .onChange(of: draft.selectedUnit, initial: false) { _, newValue in
+                        if newValue == IngredientUnitOption.custom.rawValue {
+                            draft.usesCustomUnit = true
+                            draft.selectedUnit = ""
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+#if DEBUG
+#Preview {
+    NavigationStack {
+        AddRecipeView(existingRecipe: nil, coordinator: AddRecipeCoordinator())
+    }
+}
+#endif

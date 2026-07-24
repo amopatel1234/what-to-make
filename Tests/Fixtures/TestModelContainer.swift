@@ -14,7 +14,7 @@ import SwiftData
 func makeTestContainer() throws -> ModelContainer {
     let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
     return try ModelContainer(
-        for: Recipe.self, Menu.self,
+        for: Recipe.self, Menu.self, RecipeIngredient.self,
         configurations: configuration
     )
 }
@@ -45,7 +45,7 @@ func makePersistentTestStoreURL() throws -> URL {
 func makePersistentTestContainer(storeURL: URL) throws -> ModelContainer {
     let configuration = ModelConfiguration(url: storeURL)
     return try ModelContainer(
-        for: Recipe.self, Menu.self,
+        for: Recipe.self, Menu.self, RecipeIngredient.self,
         configurations: configuration
     )
 }

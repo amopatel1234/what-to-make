@@ -22,6 +22,6 @@ struct WeeklyMenuApp: App {
             RootTabsView()
                 .fpAppTheme()
         }
-        .modelContainer(for: [Recipe.self, Menu.self], inMemory: Self.isRunningUnderTests)
+        .modelContainer(for: [Recipe.self, Menu.self, RecipeIngredient.self], inMemory: Self.isRunningUnderTests)
     }
 }
