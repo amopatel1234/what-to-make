@@ -40,7 +40,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 **Open:** `whattomake.xcworkspace` (not `.xcodeproj` alone).
 
-**Deferred (not implemented yet):** Usage-weighted menu selection (Phase 3 / Epic 3). Foundation Models integration (Phase 4).
+**Deferred (not implemented yet):** Usage-weighted menu selection (Phase 3 / Epic 3). Meat-day menu filtering by `containsMeat`. Imperial/metric unit display conversion. Foundation Models integration (Phase 4).
 
 ---
 
@@ -112,9 +112,10 @@ User action (view)
 - Normal launches use a **persistent** `ModelContainer` only — no launch-argument store modes.
 - Menu lifecycle: **delete-before-insert** on regenerate — `MenuPersistence.replaceMenu(with:in:)` deletes all existing `Menu` records before inserting the new one.
 - Latest menu: `@Query` via `Menu.latestDescriptor()` → display `menus.first`.
-- Recipe fields: `name` (required), `notes` (optional), `usageCount`, `thumbnailBase64`, `imageFilename`.
+- Recipe fields: `name` (required), `notes` (optional), `usageCount`, `thumbnailBase64`, `imageFilename`, `containsMeat`, `ingredients`.
+- `RecipeIngredient` fields: `name` (required), `amount` (optional `Decimal`), `unit` (optional free text, stored as entered), `sortOrder`.
+- Ingredient units are stored as-entered — no imperial/metric conversion in v1.
 - Menu fields: `generatedDate`, `days`, `recipes` (snapshot of selected recipes).
-- **No ingredient list** in the current product — do not reintroduce ingredient-related logic, identifiers, or tests.
 - Canonical day identifiers: `"Mon"` … `"Sun"` (locale-independent).
 
 **Image storage (split design — do not blur):**
@@ -136,7 +137,7 @@ User action (view)
 Sources/
   Application/   WeeklyMenuApp.swift
   Views/         RecipesListView, AddRecipeView, GenerateMenuView
-  Models/        Recipe, Menu, ImageCodec (ImageStore)
+  Models/        Recipe, RecipeIngredient, Menu, ImageCodec (ImageStore)
   Helpers/       MenuGenerator, DaySelectionStorage, AppStorageKey, MenuPersistence
   DesignSystem/  unchanged
 Tests/
@@ -198,7 +199,7 @@ Tests/
 | Area | Identifiers |
 |------|------------|
 | Recipes | `recipesList`, `emptyRecipesView`, `addRecipeButton` |
-| Add recipe | `recipeNameField`, `notesField`, `choosePhotoButton`, `saveRecipeButton` |
+| Add recipe | `recipeNameField`, `notesField`, `choosePhotoButton`, `saveRecipeButton`, `containsMeatToggle`, `ingredientNameField_<index>`, `ingredientAmountField_<index>`, `ingredientUnitField_<index>`, `addIngredientButton` |
 | Menu | `toggleDay_<Day>`, `generateMenuButton`, `menuItem_<Day>`, `menuRecipesRequirementMessage`, `menuValidationMessage` |
 
 - Add accessibility identifiers to **all user-interactive elements**.
@@ -262,7 +263,6 @@ Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor
 - Put business logic in view `body` — extract to `MenuGenerator`, validation helpers
 - Iterate live `@Model` `Recipe` in Form `ForEach` — use snapshot tuples
 - Store full-resolution images inline in SwiftData — keep the thumbnail/original split
-- Reintroduce ingredient list features — out of scope for current version
 - Record snapshots in CI (`RECORD_SNAPSHOTS=1` local only)
 - Put `@MainActor` on `MenuGenerator`
 - Scatter raw `@AppStorage` string keys — use `AppStorageKey` enum
