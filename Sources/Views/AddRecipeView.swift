@@ -67,6 +67,7 @@ struct AddRecipeView: View {
                     .autocorrectionDisabled(false)
                     .submitLabel(.done)
                     .focused($focusedField, equals: .notes)
+                    .onSubmit { focusedField = nil }
                     .writingToolsBehavior(.complete)
                     .accessibilityIdentifier("notesField")
             }
@@ -114,6 +115,16 @@ struct AddRecipeView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(isEditing ? "Edit Recipe" : "Add Recipe")
         .scrollDismissesKeyboard(.interactively)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    focusedField = nil
+                }
+                .font(FpTypography.body)
+                .accessibilityIdentifier("dismissKeyboardButton")
+            }
+        }
     }
 }
 
@@ -130,7 +141,9 @@ private struct IngredientDraftRow: View {
                 TextField("Ingredient", text: $draft.name)
                     .font(FpTypography.body)
                     .textInputAutocapitalization(.words)
+                    .submitLabel(.next)
                     .focused(focusedField, equals: .ingredientName(draft.id))
+                    .onSubmit { focusedField.wrappedValue = .ingredientAmount(draft.id) }
                     .writingToolsBehavior(.disabled)
                     .accessibilityIdentifier("ingredientNameField_\(rowID)")
 
@@ -153,7 +166,9 @@ private struct IngredientDraftRow: View {
                         .font(FpTypography.body)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled(true)
+                        .submitLabel(.done)
                         .focused(focusedField, equals: .ingredientCustomUnit(draft.id))
+                        .onSubmit { focusedField.wrappedValue = nil }
                         .writingToolsBehavior(.disabled)
                         .accessibilityIdentifier("ingredientUnitField_\(rowID)")
                 } else {
