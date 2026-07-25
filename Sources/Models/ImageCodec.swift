@@ -80,9 +80,17 @@ enum ImageStoreError: Error {
 /// ImageStore.delete(named: filename)
 /// ```
 enum ImageStore {
+    /// Test-only override for the images directory. Production leaves this `nil`.
+    @MainActor
+    static var directoryOverride: URL?
+
     /// Directory for storing original images (created if needed).
     @MainActor
     static var dir: URL {
+        if let directoryOverride {
+            try? FileManager.default.createDirectory(at: directoryOverride, withIntermediateDirectories: true)
+            return directoryOverride
+        }
         let fm = FileManager.default
         if let base = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
             let url = base.appendingPathComponent("Images", isDirectory: true)

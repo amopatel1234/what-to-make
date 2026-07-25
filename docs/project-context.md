@@ -78,12 +78,11 @@ Views (@Query + @State) → Models ← SwiftData
 
 ```
 User action (view)
-  → validate (≥ 7 recipes, ≥ 1 day)
+  → validate (≥ 7 recipes, ≥ 1 day) via MenuGeneration.validationMessage
   → map recipes → RecipeSelectionInput [Sendable snapshot]
   → MenuGenerator.select(from:forDays:) [pure struct, no @MainActor]
   → compactMap selected inputs back to Recipe by id
-  → increment usageCount on selected recipes
-  → MenuPersistence.replaceMenu(with:in:) [delete-before-insert]
+  → MenuGeneration.run → MenuPersistence.replaceMenu + usageCount increment
   → @Query auto-updates view
 ```
 
@@ -138,7 +137,7 @@ Sources/
   Application/   WeeklyMenuApp.swift
   Views/         RecipesListView, AddRecipeView, GenerateMenuView
   Models/        Recipe, RecipeIngredient, Menu, ImageCodec (ImageStore)
-  Helpers/       MenuGenerator, DaySelectionStorage, AppStorageKey, MenuPersistence
+  Helpers/       MenuGenerator, MenuGeneration, DaySelectionStorage, AppStorageKey, MenuPersistence
   DesignSystem/  unchanged
 Tests/
   Fixtures/      makeTestContainer() (Story 0.3)
@@ -152,6 +151,7 @@ Tests/
 - Framework: **Swift Testing** — `@Test` functions, `#expect`, `@MainActor` on test structs when testing main-actor code.
 - Import: `@testable import ForkPlan` (module name, not repo name).
 - Use **`makeTestContainer()`** in `Tests/Fixtures/TestModelContainer.swift` — in-memory `ModelContainer`, direct seed; no launch arguments.
+- Image disk tests may set ``ImageStore/directoryOverride`` to a temp directory and clear it in `defer`.
 - Test plan: `TestPlans/UnitTestsPlan.xctestplan` → target `whattomakeTests`.
 - Test target: `SWIFT_VERSION = 6.0`, `SWIFT_STRICT_CONCURRENCY = complete` (same as app target).
 

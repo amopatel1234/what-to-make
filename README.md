@@ -17,10 +17,11 @@ open whattomake.xcworkspace
 
 Run the app from Xcode using the `whattomake` scheme. The built product is `ForkPlan.app`.
 
-Optional setup for Fastlane:
+Optional setup for Fastlane and local Conventional Commit checks:
 
 ```bash
 bundle install
+git config core.hooksPath hooks
 ```
 
 ## Tests

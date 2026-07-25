@@ -55,6 +55,47 @@ struct AddRecipeCoordinatorTests {
     }
 
     @Test
+    func saveRequiresIngredientNameWhenAmountProvided() throws {
+        let container = try makeTestContainer()
+        let context = container.mainContext
+        let coordinator = AddRecipeCoordinator()
+        coordinator.name = "Soup"
+        coordinator.ingredientDrafts = [
+            IngredientDraft(name: "  ", amountText: "2", selectedUnit: "cups")
+        ]
+
+        let didSave = coordinator.save(existingRecipe: nil, in: context)
+        #expect(!didSave)
+        #expect(coordinator.errorMessage == "Each ingredient needs a name.")
+        #expect(try context.fetch(FetchDescriptor<Recipe>()).isEmpty)
+    }
+
+    @Test
+    func savePersistsContainsMeatFlag() throws {
+        let container = try makeTestContainer()
+        let context = container.mainContext
+        let coordinator = AddRecipeCoordinator()
+        coordinator.name = "Steak"
+        coordinator.containsMeat = true
+
+        let didSave = coordinator.save(existingRecipe: nil, in: context)
+        #expect(didSave)
+
+        let fetched = try context.fetch(FetchDescriptor<Recipe>()).first
+        #expect(fetched?.containsMeat == true)
+    }
+
+    @Test
+    func handleLoadedImageDataRejectsInvalidBytes() async {
+        let coordinator = AddRecipeCoordinator()
+        await coordinator.handleLoadedImageData(Data([0x00, 0x01, 0x02]))
+        #expect(coordinator.errorMessage == "Could not load photo.")
+        #expect(coordinator.previewImage == nil)
+        #expect(coordinator.thumbnailBase64 == nil)
+        #expect(coordinator.imageFilename == nil)
+    }
+
+    @Test
     func saveUpdatesExistingRecipeIngredients() throws {
         let container = try makeTestContainer()
         let context = container.mainContext
