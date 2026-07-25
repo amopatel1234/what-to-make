@@ -48,6 +48,7 @@
 		3C0A00432E63002000000004 /* IngredientFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00422E63002000000003 /* IngredientFormatting.swift */; };
 		3C0A00452E63002000000006 /* IngredientFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00442E63002000000005 /* IngredientFormattingTests.swift */; };
 		3C0A00472E63002000000008 /* RecipeIngredientPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00462E63002000000007 /* RecipeIngredientPersistenceTests.swift */; };
+		3C0A00492E64003000000002 /* AddRecipeCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00482E64003000000001 /* AddRecipeCoordinatorTests.swift */; };
 		3C0A00052E60A00100000005 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3C0A00042E60A00100000004 /* SnapshotTesting */; };
 /* End PBXBuildFile section */
 
@@ -107,6 +108,7 @@
 		3C0A00422E63002000000003 /* IngredientFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientFormatting.swift; sourceTree = "<group>"; };
 		3C0A00442E63002000000005 /* IngredientFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientFormattingTests.swift; sourceTree = "<group>"; };
 		3C0A00462E63002000000007 /* RecipeIngredientPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeIngredientPersistenceTests.swift; sourceTree = "<group>"; };
+		3C0A00482E64003000000001 /* AddRecipeCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecipeCoordinatorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +182,7 @@
 				3C0A00282E60F00700000003 /* RecipeSnapshotTests.swift */,
 				3C0A00442E63002000000005 /* IngredientFormattingTests.swift */,
 				3C0A00462E63002000000007 /* RecipeIngredientPersistenceTests.swift */,
+				3C0A00482E64003000000001 /* AddRecipeCoordinatorTests.swift */,
 				3C0A00012E60A00100000001 /* SnapshotTestingSmokeTests.swift */,
 				3C0A00122E60B00300000003 /* TestModelContainerTests.swift */,
 				3C0A00142E60B00300000005 /* Fixtures */,
@@ -423,6 +426,7 @@
 				3C0A00292E60F00700000004 /* RecipeSnapshotTests.swift in Sources */,
 				3C0A00452E63002000000006 /* IngredientFormattingTests.swift in Sources */,
 				3C0A00472E63002000000008 /* RecipeIngredientPersistenceTests.swift in Sources */,
+				3C0A00492E64003000000002 /* AddRecipeCoordinatorTests.swift in Sources */,
 				3C0A00022E60A00100000002 /* SnapshotTestingSmokeTests.swift in Sources */,
 				3C0A00272E60F00700000002 /* SnapshotTestConfiguration.swift in Sources */,
 				3C0A00112E60B00300000002 /* TestModelContainer.swift in Sources */,

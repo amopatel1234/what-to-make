@@ -73,10 +73,18 @@ struct RecipesView: View {
                 }
             }
             .sheet(isPresented: $showAdd) {
-                AddRecipeSheetContent(existingRecipe: nil, onDismiss: { showAdd = false })
+                AddRecipeSheetContent(
+                    existingRecipe: nil,
+                    modelContext: modelContext,
+                    onDismiss: { showAdd = false }
+                )
             }
             .sheet(item: $selectedRecipe) { recipe in
-                AddRecipeSheetContent(existingRecipe: recipe, onDismiss: { selectedRecipe = nil })
+                AddRecipeSheetContent(
+                    existingRecipe: recipe,
+                    modelContext: modelContext,
+                    onDismiss: { selectedRecipe = nil }
+                )
             }
             .alert("Could Not Delete Recipe", isPresented: deleteErrorPresented) {
                 Button("OK", role: .cancel) { deleteErrorMessage = nil }
@@ -115,12 +123,15 @@ struct RecipesView: View {
 
 private struct AddRecipeSheetContent: View {
     let existingRecipe: Recipe?
+    /// Parent list context — passed explicitly so sheet saves cannot land in a
+    /// disconnected SwiftData environment (sheet would dismiss, list stays empty).
+    let modelContext: ModelContext
     let onDismiss: () -> Void
     @State private var coordinator: AddRecipeCoordinator
-    @Environment(\.modelContext) private var modelContext
 
-    init(existingRecipe: Recipe?, onDismiss: @escaping () -> Void) {
+    init(existingRecipe: Recipe?, modelContext: ModelContext, onDismiss: @escaping () -> Void) {
         self.existingRecipe = existingRecipe
+        self.modelContext = modelContext
         self.onDismiss = onDismiss
         let coordinator = AddRecipeCoordinator()
         if let existingRecipe {
@@ -139,10 +150,10 @@ private struct AddRecipeSheetContent: View {
                     }
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Save") {
-                            Task { @MainActor in
-                                if await coordinator.save(existingRecipe: existingRecipe, in: modelContext) {
-                                    onDismiss()
-                                }
+                            // Save synchronously on the parent context before dismiss so the
+                            // insert is committed before the sheet tears down.
+                            if coordinator.save(existingRecipe: existingRecipe, in: modelContext) {
+                                onDismiss()
                             }
                         }
                         .disabled(coordinator.isSaving)
