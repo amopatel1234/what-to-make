@@ -51,7 +51,7 @@ struct IngredientDraft: Identifiable, Equatable {
 final class AddRecipeCoordinator {
     var name = ""
     var notes = ""
-    var containsMeat = false
+    var dietaryKind: RecipeDietaryKind = .standard
     var ingredientDrafts: [IngredientDraft] = []
     var selectedPhotoItem: PhotosPickerItem?
     var previewImage: UIImage?
@@ -64,7 +64,7 @@ final class AddRecipeCoordinator {
     func loadExistingRecipe(from recipe: Recipe) {
         name = recipe.name
         notes = recipe.notes ?? ""
-        containsMeat = recipe.containsMeat
+        dietaryKind = recipe.dietaryKind
         thumbnailBase64 = recipe.thumbnailBase64
         imageFilename = recipe.imageFilename
         ingredientDrafts = recipe.ingredients
@@ -151,7 +151,7 @@ final class AddRecipeCoordinator {
                 recipe = existingRecipe
                 recipe.name = name
                 recipe.notes = notes
-                recipe.containsMeat = containsMeat
+                recipe.dietaryKind = dietaryKind
                 recipe.thumbnailBase64 = thumbnailBase64
                 recipe.imageFilename = imageFilename
                 needsInsert = false
@@ -159,7 +159,7 @@ final class AddRecipeCoordinator {
                 recipe = pendingRecipe
                 recipe.name = name.trimmingCharacters(in: .whitespaces)
                 recipe.notes = notes.isEmpty ? nil : notes
-                recipe.containsMeat = containsMeat
+                recipe.dietaryKind = dietaryKind
                 recipe.thumbnailBase64 = thumbnailBase64
                 recipe.imageFilename = imageFilename
                 needsInsert = false
@@ -169,7 +169,7 @@ final class AddRecipeCoordinator {
                     notes: notes.isEmpty ? nil : notes,
                     thumbnailBase64: thumbnailBase64,
                     imageFilename: imageFilename,
-                    containsMeat: containsMeat
+                    dietaryKind: dietaryKind
                 )
                 pendingRecipe = recipe
                 needsInsert = true

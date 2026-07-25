@@ -18,6 +18,7 @@ enum DaySelectionStorage {
         UserDefaults.standard.register(defaults: [
             AppStorageKey.selectedDays.rawValue: defaultValue
         ])
+        DayDietConstraintStorage.registerDefaults()
     }
 
     /// Decodes comma-separated day identifiers into a validated set.

@@ -14,13 +14,15 @@ struct GenerateMenuView: View {
     @Environment(\.menuReferenceDate) private var menuReferenceDate
     @State private var coordinator = GenerateMenuCoordinator()
     @AppStorage(AppStorageKey.selectedDays.rawValue) private var selectedDaysRaw = DaySelectionStorage.defaultValue
+    @AppStorage(AppStorageKey.dayDietConstraints.rawValue) private var dayDietConstraintsRaw = DayDietConstraintStorage.defaultValue
     @State private var showNewPlanSheet = false
     @State private var showRegenerateConfirmation = false
 
-    private let weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-
     private var latestMenu: Menu? { menus.first }
     private var selectedDays: Set<String> { DaySelectionStorage.decode(selectedDaysRaw) }
+    private var dietConstraints: [String: DayDietConstraint] {
+        DayDietConstraintStorage.decode(dayDietConstraintsRaw)
+    }
     private var canGenerate: Bool {
         !selectedDays.isEmpty
             && recipes.count >= MenuGeneration.minRecipesRequired
@@ -42,7 +44,10 @@ struct GenerateMenuView: View {
             }
             .navigationTitle("Menu")
             .sheet(isPresented: $showNewPlanSheet) {
-                MenuNewPlanSheet(initialDaysRaw: newPlanInitialDaysRaw)
+                MenuNewPlanSheet(
+                    initialDaysRaw: newPlanInitialDaysRaw,
+                    initialDietConstraintsRaw: dayDietConstraintsRaw
+                )
             }
         }
     }
@@ -60,11 +65,12 @@ struct GenerateMenuView: View {
         ScrollView {
             MenuPlanSetupPanel(
                 selectedDaysRaw: $selectedDaysRaw,
+                dayDietConstraintsRaw: $dayDietConstraintsRaw,
                 recipeCount: recipes.count,
                 minRecipesRequired: MenuGeneration.minRecipesRequired,
                 coordinator: coordinator,
                 showsHero: showsHero,
-                onGenerate: { generateMenu(from: selectedDays) }
+                onGenerate: { generateMenu(from: selectedDays, dietConstraints: dietConstraints) }
             )
             .padding(FpLayout.screenPadding)
         }
@@ -125,7 +131,7 @@ struct GenerateMenuView: View {
                 regenerateMenu()
             }
         } message: {
-            Text("New recipes will be picked for the same days.")
+            Text("New recipes will be picked for the same days and diet settings.")
         }
         .overlay(alignment: .bottom) {
             if let message = coordinator.errorMessage {
@@ -142,13 +148,20 @@ struct GenerateMenuView: View {
 
     private func regenerateMenu() {
         guard let menu = latestMenu else { return }
-        generateMenu(from: Set(menu.days))
+        generateMenu(from: Set(menu.days), dietConstraints: dietConstraints)
     }
 
-    private func generateMenu(from days: Set<String>) {
+    private func generateMenu(
+        from days: Set<String>,
+        dietConstraints: [String: DayDietConstraint]
+    ) {
         guard !coordinator.isGenerating else { return }
 
-        if let message = MenuGeneration.validationMessage(recipeCount: recipes.count, days: days) {
+        if let message = MenuGeneration.validationMessage(
+            recipes: recipes,
+            days: days,
+            dietConstraints: dietConstraints
+        ) {
             coordinator.errorMessage = message
             return
         }
@@ -165,6 +178,7 @@ struct GenerateMenuView: View {
                 try MenuGeneration.run(
                     recipes: recipes,
                     days: days,
+                    dietConstraints: dietConstraints,
                     modelContext: modelContext
                 )
                 coordinator.errorMessage = nil
@@ -233,6 +247,7 @@ private struct MenuDaySectionRow: View {
 
 private struct MenuPlanSetupPanel: View {
     @Binding var selectedDaysRaw: String
+    @Binding var dayDietConstraintsRaw: String
     let recipeCount: Int
     let minRecipesRequired: Int
     @Bindable var coordinator: GenerateMenuCoordinator
@@ -262,8 +277,13 @@ private struct MenuPlanSetupPanel: View {
                     .font(FpTypography.heading)
                     .foregroundStyle(Color.fpLabel)
 
-                MenuDaySelectionGrid(
-                    selectedDaysRaw: $selectedDaysRaw
+                Text("Turn on days for your plan, then mark any that should be veg or vegan only.")
+                    .font(FpTypography.caption)
+                    .foregroundStyle(Color.fpSecondaryLabel)
+
+                MenuDayPlanList(
+                    selectedDaysRaw: $selectedDaysRaw,
+                    dayDietConstraintsRaw: $dayDietConstraintsRaw
                 )
             }
 
@@ -300,39 +320,85 @@ private struct MenuPlanSetupPanel: View {
     }
 }
 
-// MARK: - Day chips
+// MARK: - Day plan list
 
-private struct MenuDaySelectionGrid: View {
+private struct MenuDayPlanList: View {
     @Binding var selectedDaysRaw: String
+    @Binding var dayDietConstraintsRaw: String
 
     private let weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     private var selectedDays: Set<String> { DaySelectionStorage.decode(selectedDaysRaw) }
 
     var body: some View {
-        LazyVGrid(
-            columns: [GridItem(.adaptive(minimum: 52), spacing: 8)],
-            spacing: 8
-        ) {
-            ForEach(weekDays, id: \.self) { day in
-                Button {
-                    toggle(day)
-                } label: {
-                    FpChip(title: day, isSelected: selectedDays.contains(day))
+        VStack(spacing: 0) {
+            ForEach(Array(weekDays.enumerated()), id: \.element) { index, day in
+                MenuDayPlanRow(
+                    day: day,
+                    isSelected: selectedDays.contains(day),
+                    dietConstraint: DayDietConstraintStorage.binding(
+                        for: day,
+                        raw: $dayDietConstraintsRaw
+                    ),
+                    onToggle: { isOn in
+                        toggle(day, isOn: isOn)
+                    }
+                )
+                if index < weekDays.count - 1 {
+                    Divider()
+                        .opacity(0.35)
                 }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("toggleDay_\(day)")
             }
         }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
+        .background(Color.fpSurface)
+        .clipShape(RoundedRectangle(cornerRadius: FpLayout.cardCornerRadius))
+        .overlay(
+            RoundedRectangle(cornerRadius: FpLayout.cardCornerRadius)
+                .stroke(Color.fpSeparator.opacity(0.25), lineWidth: 0.5)
+        )
     }
 
-    private func toggle(_ day: String) {
+    private func toggle(_ day: String, isOn: Bool) {
         var days = selectedDays
-        if days.contains(day) {
-            days.remove(day)
-        } else {
+        if isOn {
             days.insert(day)
+        } else {
+            days.remove(day)
+            dayDietConstraintsRaw = DayDietConstraintStorage.clearing(day, from: dayDietConstraintsRaw)
         }
         selectedDaysRaw = DaySelectionStorage.encode(days)
+    }
+}
+
+private struct MenuDayPlanRow: View {
+    let day: String
+    let isSelected: Bool
+    @Binding var dietConstraint: DayDietConstraint
+    let onToggle: (Bool) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Toggle(day, isOn: Binding(
+                get: { isSelected },
+                set: onToggle
+            ))
+            .font(FpTypography.body)
+            .foregroundStyle(Color.fpLabel)
+            .tint(Color.fpAccent)
+            .accessibilityIdentifier("toggleDay_\(day)")
+
+            Picker("Diet", selection: $dietConstraint) {
+                ForEach(DayDietConstraint.allCases, id: \.self) { constraint in
+                    Text(constraint.shortDisplayName).tag(constraint)
+                }
+            }
+            .pickerStyle(.segmented)
+            .disabled(!isSelected)
+            .opacity(isSelected ? 1 : 0.4)
+            .accessibilityIdentifier("dayDiet_\(day)")
+        }
+        .padding(.vertical, 10)
     }
 }
 
@@ -344,18 +410,24 @@ private struct MenuNewPlanSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var coordinator = GenerateMenuCoordinator()
     @State private var selectedDaysRaw: String
+    @State private var dayDietConstraintsRaw: String
 
-    init(initialDaysRaw: String) {
+    init(initialDaysRaw: String, initialDietConstraintsRaw: String) {
         _selectedDaysRaw = State(initialValue: initialDaysRaw)
+        _dayDietConstraintsRaw = State(initialValue: initialDietConstraintsRaw)
     }
 
     private var selectedDays: Set<String> { DaySelectionStorage.decode(selectedDaysRaw) }
+    private var dietConstraints: [String: DayDietConstraint] {
+        DayDietConstraintStorage.decode(dayDietConstraintsRaw)
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 MenuPlanSetupPanel(
                     selectedDaysRaw: $selectedDaysRaw,
+                    dayDietConstraintsRaw: $dayDietConstraintsRaw,
                     recipeCount: recipes.count,
                     minRecipesRequired: MenuGeneration.minRecipesRequired,
                     coordinator: coordinator,
@@ -381,8 +453,9 @@ private struct MenuNewPlanSheet: View {
         guard !coordinator.isGenerating else { return }
 
         if let message = MenuGeneration.validationMessage(
-            recipeCount: recipes.count,
-            days: selectedDays
+            recipes: recipes,
+            days: selectedDays,
+            dietConstraints: dietConstraints
         ) {
             coordinator.errorMessage = message
             return
@@ -399,6 +472,7 @@ private struct MenuNewPlanSheet: View {
                 try MenuGeneration.run(
                     recipes: recipes,
                     days: selectedDays,
+                    dietConstraints: dietConstraints,
                     modelContext: modelContext
                 )
                 coordinator.errorMessage = nil

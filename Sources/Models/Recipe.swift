@@ -17,7 +17,7 @@ import SwiftData
 /// - ``usageCount``: Incremented when included in a generated menu.
 /// - ``thumbnailBase64``: Optional Base64 JPEG thumbnail for fast list rendering.
 /// - ``imageFilename``: Optional filename of the original image on disk (via ``ImageStore``).
-/// - ``containsMeat``: Whether the recipe includes meat (user-set).
+/// - ``dietaryKindRaw``: Stored raw value for ``RecipeDietaryKind``.
 /// - ``ingredients``: Ordered ingredient lines for the recipe.
 ///
 /// Example
@@ -43,15 +43,21 @@ final class Recipe {
     /// Filename for the original full-resolution image stored in ``ImageStore``.
     var imageFilename: String?       // e.g., "img_9F3C2A.jpg"
 
-    /// Whether this recipe contains meat (manual toggle for future menu filtering).
+    /// Stored raw value for ``dietaryKind`` (`standard`, `vegetarian`, or `vegan`).
     ///
     /// The inline default is required: SwiftData lightweight migration rejects a new
     /// mandatory attribute without one, which fails to load pre-existing stores.
-    var containsMeat: Bool = false
+    var dietaryKindRaw: String = RecipeDietaryKind.standard.rawValue
 
     /// Ingredient lines belonging to this recipe.
     @Relationship(deleteRule: .cascade, inverse: \RecipeIngredient.recipe)
     var ingredients: [RecipeIngredient] = []
+
+    /// Typed dietary classification for menu filtering.
+    var dietaryKind: RecipeDietaryKind {
+        get { RecipeDietaryKind(rawValue: dietaryKindRaw) ?? .standard }
+        set { dietaryKindRaw = newValue.rawValue }
+    }
 
     /// Creates a recipe model.
     /// - Parameters:
@@ -61,18 +67,18 @@ final class Recipe {
     ///   - usageCount: Initial usage count (defaults to 0).
     ///   - thumbnailBase64: Optional Base64 thumbnail.
     ///   - imageFilename: Optional original image filename in ``ImageStore``.
-    ///   - containsMeat: Whether the recipe contains meat (defaults to `false`).
+    ///   - dietaryKind: Dietary classification (defaults to ``RecipeDietaryKind/standard``).
     ///   - ingredients: Initial ingredient lines (defaults to empty).
     init(id: UUID = UUID(), name: String, notes: String? = nil,
          usageCount: Int = 0, thumbnailBase64: String? = nil, imageFilename: String? = nil,
-         containsMeat: Bool = false, ingredients: [RecipeIngredient] = []) {
+         dietaryKind: RecipeDietaryKind = .standard, ingredients: [RecipeIngredient] = []) {
         self.id = id
         self.name = name
         self.notes = notes
         self.usageCount = usageCount
         self.thumbnailBase64 = thumbnailBase64
         self.imageFilename = imageFilename
-        self.containsMeat = containsMeat
+        self.dietaryKindRaw = dietaryKind.rawValue
         self.ingredients = ingredients
     }
 }

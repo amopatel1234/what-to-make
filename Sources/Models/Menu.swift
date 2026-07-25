@@ -33,7 +33,7 @@ final class Menu {
     /// Ordered recipe display names captured at generation time (parallel to ``days``).
     ///
     /// Inline default required for lightweight migration of stores created before
-    /// this attribute existed (same failure mode as ``Recipe/containsMeat``).
+    /// this attribute existed (same failure mode as ``Recipe/dietaryKindRaw``).
     var recipeNames: [String] = []
     /// The recipes chosen for the corresponding ``days`` entries.
     ///

@@ -10,4 +10,5 @@ import Foundation
 /// Canonical `@AppStorage` keys — do not scatter raw strings elsewhere.
 enum AppStorageKey: String {
     case selectedDays
+    case dayDietConstraints
 }

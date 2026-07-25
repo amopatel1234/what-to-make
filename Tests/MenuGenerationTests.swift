@@ -12,32 +12,91 @@ import Testing
 @Suite
 struct MenuGenerationTests {
     private let selectedDaysKey = AppStorageKey.selectedDays.rawValue
+    private let dayDietConstraintsKey = AppStorageKey.dayDietConstraints.rawValue
 
-    private func resetSelectedDays() {
+    private func resetPersistedSelection() {
         UserDefaults.standard.removeObject(forKey: selectedDaysKey)
+        UserDefaults.standard.removeObject(forKey: dayDietConstraintsKey)
     }
 
     @Test
     func validationRejectsFewerThanSevenRecipes() {
-        let message = MenuGeneration.validationMessage(recipeCount: 6, days: ["Mon"])
+        let message = MenuGeneration.validationMessage(
+            recipeCount: 6,
+            dietaryKinds: Array(repeating: .standard, count: 6),
+            days: ["Mon"]
+        )
         #expect(message == "You need at least 7 recipes to generate a menu. You currently have 6.")
     }
 
     @Test
     func validationRejectsEmptyDays() {
-        let message = MenuGeneration.validationMessage(recipeCount: 7, days: [])
+        let message = MenuGeneration.validationMessage(
+            recipeCount: 7,
+            dietaryKinds: Array(repeating: .standard, count: 7),
+            days: []
+        )
         #expect(message == "Please select at least one day.")
     }
 
     @Test
     func validationAllowsReadyLibraryAndDays() {
-        #expect(MenuGeneration.validationMessage(recipeCount: 7, days: ["Wed"]) == nil)
+        #expect(
+            MenuGeneration.validationMessage(
+                recipeCount: 7,
+                dietaryKinds: Array(repeating: .standard, count: 7),
+                days: ["Wed"]
+            ) == nil
+        )
+    }
+
+    @Test
+    func validationRejectsInsufficientVeganRecipes() {
+        let kinds: [RecipeDietaryKind] = [
+            .standard, .standard, .standard, .standard, .standard, .vegetarian, .vegetarian
+        ]
+        let message = MenuGeneration.validationMessage(
+            recipeCount: 7,
+            dietaryKinds: kinds,
+            days: ["Mon", "Tue"],
+            dietConstraints: ["Mon": .vegan]
+        )
+        #expect(message == "Need 1 more vegan recipe for the days you marked as vegan.")
+    }
+
+    @Test
+    func validationRejectsInsufficientVegetarianRecipesAfterVeganDays() {
+        let kinds: [RecipeDietaryKind] = [
+            .standard, .standard, .standard, .standard, .standard, .vegan, .vegetarian
+        ]
+        let message = MenuGeneration.validationMessage(
+            recipeCount: 7,
+            dietaryKinds: kinds,
+            days: ["Mon", "Tue", "Wed"],
+            dietConstraints: ["Mon": .vegan, "Tue": .vegetarian, "Wed": .vegetarian]
+        )
+        #expect(message == "Need 1 more vegetarian recipe for the days you marked as veg.")
+    }
+
+    @Test
+    func validationAllowsVeganToCoverVegetarianDay() {
+        let kinds: [RecipeDietaryKind] = [
+            .standard, .standard, .standard, .standard, .standard, .vegan, .vegan
+        ]
+        #expect(
+            MenuGeneration.validationMessage(
+                recipeCount: 7,
+                dietaryKinds: kinds,
+                days: ["Mon", "Tue"],
+                dietConstraints: ["Mon": .vegan, "Tue": .vegetarian]
+            ) == nil
+        )
     }
 
     @Test
     func runPersistsMenuAndIncrementsUsage() throws {
-        defer { resetSelectedDays() }
-        resetSelectedDays()
+        defer { resetPersistedSelection() }
+        resetPersistedSelection()
 
         let container = try makeTestContainer()
         let context = container.mainContext
@@ -60,9 +119,35 @@ struct MenuGenerationTests {
     }
 
     @Test
+    func runPersistsDietConstraintsAndHonorsThem() throws {
+        defer { resetPersistedSelection() }
+        resetPersistedSelection()
+
+        let container = try makeTestContainer()
+        let context = container.mainContext
+        var recipes = try seedRecipes(in: context, count: 7, usageCount: 0)
+        recipes[0].dietaryKind = .vegan
+        recipes[1].dietaryKind = .vegetarian
+        try context.save()
+
+        try MenuGeneration.run(
+            recipes: recipes,
+            days: ["Mon", "Wed"],
+            dietConstraints: ["Mon": .vegan, "Wed": .vegetarian],
+            modelContext: context
+        )
+
+        let menu = try context.fetch(FetchDescriptor<Menu>()).first
+        #expect(menu?.days == ["Mon", "Wed"])
+        #expect(menu?.recipes[0].dietaryKind == .vegan)
+        #expect(menu?.recipes[1].dietaryKind.satisfies(.vegetarian) == true)
+        #expect(UserDefaults.standard.string(forKey: dayDietConstraintsKey) == "Mon=vegan,Wed=vegetarian")
+    }
+
+    @Test
     func runReplacesExistingMenu() throws {
-        defer { resetSelectedDays() }
-        resetSelectedDays()
+        defer { resetPersistedSelection() }
+        resetPersistedSelection()
 
         let container = try makeTestContainer()
         let context = container.mainContext

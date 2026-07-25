@@ -40,7 +40,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 **Open:** `whattomake.xcworkspace` (not `.xcodeproj` alone).
 
-**Deferred (not implemented yet):** Usage-weighted menu selection (Phase 3 / Epic 3). Meat-day menu filtering by `containsMeat`. Imperial/metric unit display conversion. Foundation Models integration (Phase 4).
+**Deferred (not implemented yet):** Usage-weighted menu selection (Phase 3 / Epic 3). Imperial/metric unit display conversion. Foundation Models integration (Phase 4).
 
 ---
 
@@ -69,7 +69,7 @@ Views (@Query + @State) → Models ← SwiftData
 
 - **Views** (`Sources/Views/`) — declarative UI; `@Query` for reads, `@Environment(\.modelContext)` for writes.
 - **Models** (`Sources/Models/`) — SwiftData `@Model` types (`Recipe`, `Menu`) and image helpers (`ImageCodec`, `ImageStore`).
-- **Helpers** (`Sources/Helpers/`) — pure logic: `MenuGenerator`, `DaySelectionStorage`, `AppStorageKey`, `MenuPersistence`.
+- **Helpers** (`Sources/Helpers/`) — pure logic: `MenuGenerator`, `DaySelectionStorage`, `DayDietConstraintStorage`, `AppStorageKey`, `MenuPersistence`.
 - **DesignSystem** (`Sources/DesignSystem/`) — shared styling; use `fpAppTheme()`, `FpTypography`, `fpPrimary()`, etc.
 - **Application** (`Sources/Application/WeeklyMenuApp.swift`) — `.modelContainer` only; no use case or repository wiring.
 - **Deleted after refactor:** `Sources/UseCases/`, `Sources/Repositories/`, `Sources/ViewModels/`.
@@ -78,9 +78,9 @@ Views (@Query + @State) → Models ← SwiftData
 
 ```
 User action (view)
-  → validate (≥ 7 recipes, ≥ 1 day) via MenuGeneration.validationMessage
+  → validate (≥ 7 recipes, ≥ 1 day, diet pools) via MenuGeneration.validationMessage
   → map recipes → RecipeSelectionInput [Sendable snapshot]
-  → MenuGenerator.select(from:forDays:) [pure struct, no @MainActor]
+  → MenuGenerator.select(from:requests:) [pure struct, no @MainActor]
   → compactMap selected inputs back to Recipe by id
   → MenuGeneration.run → MenuPersistence.replaceMenu + usageCount increment
   → @Query auto-updates view
@@ -93,6 +93,7 @@ User action (view)
 | Recipe list | `@Query(sort: \Recipe.name)` |
 | Latest menu | `@Query` via `Menu.latestDescriptor()` → `menus.first` |
 | Day toggles | `@AppStorage` via `DaySelectionStorage` + `AppStorageKey` |
+| Day diet filters | `@AppStorage` via `DayDietConstraintStorage` + `AppStorageKey.dayDietConstraints` |
 | Transient UI | `@State` or thin `@Observable` coordinator (transitional until Epic 1 ViewModel deletion) |
 | Writes | `@Environment(\.modelContext)` in views / `MenuPersistence` |
 | Async UI | `Task { @MainActor in ... }` |
@@ -111,11 +112,13 @@ User action (view)
 - Normal launches use a **persistent** `ModelContainer` only — no launch-argument store modes.
 - Menu lifecycle: **delete-before-insert** on regenerate — `MenuPersistence.replaceMenu(with:in:)` deletes all existing `Menu` records before inserting the new one.
 - Latest menu: `@Query` via `Menu.latestDescriptor()` → display `menus.first`.
-- Recipe fields: `name` (required), `notes` (optional), `usageCount`, `thumbnailBase64`, `imageFilename`, `containsMeat`, `ingredients`.
+- Recipe fields: `name` (required), `notes` (optional), `usageCount`, `thumbnailBase64`, `imageFilename`, `dietaryKindRaw` / `dietaryKind` (`standard` \| `vegetarian` \| `vegan`), `ingredients`.
 - `RecipeIngredient` fields: `name` (required), `amount` (optional `Decimal`), `unit` (optional free text, stored as entered), `sortOrder`.
 - Ingredient units are stored as-entered — no imperial/metric conversion in v1.
 - Menu fields: `generatedDate`, `days`, `recipes` (snapshot of selected recipes).
 - Canonical day identifiers: `"Mon"` … `"Sun"` (locale-independent).
+- Per-day diet constraints: ``DayDietConstraint`` (`any` / `vegetarian` / `vegan`); vegan recipes satisfy vegetarian days; restricted days are hard filters (no fallback onto a veg/vegan day).
+- Menu generation validates diet pools before select (enough vegan recipes for vegan days; enough vegetarian∪remaining vegan for veg days).
 
 **Image storage (split design — do not blur):**
 
@@ -126,9 +129,10 @@ User action (view)
 **Product rules:**
 
 - Menu generation requires **≥ 7 recipes** (`minRecipesRequired = 7`).
-- User selects any subset of days Mon–Sun.
+- User selects any subset of days Mon–Sun; each selected day may be **Any**, **Veg**, or **Vegan**.
 - Generating a menu **increments `usageCount`** on selected recipes.
 - Recipe `name` is required; `notes` and photos are optional.
+- Recipe diet default is ``RecipeDietaryKind/standard``.
 
 **Folder structure (target):**
 
@@ -136,8 +140,8 @@ User action (view)
 Sources/
   Application/   WeeklyMenuApp.swift
   Views/         RecipesListView, AddRecipeView, GenerateMenuView
-  Models/        Recipe, RecipeIngredient, Menu, ImageCodec (ImageStore)
-  Helpers/       MenuGenerator, MenuGeneration, DaySelectionStorage, AppStorageKey, MenuPersistence
+  Models/        Recipe, RecipeDietaryKind, RecipeIngredient, Menu, ImageCodec (ImageStore)
+  Helpers/       MenuGenerator, MenuGeneration, DaySelectionStorage, DayDietConstraintStorage, AppStorageKey, MenuPersistence
   DesignSystem/  unchanged
 Tests/
   Fixtures/      makeTestContainer() (Story 0.3)
@@ -199,8 +203,8 @@ Tests/
 | Area | Identifiers |
 |------|------------|
 | Recipes | `recipesList`, `emptyRecipesView`, `addRecipeButton` |
-| Add recipe | `recipeNameField`, `notesField`, `choosePhotoButton`, `saveRecipeButton`, `containsMeatToggle`, `ingredientNameField_<index>`, `ingredientAmountField_<index>`, `ingredientUnitField_<index>`, `addIngredientButton` |
-| Menu | `toggleDay_<Day>`, `generateMenuButton`, `menuItem_<Day>`, `menuRecipesRequirementMessage`, `menuValidationMessage` |
+| Add recipe | `recipeNameField`, `notesField`, `choosePhotoButton`, `saveRecipeButton`, `recipeDietaryKindPicker`, `ingredientNameField_<index>`, `ingredientAmountField_<index>`, `ingredientUnitField_<index>`, `addIngredientButton` |
+| Menu | `toggleDay_<Day>`, `dayDiet_<Day>`, `generateMenuButton`, `menuItem_<Day>`, `menuRecipesRequirementMessage`, `menuValidationMessage` |
 
 - Add accessibility identifiers to **all user-interactive elements**.
 - Ignore naming inconsistencies (`whattomake` vs `ForkPlan`) unless they cause build, import, or test failures.
