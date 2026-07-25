@@ -55,16 +55,19 @@ struct AddRecipeView: View {
                     .submitLabel(.next)
                     .focused($focusedField, equals: .name)
                     .onSubmit { focusedField = .notes }
+                    .writingToolsBehavior(.disabled)
                     .accessibilityIdentifier("recipeNameField")
 
+                // System Writing Tools (Proofread / Rewrite / Summarize) — not Foundation Models.
                 TextField("Notes", text: $coordinator.notes, axis: .vertical)
-                    .lineLimit(1...3)
+                    .lineLimit(3...10)
                     .font(FpTypography.body)
                     .foregroundStyle(Color.fpLabel)
                     .textInputAutocapitalization(.sentences)
                     .autocorrectionDisabled(false)
                     .submitLabel(.done)
                     .focused($focusedField, equals: .notes)
+                    .writingToolsBehavior(.complete)
                     .accessibilityIdentifier("notesField")
             }
 
@@ -128,6 +131,7 @@ private struct IngredientDraftRow: View {
                     .font(FpTypography.body)
                     .textInputAutocapitalization(.words)
                     .focused(focusedField, equals: .ingredientName(draft.id))
+                    .writingToolsBehavior(.disabled)
                     .accessibilityIdentifier("ingredientNameField_\(rowID)")
 
                 Button(role: .destructive, action: onDelete) {
@@ -141,6 +145,7 @@ private struct IngredientDraftRow: View {
                     .font(FpTypography.body)
                     .keyboardType(.decimalPad)
                     .focused(focusedField, equals: .ingredientAmount(draft.id))
+                    .writingToolsBehavior(.disabled)
                     .accessibilityIdentifier("ingredientAmountField_\(rowID)")
 
                 if draft.usesCustomUnit {
@@ -149,6 +154,7 @@ private struct IngredientDraftRow: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled(true)
                         .focused(focusedField, equals: .ingredientCustomUnit(draft.id))
+                        .writingToolsBehavior(.disabled)
                         .accessibilityIdentifier("ingredientUnitField_\(rowID)")
                 } else {
                     Picker("Unit", selection: $draft.selectedUnit) {
