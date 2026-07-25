@@ -13,7 +13,10 @@ import UIKit
 struct ImageStoreTests {
     private func makeSampleImage(dimension: CGFloat = 40) -> UIImage {
         let size = CGSize(width: dimension, height: dimension)
-        let renderer = UIGraphicsImageRenderer(size: size)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = true
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
         return renderer.image { context in
             UIColor.systemOrange.setFill()
             context.fill(CGRect(origin: .zero, size: size))
@@ -36,8 +39,9 @@ struct ImageStoreTests {
 
     @Test
     func jpegDataDownscalesLargeImages() {
+        let maxDimension: CGFloat = 600
         let image = makeSampleImage(dimension: 1_200)
-        let data = ImageCodec.jpegData(image, maxDimension: 600, quality: 0.8)
+        let data = ImageCodec.jpegData(image, maxDimension: maxDimension, quality: 0.8)
         #expect(data != nil)
         #expect((data?.count ?? 0) > 0)
 
@@ -45,8 +49,10 @@ struct ImageStoreTests {
             Issue.record("Expected JPEG data to decode")
             return
         }
-        let maxSide = max(decoded.size.width, decoded.size.height)
-        #expect(maxSide <= 600.5)
+        // JPEG-decoded UIImage uses scale 1; size is in pixels.
+        let pixelMaxSide = max(decoded.size.width, decoded.size.height) * decoded.scale
+        #expect(pixelMaxSide <= maxDimension + 0.5)
+        #expect(pixelMaxSide < 1_200)
     }
 
     @Test
