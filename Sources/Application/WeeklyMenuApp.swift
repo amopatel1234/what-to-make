@@ -6,6 +6,7 @@
 //
 
 
+import AppIntents
 import SwiftUI
 import SwiftData
 
@@ -13,8 +14,24 @@ import SwiftData
 struct WeeklyMenuApp: App {
     private static let isRunningUnderTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
 
+    private let modelContainer: ModelContainer
+
     init() {
         DaySelectionStorage.registerDefaults()
+
+        if Self.isRunningUnderTests {
+            modelContainer = (try? ForkPlanModelContainer.makeInMemory())
+                ?? ForkPlanModelContainer.shared
+        } else {
+            modelContainer = ForkPlanModelContainer.shared
+        }
+
+        let container = modelContainer
+        let asyncDependency: @Sendable () async -> ModelContainer = { @MainActor in
+            container
+        }
+        AppDependencyManager.shared.add(key: "ModelContainer", dependency: asyncDependency)
+        ForkPlanShortcuts.updateAppShortcutParameters()
     }
 
     var body: some Scene {
@@ -22,6 +39,6 @@ struct WeeklyMenuApp: App {
             RootTabsView()
                 .fpAppTheme()
         }
-        .modelContainer(for: [Recipe.self, Menu.self, RecipeIngredient.self], inMemory: Self.isRunningUnderTests)
+        .modelContainer(modelContainer)
     }
 }

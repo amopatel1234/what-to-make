@@ -71,7 +71,7 @@ Views (@Query + @State) → Models ← SwiftData
 - **Models** (`Sources/Models/`) — SwiftData `@Model` types (`Recipe`, `Menu`) and image helpers (`ImageCodec`, `ImageStore`).
 - **Helpers** (`Sources/Helpers/`) — pure logic: `MenuGenerator`, `DaySelectionStorage`, `DayDietConstraintStorage`, `AppStorageKey`, `MenuPersistence`.
 - **DesignSystem** (`Sources/DesignSystem/`) — shared styling; use `fpAppTheme()`, `FpTypography`, `fpPrimary()`, etc.
-- **Application** (`Sources/Application/WeeklyMenuApp.swift`) — `.modelContainer` only; no use case or repository wiring.
+- **Application** (`Sources/Application/WeeklyMenuApp.swift`) — shared `ModelContainer`, App Intent dependency registration; no use case or repository wiring.
 - **Deleted after refactor:** `Sources/UseCases/`, `Sources/Repositories/`, `Sources/ViewModels/`.
 
 **Data flow (generate menu):**
@@ -141,7 +141,8 @@ Sources/
   Application/   WeeklyMenuApp.swift
   Views/         RecipesListView, AddRecipeView, GenerateMenuView
   Models/        Recipe, RecipeDietaryKind, RecipeIngredient, Menu, ImageCodec (ImageStore)
-  Helpers/       MenuGenerator, MenuGeneration, DaySelectionStorage, DayDietConstraintStorage, AppStorageKey, MenuPersistence
+  Helpers/       MenuGenerator, MenuGeneration, DaySelectionStorage, DayDietConstraintStorage, AppStorageKey, MenuPersistence, MenuIntentSupport, ForkPlanModelContainer
+  Intents/       GetTodaysMealIntent, GetWeeklyMenuIntent, GenerateWeeklyMenuIntent, ForkPlanShortcuts
   DesignSystem/  unchanged
 Tests/
   Fixtures/      makeTestContainer() (Story 0.3)

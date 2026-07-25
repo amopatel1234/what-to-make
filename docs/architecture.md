@@ -6,10 +6,11 @@ Canonical product rules remain in [`project-context.md`](project-context.md). Th
 
 | Folder | Role |
 |--------|------|
-| `Application/` | App entry (`WeeklyMenuApp`) — `.modelContainer` only |
+| `Application/` | App entry (`WeeklyMenuApp`) — shared `ModelContainer` + App Intent dependency registration |
 | `Views/` | SwiftUI views + thin `@Observable` coordinators (transient UI) |
 | `Models/` | SwiftData `@Model` types + `ImageCodec` / `ImageStore` |
-| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, …) |
+| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, `MenuIntentSupport`, …) |
+| `Intents/` | App Intents + `AppShortcutsProvider` (thin; call Helpers for work) |
 | `DesignSystem/` | Shared `fp*` styling |
 
 Do **not** add new top-level folders under `Sources/` without updating this doc and the architecture sensor if needed.
@@ -47,5 +48,16 @@ View action
   → MenuPersistence.replaceMenu + usageCount
   → @Query updates UI
 ```
+
+## App Intents
+
+```
+Siri / Shortcuts
+  → Sources/Intents/* (thin AppIntent)
+  → MenuIntentSupport + MenuGeneration (Helpers)
+  → ForkPlanModelContainer.shared
+```
+
+Keep intent `perform()` thin. Put dialog formatting and UserDefaults reads in `Helpers/` so they stay unit-testable without invoking App Intents runtime.
 
 See [`project-context.md`](project-context.md) for full product and testing contracts.
