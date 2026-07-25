@@ -18,7 +18,7 @@ struct AddRecipeCoordinatorTests {
         let coordinator = AddRecipeCoordinator()
         coordinator.name = "  Shakshuka  "
         coordinator.notes = "Weekend brunch"
-        coordinator.containsMeat = false
+        coordinator.dietaryKind = .vegetarian
         coordinator.ingredientDrafts = [
             IngredientDraft(name: "eggs", amountText: "4", selectedUnit: ""),
             IngredientDraft(name: "tomatoes", amountText: "400", selectedUnit: "g")
@@ -31,7 +31,7 @@ struct AddRecipeCoordinatorTests {
         #expect(fetched.count == 1)
         #expect(fetched[0].name == "Shakshuka")
         #expect(fetched[0].notes == "Weekend brunch")
-        #expect(fetched[0].containsMeat == false)
+        #expect(fetched[0].dietaryKind == .vegetarian)
 
         let ingredients = fetched[0].ingredients.sorted { $0.sortOrder < $1.sortOrder }
         #expect(ingredients.count == 2)
@@ -71,18 +71,18 @@ struct AddRecipeCoordinatorTests {
     }
 
     @Test
-    func savePersistsContainsMeatFlag() throws {
+    func savePersistsDietaryKind() throws {
         let container = try makeTestContainer()
         let context = container.mainContext
         let coordinator = AddRecipeCoordinator()
         coordinator.name = "Steak"
-        coordinator.containsMeat = true
+        coordinator.dietaryKind = .standard
 
         let didSave = coordinator.save(existingRecipe: nil, in: context)
         #expect(didSave)
 
         let fetched = try context.fetch(FetchDescriptor<Recipe>()).first
-        #expect(fetched?.containsMeat == true)
+        #expect(fetched?.dietaryKind == .standard)
     }
 
     @Test
@@ -99,7 +99,7 @@ struct AddRecipeCoordinatorTests {
     func saveUpdatesExistingRecipeIngredients() throws {
         let container = try makeTestContainer()
         let context = container.mainContext
-        let existing = Recipe(name: "Pasta", notes: "Old", containsMeat: false)
+        let existing = Recipe(name: "Pasta", notes: "Old", dietaryKind: .vegetarian)
         let oldIngredient = RecipeIngredient(name: "spaghetti", amount: 200, unit: "g", sortOrder: 0)
         oldIngredient.recipe = existing
         existing.ingredients = [oldIngredient]
@@ -110,7 +110,7 @@ struct AddRecipeCoordinatorTests {
         coordinator.loadExistingRecipe(from: existing)
         coordinator.name = "Pasta Primavera"
         coordinator.notes = "Updated"
-        coordinator.containsMeat = false
+        coordinator.dietaryKind = .vegan
         coordinator.ingredientDrafts = [
             IngredientDraft(name: "penne", amountText: "300", selectedUnit: "g")
         ]
@@ -121,6 +121,7 @@ struct AddRecipeCoordinatorTests {
         let fetched = try context.fetch(FetchDescriptor<Recipe>()).first
         #expect(fetched?.name == "Pasta Primavera")
         #expect(fetched?.notes == "Updated")
+        #expect(fetched?.dietaryKind == .vegan)
         let ingredients = fetched?.ingredients.sorted { $0.sortOrder < $1.sortOrder } ?? []
         #expect(ingredients.count == 1)
         #expect(ingredients[0].name == "penne")

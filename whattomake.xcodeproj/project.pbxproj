@@ -52,6 +52,9 @@
 		3C0A00512E65004000000002 /* MenuGeneration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00502E65004000000001 /* MenuGeneration.swift */; };
 		3C0A00532E65004000000004 /* MenuGenerationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00522E65004000000003 /* MenuGenerationTests.swift */; };
 		3C0A00552E65004000000006 /* ImageStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00542E65004000000005 /* ImageStoreTests.swift */; };
+		3C0A00612E66005000000002 /* RecipeDietaryKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00602E66005000000001 /* RecipeDietaryKind.swift */; };
+		3C0A00632E66005000000004 /* DayDietConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00622E66005000000003 /* DayDietConstraint.swift */; };
+		3C0A00652E66005000000006 /* DayDietConstraintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00642E66005000000005 /* DayDietConstraintTests.swift */; };
 		3C0A00052E60A00100000005 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3C0A00042E60A00100000004 /* SnapshotTesting */; };
 /* End PBXBuildFile section */
 
@@ -115,6 +118,9 @@
 		3C0A00502E65004000000001 /* MenuGeneration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuGeneration.swift; sourceTree = "<group>"; };
 		3C0A00522E65004000000003 /* MenuGenerationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuGenerationTests.swift; sourceTree = "<group>"; };
 		3C0A00542E65004000000005 /* ImageStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStoreTests.swift; sourceTree = "<group>"; };
+		3C0A00602E66005000000001 /* RecipeDietaryKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeDietaryKind.swift; sourceTree = "<group>"; };
+		3C0A00622E66005000000003 /* DayDietConstraint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayDietConstraint.swift; sourceTree = "<group>"; };
+		3C0A00642E66005000000005 /* DayDietConstraintTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayDietConstraintTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +186,7 @@
 			isa = PBXGroup;
 			children = (
 				3C0A00222E60E00600000003 /* DaySelectionStorageTests.swift */,
+				3C0A00642E66005000000005 /* DayDietConstraintTests.swift */,
 				3C0A00202E60E00600000001 /* MenuGeneratorTests.swift */,
 				3C0A00322E62001000000003 /* MenuHighlightDayTests.swift */,
 				3C0A00242E60E00600000005 /* MenuPersistenceTests.swift */,
@@ -222,6 +229,7 @@
 				3B47D6012E4E3BE000E22A4B /* ImageCodec.swift */,
 				3BAD92812E4937D4009DCBAE /* Menu.swift */,
 				3BAD92802E4937C9009DCBAE /* Recipe.swift */,
+				3C0A00602E66005000000001 /* RecipeDietaryKind.swift */,
 				3C0A00402E63002000000001 /* RecipeIngredient.swift */,
 			);
 			path = Models;
@@ -241,6 +249,7 @@
 			children = (
 				3C0A00182E60D00500000001 /* AppStorageKey.swift */,
 				3C0A00192E60D00500000002 /* DaySelectionStorage.swift */,
+				3C0A00622E66005000000003 /* DayDietConstraint.swift */,
 				3C0A001A2E60D00500000003 /* MenuGenerator.swift */,
 				3C0A00502E65004000000001 /* MenuGeneration.swift */,
 				3C0A001B2E60D00500000004 /* MenuPersistence.swift */,
@@ -409,11 +418,13 @@
 				3C0A00162E60C00400000002 /* MenuEmptyStateCopy.swift in Sources */,
 				3C0A001C2E60D00500000005 /* AppStorageKey.swift in Sources */,
 				3C0A001D2E60D00500000006 /* DaySelectionStorage.swift in Sources */,
+				3C0A00632E66005000000004 /* DayDietConstraint.swift in Sources */,
 				3C0A001E2E60D00500000007 /* MenuGenerator.swift in Sources */,
 				3C0A00512E65004000000002 /* MenuGeneration.swift in Sources */,
 				3C0A001F2E60D00500000008 /* MenuPersistence.swift in Sources */,
 				3C0A00312E62001000000002 /* MenuHighlightDay.swift in Sources */,
 				3BAD92AD2E493AA6009DCBAE /* Recipe.swift in Sources */,
+				3C0A00612E66005000000002 /* RecipeDietaryKind.swift in Sources */,
 				3C0A00412E63002000000002 /* RecipeIngredient.swift in Sources */,
 				3C0A00432E63002000000004 /* IngredientFormatting.swift in Sources */,
 				3BAFB0C52E537D72001B185B /* Layout.swift in Sources */,
@@ -428,6 +439,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C0A00232E60E00600000004 /* DaySelectionStorageTests.swift in Sources */,
+				3C0A00652E66005000000006 /* DayDietConstraintTests.swift in Sources */,
 				3C0A00212E60E00600000002 /* MenuGeneratorTests.swift in Sources */,
 				3C0A00332E62001000000004 /* MenuHighlightDayTests.swift in Sources */,
 				3C0A00252E60E00600000006 /* MenuPersistenceTests.swift in Sources */,

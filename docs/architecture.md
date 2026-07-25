@@ -9,7 +9,7 @@ Canonical product rules remain in [`project-context.md`](project-context.md). Th
 | `Application/` | App entry (`WeeklyMenuApp`) — `.modelContainer` only |
 | `Views/` | SwiftUI views + thin `@Observable` coordinators (transient UI) |
 | `Models/` | SwiftData `@Model` types + `ImageCodec` / `ImageStore` |
-| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `MenuPersistence`, …) |
+| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, …) |
 | `DesignSystem/` | Shared `fp*` styling |
 
 Do **not** add new top-level folders under `Sources/` without updating this doc and the architecture sensor if needed.

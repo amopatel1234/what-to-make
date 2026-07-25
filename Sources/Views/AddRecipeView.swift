@@ -70,9 +70,13 @@ struct AddRecipeView: View {
 
             // MARK: Diet
             Section("Diet") {
-                Toggle("Contains meat", isOn: $coordinator.containsMeat)
-                    .font(FpTypography.body)
-                    .accessibilityIdentifier("containsMeatToggle")
+                Picker("Diet", selection: $coordinator.dietaryKind) {
+                    ForEach(RecipeDietaryKind.allCases, id: \.self) { kind in
+                        Text(kind.displayName).tag(kind)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .accessibilityIdentifier("recipeDietaryKindPicker")
             }
 
             // MARK: Ingredients

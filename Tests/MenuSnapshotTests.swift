@@ -13,9 +13,11 @@ import Testing
 @Suite(.serialized)
 struct MenuSnapshotTests {
     private let selectedDaysKey = AppStorageKey.selectedDays.rawValue
+    private let dayDietConstraintsKey = AppStorageKey.dayDietConstraints.rawValue
 
     private func resetSelectedDays() {
         UserDefaults.standard.removeObject(forKey: selectedDaysKey)
+        UserDefaults.standard.removeObject(forKey: dayDietConstraintsKey)
     }
 
     @Test
