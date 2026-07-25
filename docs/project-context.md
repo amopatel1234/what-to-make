@@ -31,7 +31,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 | Language | Swift | **6.0** (language mode; strict concurrency `complete` on both targets) |
 | UI | SwiftUI + Observation | `@Query`, `@Observable` coordinators, `@Bindable` |
 | Persistence | SwiftData | `@Query` reads; `modelContext` writes |
-| Concurrency | Swift Concurrency | `async`/`await` only — **no Combine** |
+| Concurrency | Swift Concurrency | `async`/`await` only — Observation / `@Observable`, not `@Published` / `@StateObject` / `@ObservedObject` |
 | Unit tests | Swift Testing | `@Test`, `#expect`; `@testable import ForkPlan` |
 | Snapshot tests | swift-snapshot-testing | Point-Free; `whattomakeTests` target only |
 | CI/CD | Fastlane + GitHub Actions | `macos-26` runners |
@@ -257,7 +257,7 @@ Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor
 
 **Do NOT:**
 
-- Reintroduce use cases, repositories, ViewModels (beyond thin transient coordinators), or Combine
+- Reintroduce use cases, repositories, ViewModels (beyond thin transient coordinators), or `@Published` / `@StateObject` / `@ObservedObject`
 - Wire manual menu load paths — `@Query` replaces fetch wiring
 - Use session-only `generatedMenu` without `@Query`
 - Create mock repositories for tests — use `makeTestContainer()` instead
