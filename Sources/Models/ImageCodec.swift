@@ -35,7 +35,12 @@ enum ImageCodec {
         let scale = min(1, maxDimension / max(size.width, size.height))
         let target = CGSize(width: size.width * scale, height: size.height * scale)
 
-        let renderer = UIGraphicsImageRenderer(size: target)
+        // Render at scale 1 so `maxDimension` bounds pixel size (and JPEG payload),
+        // not points × main-screen scale on Retina simulators/devices.
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = false
+        let renderer = UIGraphicsImageRenderer(size: target, format: format)
         let resized = renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: target))
         }
@@ -80,9 +85,17 @@ enum ImageStoreError: Error {
 /// ImageStore.delete(named: filename)
 /// ```
 enum ImageStore {
+    /// Test-only override for the images directory. Production leaves this `nil`.
+    @MainActor
+    static var directoryOverride: URL?
+
     /// Directory for storing original images (created if needed).
     @MainActor
     static var dir: URL {
+        if let directoryOverride {
+            try? FileManager.default.createDirectory(at: directoryOverride, withIntermediateDirectories: true)
+            return directoryOverride
+        }
         let fm = FileManager.default
         if let base = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
             let url = base.appendingPathComponent("Images", isDirectory: true)

@@ -1,0 +1,5 @@
+#!/bin/sh
+# Agent harness sensor: block push when architecture boundaries regress.
+set -e
+root="$(git rev-parse --show-toplevel)"
+exec "$root/scripts/check-architecture.sh"

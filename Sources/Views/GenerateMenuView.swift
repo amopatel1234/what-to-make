@@ -18,12 +18,13 @@ struct GenerateMenuView: View {
     @State private var showRegenerateConfirmation = false
 
     private let weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    private let minRecipesRequired = 7
 
     private var latestMenu: Menu? { menus.first }
     private var selectedDays: Set<String> { DaySelectionStorage.decode(selectedDaysRaw) }
     private var canGenerate: Bool {
-        !selectedDays.isEmpty && recipes.count >= minRecipesRequired && !coordinator.isGenerating
+        !selectedDays.isEmpty
+            && recipes.count >= MenuGeneration.minRecipesRequired
+            && !coordinator.isGenerating
     }
 
     init() {
@@ -60,7 +61,7 @@ struct GenerateMenuView: View {
             MenuPlanSetupPanel(
                 selectedDaysRaw: $selectedDaysRaw,
                 recipeCount: recipes.count,
-                minRecipesRequired: minRecipesRequired,
+                minRecipesRequired: MenuGeneration.minRecipesRequired,
                 coordinator: coordinator,
                 showsHero: showsHero,
                 onGenerate: { generateMenu(from: selectedDays) }
@@ -147,13 +148,8 @@ struct GenerateMenuView: View {
     private func generateMenu(from days: Set<String>) {
         guard !coordinator.isGenerating else { return }
 
-        guard recipes.count >= minRecipesRequired else {
-            coordinator.errorMessage = "You need at least \(minRecipesRequired) recipes to generate a menu. You currently have \(recipes.count)."
-            return
-        }
-
-        guard !days.isEmpty else {
-            coordinator.errorMessage = "Please select at least one day."
+        if let message = MenuGeneration.validationMessage(recipeCount: recipes.count, days: days) {
+            coordinator.errorMessage = message
             return
         }
 
@@ -166,7 +162,7 @@ struct GenerateMenuView: View {
             await Task.yield()
 
             do {
-                try MenuGenerationActions.run(
+                try MenuGeneration.run(
                     recipes: recipes,
                     days: days,
                     modelContext: modelContext
@@ -245,7 +241,9 @@ private struct MenuPlanSetupPanel: View {
 
     private var selectedDays: Set<String> { DaySelectionStorage.decode(selectedDaysRaw) }
     private var canGenerate: Bool {
-        !selectedDays.isEmpty && recipeCount >= minRecipesRequired && !coordinator.isGenerating
+        !selectedDays.isEmpty
+            && recipeCount >= minRecipesRequired
+            && !coordinator.isGenerating
     }
 
     var body: some View {
@@ -347,8 +345,6 @@ private struct MenuNewPlanSheet: View {
     @State private var coordinator = GenerateMenuCoordinator()
     @State private var selectedDaysRaw: String
 
-    private let minRecipesRequired = 7
-
     init(initialDaysRaw: String) {
         _selectedDaysRaw = State(initialValue: initialDaysRaw)
     }
@@ -361,7 +357,7 @@ private struct MenuNewPlanSheet: View {
                 MenuPlanSetupPanel(
                     selectedDaysRaw: $selectedDaysRaw,
                     recipeCount: recipes.count,
-                    minRecipesRequired: minRecipesRequired,
+                    minRecipesRequired: MenuGeneration.minRecipesRequired,
                     coordinator: coordinator,
                     showsHero: false,
                     onGenerate: { generateMenu() }
@@ -384,13 +380,11 @@ private struct MenuNewPlanSheet: View {
     private func generateMenu() {
         guard !coordinator.isGenerating else { return }
 
-        guard recipes.count >= minRecipesRequired else {
-            coordinator.errorMessage = "You need at least \(minRecipesRequired) recipes to generate a menu. You currently have \(recipes.count)."
-            return
-        }
-
-        guard !selectedDays.isEmpty else {
-            coordinator.errorMessage = "Please select at least one day."
+        if let message = MenuGeneration.validationMessage(
+            recipeCount: recipes.count,
+            days: selectedDays
+        ) {
+            coordinator.errorMessage = message
             return
         }
 
@@ -402,7 +396,7 @@ private struct MenuNewPlanSheet: View {
             await Task.yield()
 
             do {
-                try MenuGenerationActions.run(
+                try MenuGeneration.run(
                     recipes: recipes,
                     days: selectedDays,
                     modelContext: modelContext
@@ -413,36 +407,5 @@ private struct MenuNewPlanSheet: View {
                 coordinator.errorMessage = error.localizedDescription
             }
         }
-    }
-}
-
-// MARK: - Generation actions
-
-@MainActor
-private enum MenuGenerationActions {
-    static func run(
-        recipes: [Recipe],
-        days: Set<String>,
-        modelContext: ModelContext
-    ) throws {
-        let orderedDays = DaySelectionStorage.orderedDays(from: days)
-        let inputs = recipes.map {
-            RecipeSelectionInput(id: $0.id, name: $0.name, usageCount: $0.usageCount)
-        }
-        let selectedInputs = MenuGenerator.select(from: inputs, forDays: orderedDays)
-        let selectedRecipes = selectedInputs.compactMap { input in
-            recipes.first { $0.id == input.id }
-        }
-        let menu = Menu(days: orderedDays, recipes: selectedRecipes)
-
-        try MenuPersistence.replaceMenu(with: menu, in: modelContext)
-        for recipe in selectedRecipes {
-            recipe.usageCount += 1
-        }
-        try modelContext.save()
-        UserDefaults.standard.set(
-            DaySelectionStorage.encode(Set(orderedDays)),
-            forKey: AppStorageKey.selectedDays.rawValue
-        )
     }
 }

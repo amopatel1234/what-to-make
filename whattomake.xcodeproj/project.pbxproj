@@ -49,6 +49,9 @@
 		3C0A00452E63002000000006 /* IngredientFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00442E63002000000005 /* IngredientFormattingTests.swift */; };
 		3C0A00472E63002000000008 /* RecipeIngredientPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00462E63002000000007 /* RecipeIngredientPersistenceTests.swift */; };
 		3C0A00492E64003000000002 /* AddRecipeCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00482E64003000000001 /* AddRecipeCoordinatorTests.swift */; };
+		3C0A00512E65004000000002 /* MenuGeneration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00502E65004000000001 /* MenuGeneration.swift */; };
+		3C0A00532E65004000000004 /* MenuGenerationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00522E65004000000003 /* MenuGenerationTests.swift */; };
+		3C0A00552E65004000000006 /* ImageStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00542E65004000000005 /* ImageStoreTests.swift */; };
 		3C0A00052E60A00100000005 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3C0A00042E60A00100000004 /* SnapshotTesting */; };
 /* End PBXBuildFile section */
 
@@ -109,6 +112,9 @@
 		3C0A00442E63002000000005 /* IngredientFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientFormattingTests.swift; sourceTree = "<group>"; };
 		3C0A00462E63002000000007 /* RecipeIngredientPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeIngredientPersistenceTests.swift; sourceTree = "<group>"; };
 		3C0A00482E64003000000001 /* AddRecipeCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecipeCoordinatorTests.swift; sourceTree = "<group>"; };
+		3C0A00502E65004000000001 /* MenuGeneration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuGeneration.swift; sourceTree = "<group>"; };
+		3C0A00522E65004000000003 /* MenuGenerationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuGenerationTests.swift; sourceTree = "<group>"; };
+		3C0A00542E65004000000005 /* ImageStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStoreTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -183,6 +189,8 @@
 				3C0A00442E63002000000005 /* IngredientFormattingTests.swift */,
 				3C0A00462E63002000000007 /* RecipeIngredientPersistenceTests.swift */,
 				3C0A00482E64003000000001 /* AddRecipeCoordinatorTests.swift */,
+				3C0A00522E65004000000003 /* MenuGenerationTests.swift */,
+				3C0A00542E65004000000005 /* ImageStoreTests.swift */,
 				3C0A00012E60A00100000001 /* SnapshotTestingSmokeTests.swift */,
 				3C0A00122E60B00300000003 /* TestModelContainerTests.swift */,
 				3C0A00142E60B00300000005 /* Fixtures */,
@@ -234,6 +242,7 @@
 				3C0A00182E60D00500000001 /* AppStorageKey.swift */,
 				3C0A00192E60D00500000002 /* DaySelectionStorage.swift */,
 				3C0A001A2E60D00500000003 /* MenuGenerator.swift */,
+				3C0A00502E65004000000001 /* MenuGeneration.swift */,
 				3C0A001B2E60D00500000004 /* MenuPersistence.swift */,
 				3C0A00302E62001000000001 /* MenuHighlightDay.swift */,
 				3C0A00152E60C00400000001 /* MenuEmptyStateCopy.swift */,
@@ -401,6 +410,7 @@
 				3C0A001C2E60D00500000005 /* AppStorageKey.swift in Sources */,
 				3C0A001D2E60D00500000006 /* DaySelectionStorage.swift in Sources */,
 				3C0A001E2E60D00500000007 /* MenuGenerator.swift in Sources */,
+				3C0A00512E65004000000002 /* MenuGeneration.swift in Sources */,
 				3C0A001F2E60D00500000008 /* MenuPersistence.swift in Sources */,
 				3C0A00312E62001000000002 /* MenuHighlightDay.swift in Sources */,
 				3BAD92AD2E493AA6009DCBAE /* Recipe.swift in Sources */,
@@ -427,6 +437,8 @@
 				3C0A00452E63002000000006 /* IngredientFormattingTests.swift in Sources */,
 				3C0A00472E63002000000008 /* RecipeIngredientPersistenceTests.swift in Sources */,
 				3C0A00492E64003000000002 /* AddRecipeCoordinatorTests.swift in Sources */,
+				3C0A00532E65004000000004 /* MenuGenerationTests.swift in Sources */,
+				3C0A00552E65004000000006 /* ImageStoreTests.swift in Sources */,
 				3C0A00022E60A00100000002 /* SnapshotTestingSmokeTests.swift in Sources */,
 				3C0A00272E60F00700000002 /* SnapshotTestConfiguration.swift in Sources */,
 				3C0A00112E60B00300000002 /* TestModelContainer.swift in Sources */,

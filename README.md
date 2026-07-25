@@ -17,10 +17,12 @@ open whattomake.xcworkspace
 
 Run the app from Xcode using the `whattomake` scheme. The built product is `ForkPlan.app`.
 
-Optional setup for Fastlane:
+Optional setup for Fastlane and local agent harness hooks (commit-msg + pre-push architecture check):
 
 ```bash
 bundle install
+git config core.hooksPath hooks
+./scripts/check-architecture.sh
 ```
 
 ## Tests
@@ -46,8 +48,11 @@ bundle exec fastlane runUnitTests
 
 | Doc | Audience | Purpose |
 |-----|----------|---------|
-| [`AGENTS.md`](AGENTS.md) | AI agents (auto-discovered) | Entry point — points to project-context + commit rules |
-| [`docs/project-context.md`](docs/project-context.md) | AI agents & developers | Implementation rules, architecture, testing contracts |
+| [`AGENTS.md`](AGENTS.md) | AI agents (auto-discovered) | Map / TOC into deeper docs + harness commands |
+| [`docs/project-context.md`](docs/project-context.md) | AI agents & developers | Implementation rules, testing contracts, product rules |
+| [`docs/architecture.md`](docs/architecture.md) | AI agents & developers | Folder boundaries and forbidden state wrappers |
+| [`docs/agent-playbook.md`](docs/agent-playbook.md) | AI agents | Recovery paths when checks/CI fail |
+| [`docs/harness-log.md`](docs/harness-log.md) | AI agents & developers | Steering log — encode repeated slips into guides/sensors |
 | [`docs/index.md`](docs/index.md) | App users | Privacy policy (GitHub Pages) |
 
 ## License

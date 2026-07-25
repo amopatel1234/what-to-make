@@ -10,6 +10,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  harness:
+    name: Harness sensors (drafts and ready PRs)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Pull Request Name
+        id: versioning
+        uses: Oliver-Binns/Versioning@main
+        with:
+          ACTION_TYPE: 'Validate'
+
+      - name: Check architecture boundaries
+        run: ./scripts/check-architecture.sh
+
   build:
     name: Build, unit, and snapshot tests on pinned iPhone 17 Pro simulator
     if: github.event.pull_request.draft == false
@@ -21,12 +38,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Validate Pull Request Name
-        id: versioning
-        uses: Oliver-Binns/Versioning@main
-        with:
-          ACTION_TYPE: 'Validate'
 
       - name: Run unit and snapshot tests
         env:

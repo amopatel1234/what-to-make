@@ -31,7 +31,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 | Language | Swift | **6.0** (language mode; strict concurrency `complete` on both targets) |
 | UI | SwiftUI + Observation | `@Query`, `@Observable` coordinators, `@Bindable` |
 | Persistence | SwiftData | `@Query` reads; `modelContext` writes |
-| Concurrency | Swift Concurrency | `async`/`await` only — **no Combine** |
+| Concurrency | Swift Concurrency | `async`/`await` only — Observation / `@Observable`, not `@Published` / `@StateObject` / `@ObservedObject` |
 | Unit tests | Swift Testing | `@Test`, `#expect`; `@testable import ForkPlan` |
 | Snapshot tests | swift-snapshot-testing | Point-Free; `whattomakeTests` target only |
 | CI/CD | Fastlane + GitHub Actions | `macos-26` runners |
@@ -49,7 +49,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 ### Language-Specific Rules
 
 - Use **Swift 6.0** with **`SWIFT_STRICT_CONCURRENCY = complete`** on both `whattomake` and `whattomakeTests` targets (Debug + Release).
-- Use **Swift Concurrency only** — do not introduce Combine publishers, `@Published`, or Combine-based state.
+- Use **Swift Concurrency only** — do not introduce `@Published`, `@StateObject`, or `@ObservedObject` (ObservableObject-style state). Prefer `@Observable` + `@Bindable`.
 - Mark UI-touching code with **`@MainActor`** — views, coordinators, and persistence writes that touch the UI.
 - Pure helpers (`MenuGenerator`, `DaySelectionStorage`) are **non-isolated value types** — do **not** put `@MainActor` on `MenuGenerator`.
 - **No force unwraps** (`!`) unless strongly justified and documented.
@@ -78,12 +78,11 @@ Views (@Query + @State) → Models ← SwiftData
 
 ```
 User action (view)
-  → validate (≥ 7 recipes, ≥ 1 day)
+  → validate (≥ 7 recipes, ≥ 1 day) via MenuGeneration.validationMessage
   → map recipes → RecipeSelectionInput [Sendable snapshot]
   → MenuGenerator.select(from:forDays:) [pure struct, no @MainActor]
   → compactMap selected inputs back to Recipe by id
-  → increment usageCount on selected recipes
-  → MenuPersistence.replaceMenu(with:in:) [delete-before-insert]
+  → MenuGeneration.run → MenuPersistence.replaceMenu + usageCount increment
   → @Query auto-updates view
 ```
 
@@ -138,7 +137,7 @@ Sources/
   Application/   WeeklyMenuApp.swift
   Views/         RecipesListView, AddRecipeView, GenerateMenuView
   Models/        Recipe, RecipeIngredient, Menu, ImageCodec (ImageStore)
-  Helpers/       MenuGenerator, DaySelectionStorage, AppStorageKey, MenuPersistence
+  Helpers/       MenuGenerator, MenuGeneration, DaySelectionStorage, AppStorageKey, MenuPersistence
   DesignSystem/  unchanged
 Tests/
   Fixtures/      makeTestContainer() (Story 0.3)
@@ -152,6 +151,7 @@ Tests/
 - Framework: **Swift Testing** — `@Test` functions, `#expect`, `@MainActor` on test structs when testing main-actor code.
 - Import: `@testable import ForkPlan` (module name, not repo name).
 - Use **`makeTestContainer()`** in `Tests/Fixtures/TestModelContainer.swift` — in-memory `ModelContainer`, direct seed; no launch arguments.
+- Image disk tests may set ``ImageStore/directoryOverride`` to a temp directory and clear it in `defer`.
 - Test plan: `TestPlans/UnitTestsPlan.xctestplan` → target `whattomakeTests`.
 - Test target: `SWIFT_VERSION = 6.0`, `SWIFT_STRICT_CONCURRENCY = complete` (same as app target).
 
@@ -238,6 +238,8 @@ bundle exec fastlane runUnitTests
 
 Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor`, `perf`, `test`. Scope is optional; prefer unscoped messages unless scope adds clarity (e.g. `fix(menu): handle empty state`).
 
+**Architecture sensor (agent harness):** `./scripts/check-architecture.sh` — runs locally via `hooks/pre-push` (when `core.hooksPath` is set) and on every PR (including drafts) in the `harness` CI job. Full simulator tests still run only when the PR is ready for review. Boundaries and wrappers: [`architecture.md`](architecture.md). Recovery: [`agent-playbook.md`](agent-playbook.md). Steering log: [`harness-log.md`](harness-log.md).
+
 **PR descriptions:** Short prose only — 2–3 paragraphs summarizing what changed and why. Do **not** include a test plan, checklist, or `## Summary` / `## Test plan` sections; CI runs tests automatically.
 
 **PR review priorities:**
@@ -255,7 +257,7 @@ Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor
 
 **Do NOT:**
 
-- Reintroduce use cases, repositories, ViewModels (beyond thin transient coordinators), or Combine
+- Reintroduce use cases, repositories, ViewModels (beyond thin transient coordinators), or `@Published` / `@StateObject` / `@ObservedObject`
 - Wire manual menu load paths — `@Query` replaces fetch wiring
 - Use session-only `generatedMenu` without `@Query`
 - Create mock repositories for tests — use `makeTestContainer()` instead
@@ -292,4 +294,4 @@ Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor
 - Review quarterly for outdated rules.
 - Remove rules that become obvious over time.
 
-Last Updated: 2026-06-19
+Last Updated: 2026-07-25
