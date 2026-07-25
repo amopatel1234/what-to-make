@@ -238,7 +238,7 @@ bundle exec fastlane runUnitTests
 
 Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor`, `perf`, `test`. Scope is optional; prefer unscoped messages unless scope adds clarity (e.g. `fix(menu): handle empty state`).
 
-**Architecture sensor (agent harness):** `./scripts/check-architecture.sh` — also runs on PR CI. Fails if `Sources/UseCases`, `Sources/Repositories`, or `Sources/ViewModels` reappear, or if `@Published` / `@StateObject` / `@ObservedObject` appear under `Sources/`. Prefer `@Observable` + `@Bindable` coordinators and SwiftUI `@State` / `@Query` / `@AppStorage`. Failure output includes remediation text.
+**Architecture sensor (agent harness):** `./scripts/check-architecture.sh` — runs locally via `hooks/pre-push` (when `core.hooksPath` is set) and on every PR (including drafts) in the `harness` CI job. Full simulator tests still run only when the PR is ready for review. Boundaries and wrappers: [`architecture.md`](architecture.md). Recovery: [`agent-playbook.md`](agent-playbook.md). Steering log: [`harness-log.md`](harness-log.md).
 
 **PR descriptions:** Short prose only — 2–3 paragraphs summarizing what changed and why. Do **not** include a test plan, checklist, or `## Summary` / `## Test plan` sections; CI runs tests automatically.
 
