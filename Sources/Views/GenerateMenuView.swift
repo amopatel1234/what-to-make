@@ -378,13 +378,18 @@ private struct MenuDayPlanRow: View {
     let onToggle: (Bool) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        HStack(spacing: 12) {
+            Text(day)
+                .font(FpTypography.body)
+                .foregroundStyle(Color.fpLabel)
+                .frame(width: 36, alignment: .leading)
+                .accessibilityHidden(true)
+
             Toggle(day, isOn: Binding(
                 get: { isSelected },
                 set: onToggle
             ))
-            .font(FpTypography.body)
-            .foregroundStyle(Color.fpLabel)
+            .labelsHidden()
             .tint(Color.fpAccent)
             .accessibilityIdentifier("toggleDay_\(day)")
 
@@ -398,7 +403,7 @@ private struct MenuDayPlanRow: View {
             .opacity(isSelected ? 1 : 0.4)
             .accessibilityIdentifier("dayDiet_\(day)")
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 8)
     }
 }
 
