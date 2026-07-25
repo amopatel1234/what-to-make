@@ -6,10 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: Branch to record baselines on and push to
+        description: Branch to record baselines on and push to (e.g. a feature branch)
         required: true
         type: string
-        default: cursor/veg-vegan-menu-days-3b44
 
 permissions:
   contents: write
