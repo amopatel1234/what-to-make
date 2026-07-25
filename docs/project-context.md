@@ -49,7 +49,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 ### Language-Specific Rules
 
 - Use **Swift 6.0** with **`SWIFT_STRICT_CONCURRENCY = complete`** on both `whattomake` and `whattomakeTests` targets (Debug + Release).
-- Use **Swift Concurrency only** — do not introduce Combine publishers, `@Published`, or Combine-based state.
+- Use **Swift Concurrency only** — do not introduce `@Published`, `@StateObject`, or `@ObservedObject` (ObservableObject-style state). Prefer `@Observable` + `@Bindable`.
 - Mark UI-touching code with **`@MainActor`** — views, coordinators, and persistence writes that touch the UI.
 - Pure helpers (`MenuGenerator`, `DaySelectionStorage`) are **non-isolated value types** — do **not** put `@MainActor` on `MenuGenerator`.
 - **No force unwraps** (`!`) unless strongly justified and documented.
@@ -238,6 +238,8 @@ bundle exec fastlane runUnitTests
 
 Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor`, `perf`, `test`. Scope is optional; prefer unscoped messages unless scope adds clarity (e.g. `fix(menu): handle empty state`).
 
+**Architecture sensor (agent harness):** `./scripts/check-architecture.sh` — also runs on PR CI. Fails if `Sources/UseCases`, `Sources/Repositories`, or `Sources/ViewModels` reappear, or if `@Published` / `@StateObject` / `@ObservedObject` appear under `Sources/`. Prefer `@Observable` + `@Bindable` coordinators and SwiftUI `@State` / `@Query` / `@AppStorage`. Failure output includes remediation text.
+
 **PR descriptions:** Short prose only — 2–3 paragraphs summarizing what changed and why. Do **not** include a test plan, checklist, or `## Summary` / `## Test plan` sections; CI runs tests automatically.
 
 **PR review priorities:**
@@ -292,4 +294,4 @@ Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor
 - Review quarterly for outdated rules.
 - Remove rules that become obvious over time.
 
-Last Updated: 2026-06-19
+Last Updated: 2026-07-25

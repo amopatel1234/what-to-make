@@ -28,6 +28,9 @@ jobs:
         with:
           ACTION_TYPE: 'Validate'
 
+      - name: Check architecture boundaries
+        run: ./scripts/check-architecture.sh
+
       - name: Run unit and snapshot tests
         env:
           WORKSPACE: ${{ github.workspace }}
