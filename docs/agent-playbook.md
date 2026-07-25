@@ -29,7 +29,7 @@ Format: `type: description` — allowed types listed in [`../AGENTS.md`](../AGEN
 ## Unit / snapshot tests failed
 
 - Destination must be **iPhone 17 Pro**; plan **`UnitTestsPlan`**.
-- Snapshots: compare only in CI; re-record locally via scheme env `RECORD_SNAPSHOTS=1` — see [`../Tests/__Snapshots__/iPhone17Pro-iOS26/README.md`](../Tests/__Snapshots__/iPhone17Pro-iOS26/README.md).
+- Snapshots: compare only in the PR workflow; re-record via scheme env `RECORD_SNAPSHOTS=1` on a Mac, or Actions → **Record Snapshot Baselines** — see [`../Tests/__Snapshots__/iPhone17Pro-iOS26/README.md`](../Tests/__Snapshots__/iPhone17Pro-iOS26/README.md).
 - On CI failure, download the `test-results` artifact (`.xcresult`) from the PR workflow.
 
 ## Draft PR: tests did not run

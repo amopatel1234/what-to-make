@@ -159,8 +159,8 @@ Tests/
 
 - Library: Point-Free **swift-snapshot-testing** (`import SnapshotTesting`); linked to `whattomakeTests` only.
 - Baselines: `Tests/__Snapshots__/iPhone17Pro-iOS26/` — see [`Tests/__Snapshots__/iPhone17Pro-iOS26/README.md`](../Tests/__Snapshots__/iPhone17Pro-iOS26/README.md) for slug convention and recording workflow.
-- Re-record locally only: `RECORD_SNAPSHOTS=1` — **never** in CI.
-- Shell `RECORD_SNAPSHOTS=1 xcodebuild …` often does not reach `TEST_HOST` (`ForkPlan.app`); use Xcode scheme Test env vars or test-plan env for reliable recording (see snapshot README).
+- Re-record baselines on a Mac via scheme env `RECORD_SNAPSHOTS=1`, or use the manual GitHub Action **Record Snapshot Baselines** (`workflow_dispatch` + `ALLOW_CI_SNAPSHOT_RECORD=1`) — never enable recording in the normal PR compare workflow.
+- Shell `RECORD_SNAPSHOTS=1 xcodebuild …` often does not reach `TEST_HOST` (`ForkPlan.app`); use Xcode scheme Test env vars, test-plan env, or the record-snapshots workflow (see snapshot README).
 - Snapshot tests seed data directly via `makeTestContainer()` — no launch arguments.
 - CI runs snapshot **compare** on `macos-26` via `fastlane runUnitTests`; compare uses documented `precision: 0.98` / `perceptualPrecision: 0.98` to tolerate dev-Mac vs runner drift until baselines are re-recorded on `macos-26` (see snapshot README → CI compare mode).
 
@@ -265,7 +265,7 @@ Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor
 - Put business logic in view `body` — extract to `MenuGenerator`, validation helpers
 - Iterate live `@Model` `Recipe` in Form `ForEach` — use snapshot tuples
 - Store full-resolution images inline in SwiftData — keep the thumbnail/original split
-- Record snapshots in CI (`RECORD_SNAPSHOTS=1` local only)
+- Record snapshots in the normal PR/CI compare lane (`RECORD_SNAPSHOTS=1` only via local scheme/test-plan or the manual `record-snapshots` workflow)
 - Put `@MainActor` on `MenuGenerator`
 - Scatter raw `@AppStorage` string keys — use `AppStorageKey` enum
 - Use `recipes.shuffle()` without weighting (Phase 3 deferred)
