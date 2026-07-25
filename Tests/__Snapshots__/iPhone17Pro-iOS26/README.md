@@ -60,10 +60,10 @@ PR checks on `macos-26` run snapshot **compare** (not record) via `fastlane runU
 
 - Baselines must be recorded on the same runner class as CI (`macos-26`) or replaced after analyzing CI failure attachments from `.xcresult`
 - Never set `RECORD_SNAPSHOTS=1` in `.github/workflows/pull-request.yml` or `merged.yml`
-- One-off runner re-record (if needed): separate `workflow_dispatch` with `RECORD_SNAPSHOTS=1` **and** `ALLOW_CI_SNAPSHOT_RECORD=1` — not merged into PR workflows
+- **One-off runner re-record:** Actions → **Record Snapshot Baselines** → Run workflow → choose the feature branch. That `workflow_dispatch` job sets `RECORD_SNAPSHOTS=1` **and** `ALLOW_CI_SNAPSHOT_RECORD=1` via the test plan (so values reach `TEST_HOST`), commits updated PNGs, and pushes to the branch. It does not change the PR compare workflow.
 - `SnapshotTestConfiguration.isCI` blocks recording on CI unless `ALLOW_CI_SNAPSHOT_RECORD=1` is set
 
-If CI compare fails after a UI change, download failure attachments from the PR workflow `test-results` artifact (`.xcresult`) or verify dimensions (402×874) and commit updated PNGs.
+If CI compare fails after a UI change, either run **Record Snapshot Baselines** on the branch, download failure attachments from the PR workflow `test-results` artifact (`.xcresult`), or verify dimensions (402×874) and commit updated PNGs from a Mac.
 
 Compare uses `precision: 0.98` and `perceptualPrecision: 0.98` in `SnapshotTestConfiguration` to tolerate minor macos-26 vs dev Mac rendering drift until baselines are re-recorded on the runner.
 

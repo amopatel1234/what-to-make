@@ -1,0 +1,96 @@
+name: Record Snapshot Baselines
+
+# Manual opt-in re-record on macos-26 (same runner class as PR compare).
+# Does not run on pull_request — keeps normal CI in compare-only mode.
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to record baselines on and push to
+        required: true
+        type: string
+        default: cursor/veg-vegan-menu-days-3b44
+
+permissions:
+  contents: write
+
+concurrency:
+  group: record-snapshots-${{ inputs.branch }}
+  cancel-in-progress: true
+
+jobs:
+  record:
+    name: Record and commit snapshot baselines
+    runs-on: macos-26
+
+    steps:
+      - name: Add path globally
+        run: echo "/usr/local/bin" >> $GITHUB_PATH
+
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          # Needed so the later push can update the branch (default token is fine with contents:write).
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Inject record env into test plan (reaches TEST_HOST)
+        run: |
+          python3 <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("TestPlans/UnitTestsPlan.xctestplan")
+          plan = json.loads(path.read_text())
+          options = plan.setdefault("defaultOptions", {})
+          options["environmentVariableEntries"] = [
+              {"key": "RECORD_SNAPSHOTS", "value": "1"},
+              {"key": "ALLOW_CI_SNAPSHOT_RECORD", "value": "1"},
+          ]
+          path.write_text(json.dumps(plan, indent=2) + "\n")
+          print("Enabled RECORD_SNAPSHOTS + ALLOW_CI_SNAPSHOT_RECORD in UnitTestsPlan")
+          PY
+
+      - name: Record snapshots on pinned iPhone 17 Pro
+        id: record
+        continue-on-error: true
+        env:
+          WORKSPACE: ${{ github.workspace }}
+          WORKSPACE_FILENAME: "whattomake.xcworkspace"
+          SCHEME: "whattomake"
+          TEST_PLAN: "UnitTestsPlan"
+          # Shell env alone often misses TEST_HOST; test-plan injection above is authoritative.
+          RECORD_SNAPSHOTS: "1"
+          ALLOW_CI_SNAPSHOT_RECORD: "1"
+        run: fastlane runUnitTests
+
+      - name: Restore test plan (never commit record-mode flags)
+        if: always()
+        run: git checkout -- TestPlans/UnitTestsPlan.xctestplan
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshot-record-test-results
+          path: fastlane/test_output/
+          if-no-files-found: ignore
+
+      - name: Commit and push updated PNG baselines
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add Tests/__Snapshots__/iPhone17Pro-iOS26/*.png
+
+          if git diff --staged --quiet; then
+            echo "::error::Recording produced no PNG changes. Check the test log / artifact — RECORD_SNAPSHOTS may not have reached the test host."
+            exit 1
+          fi
+
+          git commit -m "test: re-record snapshot baselines on CI runner"
+          git push origin "HEAD:${{ inputs.branch }}"
+
+          echo "Pushed updated baselines to ${{ inputs.branch }}"
