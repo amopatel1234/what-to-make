@@ -31,7 +31,10 @@ final class Menu {
     /// The ordered list of day identifiers (e.g., "Mon", "Tue").
     var days: [String]
     /// Ordered recipe display names captured at generation time (parallel to ``days``).
-    var recipeNames: [String]
+    ///
+    /// Inline default required for lightweight migration of stores created before
+    /// this attribute existed (same failure mode as ``Recipe/containsMeat``).
+    var recipeNames: [String] = []
     /// The recipes chosen for the corresponding ``days`` entries.
     ///
     /// Delete rule `.nullify`: removing this menu does not delete recipes.

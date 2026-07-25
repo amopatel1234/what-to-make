@@ -121,7 +121,12 @@ final class AddRecipeCoordinator {
         }
     }
 
-    func save(existingRecipe: Recipe?, in context: ModelContext) async -> Bool {
+    /// Persists a new or existing recipe (and its ingredient lines) into `context`.
+    ///
+    /// - Returns: `true` when the store save succeeds; `false` when validation fails
+    ///   or SwiftData throws (see ``errorMessage``).
+    @discardableResult
+    func save(existingRecipe: Recipe?, in context: ModelContext) -> Bool {
         guard !isSaving else { return false }
         isSaving = true
         defer { isSaving = false }
@@ -141,6 +146,7 @@ final class AddRecipeCoordinator {
 
         do {
             let recipe: Recipe
+            let needsInsert: Bool
             if let existingRecipe {
                 recipe = existingRecipe
                 recipe.name = name
@@ -148,6 +154,7 @@ final class AddRecipeCoordinator {
                 recipe.containsMeat = containsMeat
                 recipe.thumbnailBase64 = thumbnailBase64
                 recipe.imageFilename = imageFilename
+                needsInsert = false
             } else if let pendingRecipe {
                 recipe = pendingRecipe
                 recipe.name = name.trimmingCharacters(in: .whitespaces)
@@ -155,6 +162,7 @@ final class AddRecipeCoordinator {
                 recipe.containsMeat = containsMeat
                 recipe.thumbnailBase64 = thumbnailBase64
                 recipe.imageFilename = imageFilename
+                needsInsert = false
             } else {
                 recipe = Recipe(
                     name: name.trimmingCharacters(in: .whitespaces),
@@ -163,11 +171,16 @@ final class AddRecipeCoordinator {
                     imageFilename: imageFilename,
                     containsMeat: containsMeat
                 )
-                context.insert(recipe)
                 pendingRecipe = recipe
+                needsInsert = true
             }
 
-            try syncIngredients(validDrafts, to: recipe, in: context)
+            // Attach ingredients before insert so the relationship graph is registered
+            // as one unit (see RecipeIngredientPersistenceTests).
+            syncIngredients(validDrafts, to: recipe, in: context)
+            if needsInsert {
+                context.insert(recipe)
+            }
             try context.save()
             pendingRecipe = nil
             errorMessage = nil
@@ -178,16 +191,24 @@ final class AddRecipeCoordinator {
         }
     }
 
+    /// Replaces `recipe.ingredients` with lines built from `drafts`.
+    ///
+    /// New `RecipeIngredient` rows are linked only through the relationship —
+    /// they must not be `context.insert`'d separately, which can leave the parent
+    /// recipe missing from subsequent `@Query` fetches after save.
     private func syncIngredients(
         _ drafts: [IngredientDraft],
         to recipe: Recipe,
         in context: ModelContext
-    ) throws {
-        for ingredient in recipe.ingredients {
+    ) {
+        let ingredientsToRemove = recipe.ingredients
+        for ingredient in ingredientsToRemove {
             context.delete(ingredient)
         }
         recipe.ingredients = []
 
+        var replacement: [RecipeIngredient] = []
+        replacement.reserveCapacity(drafts.count)
         for (index, draft) in drafts.enumerated() {
             let trimmedName = draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
             let trimmedUnit = draft.resolvedUnit.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -198,8 +219,8 @@ final class AddRecipeCoordinator {
                 sortOrder: index
             )
             ingredient.recipe = recipe
-            recipe.ingredients.append(ingredient)
-            context.insert(ingredient)
+            replacement.append(ingredient)
         }
+        recipe.ingredients = replacement
     }
 }
