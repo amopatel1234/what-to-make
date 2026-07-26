@@ -44,9 +44,17 @@ Prefer Observation + thin coordinators. Enforced by `./scripts/check-architectur
 ```
 View action
   → MenuGeneration.validationMessage / MenuGeneration.run
-  → MenuGenerator.select (pure)
-  → MenuPersistence.replaceMenu + usageCount
+  → MenuGenerator.select (cook-recency weighted, pure)
+  → MenuPersistence.replaceMenu (cook stats unchanged)
   → @Query updates UI
+```
+
+Day tweak / mark cooked:
+
+```
+Menu or Recipes swipe
+  → MenuGeneration.rerollDay / assignRecipe / markCooked
+  → markCooked updates usageCount + lastCookedAt
 ```
 
 ## App Intents

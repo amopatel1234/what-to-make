@@ -94,7 +94,7 @@ struct MenuGenerationTests {
     }
 
     @Test
-    func runPersistsMenuAndIncrementsUsage() throws {
+    func runPersistsMenuWithoutIncrementingCookStats() throws {
         defer { resetPersistedSelection() }
         resetPersistedSelection()
 
@@ -110,12 +110,72 @@ struct MenuGenerationTests {
         #expect(menus.first?.days == ["Mon", "Wed", "Fri"])
         #expect(menus.first?.recipes.count == 3)
 
-        let usageCounts = try context.fetch(FetchDescriptor<Recipe>()).map(\.usageCount)
-        #expect(usageCounts.filter { $0 == 1 }.count == 3)
-        #expect(usageCounts.filter { $0 == 0 }.count == 5)
+        let stored = try context.fetch(FetchDescriptor<Recipe>())
+        #expect(stored.allSatisfy { $0.usageCount == 0 })
+        #expect(stored.allSatisfy { $0.lastCookedAt == nil })
 
         let storedDays = UserDefaults.standard.string(forKey: selectedDaysKey)
         #expect(storedDays == "Mon,Wed,Fri")
+    }
+
+    @Test
+    func markCookedUpdatesCountAndTimestamp() throws {
+        let container = try makeTestContainer()
+        let context = container.mainContext
+        let recipes = try seedRecipes(in: context, count: 1)
+        let cookedAt = Date(timeIntervalSince1970: 1_800_000_000)
+
+        try MenuGeneration.markCooked(recipes[0], at: cookedAt, in: context)
+
+        #expect(recipes[0].usageCount == 1)
+        #expect(recipes[0].lastCookedAt == cookedAt)
+    }
+
+    @Test
+    func assignRecipeUpdatesDayWithoutTouchingCookStats() throws {
+        let container = try makeTestContainer()
+        let context = container.mainContext
+        let recipes = try seedRecipes(in: context, count: 3)
+        let menu = try seedMenu(in: context, days: ["Mon", "Wed"], recipes: [recipes[0], recipes[1]])
+
+        let message = try MenuGeneration.assignRecipe(
+            recipes[2],
+            toDay: "Mon",
+            on: menu,
+            library: recipes,
+            modelContext: context
+        )
+
+        #expect(message == nil)
+        #expect(menu.recipeNames == [recipes[2].name, recipes[1].name])
+        #expect(recipes[2].usageCount == 0)
+        #expect(recipes[2].lastCookedAt == nil)
+    }
+
+    @Test
+    func rerollDayReplacesRecipeExcludingOthers() throws {
+        let container = try makeTestContainer()
+        let context = container.mainContext
+        let recipes = try seedRecipes(in: context, count: 4)
+        let menu = try seedMenu(
+            in: context,
+            days: ["Mon", "Wed"],
+            recipes: [recipes[0], recipes[1]]
+        )
+        let originalMonday = menu.recipeNames[0]
+
+        let message = try MenuGeneration.rerollDay(
+            "Mon",
+            on: menu,
+            recipes: recipes,
+            diet: .any,
+            modelContext: context
+        )
+
+        #expect(message == nil)
+        #expect(menu.recipeNames[0] != originalMonday)
+        #expect(menu.recipeNames[1] == recipes[1].name)
+        #expect(menu.recipeNames[0] != menu.recipeNames[1])
     }
 
     @Test
