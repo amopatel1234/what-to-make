@@ -50,6 +50,7 @@ bundle exec fastlane runUnitTests
 |-----|----------|---------|
 | [`AGENTS.md`](AGENTS.md) | AI agents (auto-discovered) | Map / TOC into deeper docs + harness commands |
 | [`docs/project-context.md`](docs/project-context.md) | AI agents & developers | Implementation rules, testing contracts, product rules |
+| [`docs/ux-design.md`](docs/ux-design.md) | AI agents & developers | Screens, interaction flows, visual tokens, UX principles |
 | [`docs/architecture.md`](docs/architecture.md) | AI agents & developers | Folder boundaries and forbidden state wrappers |
 | [`docs/agent-playbook.md`](docs/agent-playbook.md) | AI agents | Recovery paths when checks/CI fail |
 | [`docs/harness-log.md`](docs/harness-log.md) | AI agents & developers | Steering log — encode repeated slips into guides/sensors |

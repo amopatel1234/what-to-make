@@ -70,7 +70,7 @@ Views (@Query + @State) → Models ← SwiftData
 - **Views** (`Sources/Views/`) — declarative UI; `@Query` for reads, `@Environment(\.modelContext)` for writes.
 - **Models** (`Sources/Models/`) — SwiftData `@Model` types (`Recipe`, `Menu`) and image helpers (`ImageCodec`, `ImageStore`).
 - **Helpers** (`Sources/Helpers/`) — pure logic: `MenuGenerator`, `DaySelectionStorage`, `DayDietConstraintStorage`, `AppStorageKey`, `MenuPersistence`.
-- **DesignSystem** (`Sources/DesignSystem/`) — shared styling; use `fpAppTheme()`, `FpTypography`, `fpPrimary()`, etc.
+- **DesignSystem** (`Sources/DesignSystem/`) — shared styling; use `fpAppTheme()`, `FpTypography`, `fpPrimary()`, etc. Screen intent, flows, and token tables: [`ux-design.md`](ux-design.md).
 - **Application** (`Sources/Application/WeeklyMenuApp.swift`) — shared `ModelContainer`, App Intent dependency registration; no use case or repository wiring.
 - **Deleted after refactor:** `Sources/UseCases/`, `Sources/Repositories/`, `Sources/ViewModels/`.
 
@@ -218,7 +218,7 @@ Tests/
 
 - Keep business logic in **Helpers/** — not in view `body`.
 - Place new files in the flat `Sources/` layout under `Views/`, `Models/`, `Helpers/`, or `DesignSystem/`; match neighboring file header comments.
-- **Accessibility identifiers** support **VoiceOver continuity** (UX-DR9) — preserve on interactive elements; not an XCUITest contract.
+- **Accessibility identifiers** support **VoiceOver continuity** (UX-DR9) — preserve on interactive elements; not an XCUITest contract. Full UX principles: [`ux-design.md`](ux-design.md).
 
 **Required accessibility identifiers:**
 

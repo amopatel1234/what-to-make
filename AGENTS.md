@@ -5,9 +5,10 @@ This file is a **map**. Read only what the task needs; do not treat it as the fu
 ## Start here
 
 1. **Product & implementation rules:** [`docs/project-context.md`](docs/project-context.md) (canonical)
-2. **Architecture boundaries:** [`docs/architecture.md`](docs/architecture.md)
-3. **When something fails:** [`docs/agent-playbook.md`](docs/agent-playbook.md)
-4. **Harness steering log:** [`docs/harness-log.md`](docs/harness-log.md)
+2. **UX & visual design:** [`docs/ux-design.md`](docs/ux-design.md) (screens, flows, tokens, UX-DR)
+3. **Architecture boundaries:** [`docs/architecture.md`](docs/architecture.md)
+4. **When something fails:** [`docs/agent-playbook.md`](docs/agent-playbook.md)
+5. **Harness steering log:** [`docs/harness-log.md`](docs/harness-log.md)
 
 ## Build & verify
 
