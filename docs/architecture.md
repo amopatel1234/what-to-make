@@ -1,6 +1,6 @@
 # Architecture boundaries (agent guide)
 
-Canonical product rules remain in [`project-context.md`](project-context.md). This page is the **shape** of the app: where code lives and which state wrappers are forbidden.
+Canonical product rules remain in [`project-context.md`](project-context.md). Screen intent, flows, and visual tokens are in [`ux-design.md`](ux-design.md). This page is the **shape** of the app: where code lives and which state wrappers are forbidden.
 
 ## Allowed layout under `Sources/`
 
