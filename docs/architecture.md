@@ -6,10 +6,11 @@ Canonical product rules remain in [`project-context.md`](project-context.md). Th
 
 | Folder | Role |
 |--------|------|
-| `Application/` | App entry (`WeeklyMenuApp`) — `.modelContainer` only |
+| `Application/` | App entry (`WeeklyMenuApp`) — shared `ModelContainer` + App Intent dependency registration |
 | `Views/` | SwiftUI views + thin `@Observable` coordinators (transient UI) |
 | `Models/` | SwiftData `@Model` types + `ImageCodec` / `ImageStore` |
-| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, …) |
+| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, `MenuIntentSupport`, …) |
+| `Intents/` | App Intents + `AppShortcutsProvider` (thin; call Helpers for work) |
 | `DesignSystem/` | Shared `fp*` styling |
 
 Do **not** add new top-level folders under `Sources/` without updating this doc and the architecture sensor if needed.
@@ -47,5 +48,20 @@ View action
   → MenuPersistence.replaceMenu + usageCount
   → @Query updates UI
 ```
+
+## App Intents
+
+```
+Siri / Shortcuts
+  → Sources/Intents/* (thin AppIntent, @Dependency ModelContainer)
+  → MenuIntentSupport + MenuGeneration (Helpers)
+  → same ModelContainer as WeeklyMenuApp
+```
+
+Keep intent `perform()` thin. Put dialog formatting and UserDefaults reads in `Helpers/` so they stay unit-testable without invoking App Intents runtime.
+
+- Register the container with `AppDependencyManager` in `WeeklyMenuApp` (`key: "ModelContainer"`); intents resolve it via `@Dependency`.
+- Destructive intents (generate/replace menu) must `requestConfirmation` before writing.
+- Validation failures should `throw` (e.g. `MenuIntentError`) so Shortcuts can treat them as failures.
 
 See [`project-context.md`](project-context.md) for full product and testing contracts.
