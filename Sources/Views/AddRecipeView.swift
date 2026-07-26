@@ -11,6 +11,11 @@ struct AddRecipeView: View {
     let existingRecipe: Recipe?
     @Bindable var coordinator: AddRecipeCoordinator
     @FocusState private var focusedField: Field?
+    /// Cached on appear so body does not re-query model availability every render.
+    @State private var pasteModelAvailable = RecipePasteExtractor.isModelAvailable
+    @State private var pasteUnavailableReason = RecipePasteExtractor.unavailableReasonMessage
+    @State private var suggestModelAvailable = RecipeIngredientSuggestor.isModelAvailable
+
     enum Field: Hashable {
         case name, notes
         case ingredientName(UUID)
@@ -54,6 +59,51 @@ struct AddRecipeView: View {
                 .accessibilityIdentifier("choosePhotoButton")
             }
             .listRowSeparator(.hidden)
+
+            // MARK: Paste recipe (Apple Intelligence) — add only; avoid overwriting an edit.
+            if !isEditing {
+                Section {
+                    TextField("Paste recipe text…", text: $coordinator.pasteText, axis: .vertical)
+                        .lineLimit(4...12)
+                        .font(FpTypography.body)
+                        .foregroundStyle(Color.fpLabel)
+                        .textInputAutocapitalization(.sentences)
+                        .autocorrectionDisabled(false)
+                        .writingToolsBehavior(.disabled)
+                        .disabled(coordinator.isAIBusy)
+                        .accessibilityIdentifier("pasteRecipeField")
+
+                    Button {
+                        focusedField = nil
+                        coordinator.requestExtractRecipeFromPaste()
+                    } label: {
+                        if coordinator.isExtractingPaste {
+                            ProgressView()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        } else {
+                            Label("Extract Recipe", systemImage: "wand.and.stars")
+                                .font(FpTypography.body)
+                        }
+                    }
+                    .disabled(
+                        coordinator.isAIBusy
+                            || coordinator.pasteText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                            || !pasteModelAvailable
+                    )
+                    .accessibilityIdentifier("extractRecipeButton")
+
+                    if let unavailable = pasteUnavailableReason {
+                        Text(unavailable)
+                            .font(FpTypography.caption)
+                            .foregroundStyle(Color.fpSecondaryLabel)
+                            .accessibilityIdentifier("pasteRecipeUnavailableMessage")
+                    }
+                } header: {
+                    Text("Paste recipe")
+                } footer: {
+                    Text(RecipeIngredientSuggestor.generatedContentDisclaimer)
+                }
+            }
 
             // MARK: Recipe
             Section("Recipe") {
@@ -107,7 +157,7 @@ struct AddRecipeView: View {
             }
 
             // MARK: Ingredients
-            Section("Ingredients") {
+            Section {
                 ForEach($coordinator.ingredientDrafts) { $draft in
                     IngredientDraftRow(
                         draft: $draft,
@@ -123,9 +173,72 @@ struct AddRecipeView: View {
                         .font(FpTypography.body)
                 }
                 .accessibilityIdentifier("addIngredientButton")
+
+                Button {
+                    focusedField = nil
+                    coordinator.suggestMissingIngredients()
+                } label: {
+                    if coordinator.isSuggestingIngredients {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        Label("Suggest Missing Ingredients", systemImage: "wand.and.stars")
+                            .font(FpTypography.body)
+                    }
+                }
+                .disabled(
+                    coordinator.isAIBusy
+                        || coordinator.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        || !suggestModelAvailable
+                )
+                .accessibilityIdentifier("suggestIngredientsButton")
+
+                if !coordinator.ingredientSuggestions.isEmpty {
+                    ForEach(Array(coordinator.ingredientSuggestions.enumerated()), id: \.element.id) { index, suggestion in
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(suggestion.name)
+                                    .font(FpTypography.body)
+                                    .foregroundStyle(Color.fpLabel)
+                                let detail = [suggestion.amountText, suggestion.unit]
+                                    .filter { !$0.isEmpty }
+                                    .joined(separator: " ")
+                                if !detail.isEmpty {
+                                    Text(detail)
+                                        .font(FpTypography.caption)
+                                        .foregroundStyle(Color.fpSecondaryLabel)
+                                }
+                            }
+                            Spacer()
+                            Button("Add") {
+                                coordinator.acceptIngredientSuggestion(suggestion)
+                            }
+                            .accessibilityIdentifier("acceptIngredientSuggestion_\(index)")
+                        }
+                        .accessibilityIdentifier("ingredientSuggestion_\(index)")
+                    }
+
+                    Button("Dismiss Suggestions", role: .cancel) {
+                        coordinator.dismissIngredientSuggestions()
+                    }
+                    .accessibilityIdentifier("dismissIngredientSuggestionsButton")
+                }
+            } header: {
+                Text("Ingredients")
+            } footer: {
+                Text(RecipeIngredientSuggestor.generatedContentDisclaimer)
             }
 
-            // MARK: Error
+            // MARK: Status / Error
+            if let status = coordinator.suggestionStatusMessage {
+                Section {
+                    Text(status)
+                        .font(FpTypography.body)
+                        .foregroundStyle(Color.fpSecondaryLabel)
+                        .accessibilityIdentifier("suggestionStatusMessage")
+                }
+            }
+
             if let error = coordinator.errorMessage {
                 Section {
                     Text(error)
@@ -140,6 +253,22 @@ struct AddRecipeView: View {
         .scrollDismissesKeyboard(.interactively)
         // Tap non-control list chrome to resign any focused field (including Notes).
         .onTapGesture { focusedField = nil }
+        .onAppear(perform: refreshModelAvailability)
+        .onDisappear {
+            coordinator.cancelAIWork()
+        }
+        .confirmationDialog(
+            "Replace recipe fields?",
+            isPresented: $coordinator.showingPasteOverwriteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Replace", role: .destructive) {
+                coordinator.extractRecipeFromPaste()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Extracting from paste will overwrite the name, notes, diet, and ingredients you already entered.")
+        }
         .toolbar {
             if showsKeyboardDoneButton {
                 ToolbarItemGroup(placement: .keyboard) {
@@ -152,6 +281,12 @@ struct AddRecipeView: View {
                 }
             }
         }
+    }
+
+    private func refreshModelAvailability() {
+        pasteModelAvailable = RecipePasteExtractor.isModelAvailable
+        pasteUnavailableReason = RecipePasteExtractor.unavailableReasonMessage
+        suggestModelAvailable = RecipeIngredientSuggestor.isModelAvailable
     }
 }
 

@@ -40,7 +40,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 **Open:** `whattomake.xcworkspace` (not `.xcodeproj` alone).
 
-**Deferred (not implemented yet):** Usage-weighted menu selection (Phase 3 / Epic 3). Imperial/metric unit display conversion. Foundation Models integration (Phase 4).
+**Deferred (not implemented yet):** Usage-weighted menu selection (Phase 3 / Epic 3). Imperial/metric unit display conversion. Additional Foundation Models features beyond paste→recipe and suggest-missing-ingredients.
 
 ---
 
@@ -141,13 +141,24 @@ Sources/
   Application/   WeeklyMenuApp.swift
   Views/         RecipesListView, AddRecipeView, GenerateMenuView
   Models/        Recipe, RecipeDietaryKind, RecipeIngredient, Menu, ImageCodec (ImageStore)
-  Helpers/       MenuGenerator, MenuGeneration, DaySelectionStorage, DayDietConstraintStorage, AppStorageKey, MenuPersistence, MenuIntentSupport, ForkPlanModelContainer
+  Helpers/       MenuGenerator, MenuGeneration, DaySelectionStorage, DayDietConstraintStorage, AppStorageKey, MenuPersistence, MenuIntentSupport, ForkPlanModelContainer, RecipePasteExtraction, RecipeIngredientSuggestion
   Intents/       GetTodaysMealIntent, GetWeeklyMenuIntent, GenerateWeeklyMenuIntent, ForkPlanShortcuts
   DesignSystem/  unchanged
 Tests/
   Fixtures/      makeTestContainer() (Story 0.3)
   __Snapshots__/ iPhone17Pro-iOS26/ (see Tests/__Snapshots__/iPhone17Pro-iOS26/README.md)
 ```
+
+**Apple Intelligence — paste recipe / suggest ingredients:**
+
+- ``RecipePasteExtractor`` (Helpers) uses Foundation Models guided generation (`@Generable`) to turn pasted text into ``RecipePasteDraft``.
+- ``RecipeIngredientSuggestor`` suggests missing ingredients from recipe **name** (notes optional) plus existing lines; user must accept each suggestion. Empty results are a neutral status, not an error.
+- Paste extraction is **Add Recipe only** (hidden while editing). Overwrite confirmation appears when the form already has content.
+- ``AddRecipeCoordinator`` cancels overlapping extract/suggest tasks and clears in-flight work on sheet dismiss so stale results cannot land.
+- ``AddRecipeCoordinator/applyPasteDraft`` / ``extractRecipeFromPaste`` / ``suggestMissingIngredients`` fill the form; user reviews then saves via existing SwiftData path.
+- Amount parsing accepts ASCII and Unicode fractions (`1/2`, `½`, `1 1/2`) so pasted amounts are not dropped on save.
+- Hide/disable AI actions when ``SystemLanguageModel`` is unavailable; never auto-save generated drafts.
+- Show ``RecipeIngredientSuggestor/generatedContentDisclaimer`` near AI controls so users always verify generated content.
 
 ### Testing Rules
 
@@ -204,7 +215,7 @@ Tests/
 | Area | Identifiers |
 |------|------------|
 | Recipes | `recipesList`, `emptyRecipesView`, `addRecipeButton` |
-| Add recipe | `recipeNameField`, `notesField`, `choosePhotoButton`, `saveRecipeButton`, `recipeDietaryKindPicker`, `ingredientNameField_<index>`, `ingredientAmountField_<index>`, `ingredientUnitField_<index>`, `addIngredientButton` |
+| Add recipe | `recipeNameField`, `notesField`, `choosePhotoButton`, `saveRecipeButton`, `recipeDietaryKindPicker`, `ingredientNameField_<index>`, `ingredientAmountField_<index>`, `ingredientUnitField_<index>`, `addIngredientButton`, `pasteRecipeField`, `extractRecipeButton`, `suggestIngredientsButton` |
 | Menu | `toggleDay_<Day>`, `dayDiet_<Day>`, `generateMenuButton`, `menuItem_<Day>`, `menuRecipesRequirementMessage`, `menuValidationMessage` |
 
 - Add accessibility identifiers to **all user-interactive elements**.

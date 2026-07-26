@@ -9,7 +9,7 @@ Canonical product rules remain in [`project-context.md`](project-context.md). Th
 | `Application/` | App entry (`WeeklyMenuApp`) — shared `ModelContainer` + App Intent dependency registration |
 | `Views/` | SwiftUI views + thin `@Observable` coordinators (transient UI) |
 | `Models/` | SwiftData `@Model` types + `ImageCodec` / `ImageStore` |
-| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, `MenuIntentSupport`, …) |
+| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, `MenuIntentSupport`, `RecipePasteExtraction`, `RecipeIngredientSuggestion`, …) |
 | `Intents/` | App Intents + `AppShortcutsProvider` (thin; call Helpers for work) |
 | `DesignSystem/` | Shared `fp*` styling |
 
@@ -65,3 +65,23 @@ Keep intent `perform()` thin. Put dialog formatting and UserDefaults reads in `H
 - Validation failures should `throw` (e.g. `MenuIntentError`) so Shortcuts can treat them as failures.
 
 See [`project-context.md`](project-context.md) for full product and testing contracts.
+
+## Foundation Models (paste → recipe / suggest ingredients)
+
+```
+Add Recipe only (not Edit)
+  → paste field → confirm if form already filled
+  → RecipePasteExtractor.extract (Foundation Models + @Generable)
+  → RecipePasteDraft
+  → AddRecipeCoordinator.applyPasteDraft
+  → user reviews → existing save
+
+Add/Edit Recipe (name required; notes optional)
+  → RecipeIngredientSuggestor.suggest
+  → pending suggestions → user accepts into IngredientDrafts
+    (empty → neutral status, not error)
+  → existing save
+```
+
+Keep guided schemas and mapping in `Helpers/`. Do not persist until the user taps Save. Cancel overlapping AI tasks (and on dismiss). Always surface a check-generated-content disclaimer near AI controls.
+

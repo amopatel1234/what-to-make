@@ -58,8 +58,36 @@ final class AddRecipeCoordinator {
     var thumbnailBase64: String?
     var imageFilename: String?
     var errorMessage: String?
+    /// Neutral (non-error) status for AI flows — e.g. empty suggestions.
+    var suggestionStatusMessage: String?
     var isSaving = false
+    /// Raw text awaiting Foundation Models extraction.
+    var pasteText = ""
+    /// True while ``extractRecipeFromPaste()`` is in flight.
+    var isExtractingPaste = false
+    /// True while ``suggestMissingIngredients()`` is in flight.
+    var isSuggestingIngredients = false
+    /// Pending AI ingredient suggestions awaiting user accept/dismiss (not saved yet).
+    var ingredientSuggestions: [RecipeIngredientSuggestion] = []
+    /// Confirms replacing form fields when paste extraction would overwrite user input.
+    var showingPasteOverwriteConfirmation = false
     private var pendingRecipe: Recipe?
+    private var extractionTask: Task<Void, Never>?
+    private var suggestionTask: Task<Void, Never>?
+    private var extractionGeneration = 0
+    private var suggestionGeneration = 0
+
+    /// True while either Foundation Models action is running.
+    var isAIBusy: Bool {
+        isExtractingPaste || isSuggestingIngredients
+    }
+
+    /// Whether extract would replace meaningful form content the user already entered.
+    var formHasContentWorthConfirming: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || !notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || ingredientDrafts.contains { !$0.isBlank }
+    }
 
     func loadExistingRecipe(from recipe: Recipe) {
         name = recipe.name
@@ -91,6 +119,170 @@ final class AddRecipeCoordinator {
 
     func removeIngredient(id: UUID) {
         ingredientDrafts.removeAll { $0.id == id }
+    }
+
+    /// Copies a paste-extraction draft into the editable form fields (does not save).
+    func applyPasteDraft(_ draft: RecipePasteDraft) {
+        name = draft.name
+        notes = draft.notes
+        dietaryKind = draft.dietaryKind
+        ingredientDrafts = draft.ingredients.map(Self.ingredientDraft(from:))
+        ingredientSuggestions = []
+        errorMessage = nil
+        suggestionStatusMessage = nil
+    }
+
+    /// Appends one accepted suggestion into the ingredient list and removes it from the pending list.
+    func acceptIngredientSuggestion(_ suggestion: RecipeIngredientSuggestion) {
+        let draft = RecipePasteIngredientDraft(
+            name: suggestion.name,
+            amountText: suggestion.amountText,
+            unit: suggestion.unit
+        )
+        ingredientDrafts.append(Self.ingredientDraft(from: draft))
+        ingredientSuggestions.removeAll {
+            $0.name.caseInsensitiveCompare(suggestion.name) == .orderedSame
+        }
+        errorMessage = nil
+        suggestionStatusMessage = nil
+    }
+
+    /// Clears pending ingredient suggestions without adding them.
+    func dismissIngredientSuggestions() {
+        ingredientSuggestions = []
+        suggestionStatusMessage = nil
+    }
+
+    /// Asks to extract from paste, confirming first when the form already has content.
+    func requestExtractRecipeFromPaste() {
+        guard !isAIBusy else { return }
+        if formHasContentWorthConfirming {
+            showingPasteOverwriteConfirmation = true
+            return
+        }
+        extractRecipeFromPaste()
+    }
+
+    /// Cancels in-flight Foundation Models work (e.g. sheet dismiss).
+    func cancelAIWork() {
+        extractionTask?.cancel()
+        suggestionTask?.cancel()
+        extractionTask = nil
+        suggestionTask = nil
+        extractionGeneration += 1
+        suggestionGeneration += 1
+        isExtractingPaste = false
+        isSuggestingIngredients = false
+    }
+
+    /// Runs on-device paste extraction and fills the form on success.
+    func extractRecipeFromPaste() {
+        extractionTask?.cancel()
+        suggestionTask?.cancel()
+        suggestionGeneration += 1
+        isSuggestingIngredients = false
+        ingredientSuggestions = []
+        suggestionStatusMessage = nil
+
+        let generation = extractionGeneration + 1
+        extractionGeneration = generation
+        isExtractingPaste = true
+        errorMessage = nil
+        let text = pasteText
+
+        extractionTask = Task { @MainActor in
+            defer {
+                if extractionGeneration == generation {
+                    isExtractingPaste = false
+                    extractionTask = nil
+                }
+            }
+            do {
+                let draft = try await RecipePasteExtractor.extract(from: text)
+                guard !Task.isCancelled, extractionGeneration == generation else { return }
+                applyPasteDraft(draft)
+            } catch is CancellationError {
+                return
+            } catch let error as RecipePasteError {
+                guard !Task.isCancelled, extractionGeneration == generation else { return }
+                errorMessage = error.errorDescription
+            } catch {
+                guard !Task.isCancelled, extractionGeneration == generation else { return }
+                errorMessage = "Couldn't extract a recipe. Try again or enter it manually."
+            }
+        }
+    }
+
+    /// Suggests ingredients from the recipe name (notes optional) via Foundation Models.
+    func suggestMissingIngredients() {
+        suggestionTask?.cancel()
+        extractionTask?.cancel()
+        extractionGeneration += 1
+        isExtractingPaste = false
+
+        let generation = suggestionGeneration + 1
+        suggestionGeneration = generation
+        isSuggestingIngredients = true
+        errorMessage = nil
+        suggestionStatusMessage = nil
+        ingredientSuggestions = []
+
+        let recipeName = name
+        let recipeNotes = notes
+        let kind = dietaryKind
+        let existing = ingredientDrafts
+            .filter { !$0.isBlank }
+            .map {
+                RecipePasteIngredientDraft(
+                    name: $0.name,
+                    amountText: $0.amountText,
+                    unit: $0.resolvedUnit
+                )
+            }
+
+        suggestionTask = Task { @MainActor in
+            defer {
+                if suggestionGeneration == generation {
+                    isSuggestingIngredients = false
+                    suggestionTask = nil
+                }
+            }
+            do {
+                let suggestions = try await RecipeIngredientSuggestor.suggest(
+                    recipeName: recipeName,
+                    notes: recipeNotes,
+                    dietaryKind: kind,
+                    existingIngredients: existing
+                )
+                guard !Task.isCancelled, suggestionGeneration == generation else { return }
+                ingredientSuggestions = suggestions
+                if suggestions.isEmpty {
+                    suggestionStatusMessage = "No additional ingredients to suggest for this recipe."
+                }
+            } catch is CancellationError {
+                return
+            } catch let error as RecipeIngredientSuggestionError {
+                guard !Task.isCancelled, suggestionGeneration == generation else { return }
+                ingredientSuggestions = []
+                errorMessage = error.errorDescription
+            } catch {
+                guard !Task.isCancelled, suggestionGeneration == generation else { return }
+                ingredientSuggestions = []
+                errorMessage = "Couldn't suggest ingredients. Try again or add them manually."
+            }
+        }
+    }
+
+    private static func ingredientDraft(from ingredient: RecipePasteIngredientDraft) -> IngredientDraft {
+        let unit = ingredient.unit
+        let isPreset = IngredientUnitOption.presetUnits.contains(unit)
+        return IngredientDraft(
+            name: ingredient.name,
+            amountText: ingredient.amountText,
+            selectedUnit: isPreset ? unit : "",
+            customUnit: isPreset ? "" : unit,
+            usesCustomUnit: !unit.isEmpty && !isPreset
+        )
     }
 
     func loadSelectedImage() {

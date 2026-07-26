@@ -156,7 +156,7 @@ private struct AddRecipeSheetContent: View {
                                 onDismiss()
                             }
                         }
-                        .disabled(coordinator.isSaving)
+                        .disabled(coordinator.isSaving || coordinator.isAIBusy)
                         .accessibilityIdentifier("saveRecipeButton")
                     }
                 }
