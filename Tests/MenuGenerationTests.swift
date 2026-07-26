@@ -139,8 +139,12 @@ struct MenuGenerationTests {
 
         let menu = try context.fetch(FetchDescriptor<Menu>()).first
         #expect(menu?.days == ["Mon", "Wed"])
-        #expect(menu?.recipes[0].dietaryKind == .vegan)
-        #expect(menu?.recipes[1].dietaryKind.satisfies(.vegetarian) == true)
+        // Use ordered ``Menu/recipeNames`` — SwiftData relationship order is not guaranteed.
+        let recipesByName = Dictionary(uniqueKeysWithValues: recipes.map { ($0.name, $0) })
+        let mondayRecipe = menu.flatMap { recipesByName[$0.recipeNames[0]] }
+        let wednesdayRecipe = menu.flatMap { recipesByName[$0.recipeNames[1]] }
+        #expect(mondayRecipe?.dietaryKind == .vegan)
+        #expect(wednesdayRecipe?.dietaryKind.satisfies(.vegetarian) == true)
         #expect(UserDefaults.standard.string(forKey: dayDietConstraintsKey) == "Mon=vegan,Wed=vegetarian")
     }
 
