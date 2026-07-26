@@ -68,17 +68,31 @@ struct AddRecipeView: View {
                     .writingToolsBehavior(.disabled)
                     .accessibilityIdentifier("recipeNameField")
 
-                // System Writing Tools (Proofread / Rewrite / Summarize) — not Foundation Models.
-                // Multiline: Return inserts a newline; dismiss via tap/scroll only.
-                TextField("Notes", text: $coordinator.notes, axis: .vertical)
-                    .lineLimit(3...10)
-                    .font(FpTypography.body)
-                    .foregroundStyle(Color.fpLabel)
-                    .textInputAutocapitalization(.sentences)
-                    .autocorrectionDisabled(false)
-                    .focused($focusedField, equals: .notes)
-                    .writingToolsBehavior(.complete)
-                    .accessibilityIdentifier("notesField")
+                // TextEditor (UITextView) is required for the full Writing Tools experience.
+                // Invoke via select text → edit menu / Writing Tools — not by focus alone.
+                // Return inserts a newline; dismiss via tap/scroll only.
+                ZStack(alignment: .topLeading) {
+                    if coordinator.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text("Notes")
+                            .font(FpTypography.body)
+                            .foregroundStyle(Color.fpSecondaryLabel)
+                            .padding(.top, 8)
+                            .padding(.leading, 5)
+                            .allowsHitTesting(false)
+                    }
+
+                    TextEditor(text: $coordinator.notes)
+                        .font(FpTypography.body)
+                        .foregroundStyle(Color.fpLabel)
+                        .scrollContentBackground(.hidden)
+                        .frame(minHeight: 120)
+                        .textInputAutocapitalization(.sentences)
+                        .autocorrectionDisabled(false)
+                        .focused($focusedField, equals: .notes)
+                        .writingToolsBehavior(.complete)
+                        .accessibilityIdentifier("notesField")
+                }
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
 
             // MARK: Diet
