@@ -9,12 +9,8 @@ Canonical product rules remain in [`project-context.md`](project-context.md). Th
 | `Application/` | App entry (`WeeklyMenuApp`) — shared `ModelContainer` + App Intent dependency registration |
 | `Views/` | SwiftUI views + thin `@Observable` coordinators (transient UI) |
 | `Models/` | SwiftData `@Model` types + `ImageCodec` / `ImageStore` |
-<<<<<<< HEAD
-| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, `MenuIntentSupport`, …) |
+| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, `MenuIntentSupport`, `RecipePasteExtraction`, `RecipeIngredientSuggestion`, …) |
 | `Intents/` | App Intents + `AppShortcutsProvider` (thin; call Helpers for work) |
-=======
-| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, `RecipePasteExtraction`, …) |
->>>>>>> 0ba5a6f (feat: paste recipes with on-device Foundation Models)
 | `DesignSystem/` | Shared `fp*` styling |
 
 Do **not** add new top-level folders under `Sources/` without updating this doc and the architecture sensor if needed.
@@ -70,7 +66,7 @@ Keep intent `perform()` thin. Put dialog formatting and UserDefaults reads in `H
 
 See [`project-context.md`](project-context.md) for full product and testing contracts.
 
-## Foundation Models (paste → recipe)
+## Foundation Models (paste → recipe / suggest ingredients)
 
 ```
 Add Recipe paste field
@@ -78,7 +74,12 @@ Add Recipe paste field
   → RecipePasteDraft
   → AddRecipeCoordinator.applyPasteDraft
   → user reviews → existing save
+
+Add/Edit Recipe (name required; notes optional)
+  → RecipeIngredientSuggestor.suggest
+  → pending suggestions → user accepts into IngredientDrafts
+  → existing save
 ```
 
-Keep guided schemas and mapping in `Helpers/`. Do not persist until the user taps Save.
+Keep guided schemas and mapping in `Helpers/`. Do not persist until the user taps Save. Always surface a check-generated-content disclaimer near AI controls.
 

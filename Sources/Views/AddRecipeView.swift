@@ -95,7 +95,7 @@ struct AddRecipeView: View {
             } header: {
                 Text("Paste recipe")
             } footer: {
-                Text("Uses on-device Apple Intelligence. Review the fields below before saving.")
+                Text(RecipeIngredientSuggestor.generatedContentDisclaimer)
             }
 
             // MARK: Recipe
@@ -150,7 +150,7 @@ struct AddRecipeView: View {
             }
 
             // MARK: Ingredients
-            Section("Ingredients") {
+            Section {
                 ForEach($coordinator.ingredientDrafts) { $draft in
                     IngredientDraftRow(
                         draft: $draft,
@@ -166,6 +166,61 @@ struct AddRecipeView: View {
                         .font(FpTypography.body)
                 }
                 .accessibilityIdentifier("addIngredientButton")
+
+                Button {
+                    focusedField = nil
+                    coordinator.suggestMissingIngredients()
+                } label: {
+                    if coordinator.isSuggestingIngredients {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        Label("Suggest Missing Ingredients", systemImage: "wand.and.stars")
+                            .font(FpTypography.body)
+                    }
+                }
+                .disabled(
+                    coordinator.isSuggestingIngredients
+                        || coordinator.isExtractingPaste
+                        || coordinator.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        || !RecipeIngredientSuggestor.isModelAvailable
+                )
+                .accessibilityIdentifier("suggestIngredientsButton")
+
+                if !coordinator.ingredientSuggestions.isEmpty {
+                    ForEach(coordinator.ingredientSuggestions) { suggestion in
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(suggestion.name)
+                                    .font(FpTypography.body)
+                                    .foregroundStyle(Color.fpLabel)
+                                let detail = [suggestion.amountText, suggestion.unit]
+                                    .filter { !$0.isEmpty }
+                                    .joined(separator: " ")
+                                if !detail.isEmpty {
+                                    Text(detail)
+                                        .font(FpTypography.caption)
+                                        .foregroundStyle(Color.fpSecondaryLabel)
+                                }
+                            }
+                            Spacer()
+                            Button("Add") {
+                                coordinator.acceptIngredientSuggestion(suggestion)
+                            }
+                            .accessibilityIdentifier("acceptIngredientSuggestion_\(suggestion.name)")
+                        }
+                        .accessibilityIdentifier("ingredientSuggestion_\(suggestion.name)")
+                    }
+
+                    Button("Dismiss Suggestions", role: .cancel) {
+                        coordinator.dismissIngredientSuggestions()
+                    }
+                    .accessibilityIdentifier("dismissIngredientSuggestionsButton")
+                }
+            } header: {
+                Text("Ingredients")
+            } footer: {
+                Text(RecipeIngredientSuggestor.generatedContentDisclaimer)
             }
 
             // MARK: Error

@@ -1,0 +1,86 @@
+//
+//  RecipeIngredientSuggestionTests.swift
+//  whattomake
+//
+
+@testable import ForkPlan
+import Foundation
+import Testing
+
+@Suite
+struct RecipeIngredientSuggestionTests {
+    @Test
+    func mapGenerableDropsBlankAndExistingNames() {
+        let generable = GenerableIngredientSuggestions(
+            ingredients: [
+                GenerableRecipeIngredient(name: "Garlic", amountText: "2", unit: "clove(s)"),
+                GenerableRecipeIngredient(name: "  ", amountText: "1", unit: "g"),
+                GenerableRecipeIngredient(name: "Salt", amountText: "", unit: ""),
+                GenerableRecipeIngredient(name: "garlic", amountText: "1", unit: "")
+            ]
+        )
+
+        let suggestions = RecipeIngredientSuggestor.mapGenerable(
+            generable,
+            excludingExistingNames: ["Salt", "Oil"]
+        )
+
+        #expect(suggestions.count == 1)
+        #expect(suggestions[0] == RecipeIngredientSuggestion(name: "Garlic", amountText: "2", unit: "clove(s)"))
+    }
+
+    @Test
+    func suggestThrowsWhenNameMissingWithoutCallingModel() async {
+        do {
+            _ = try await RecipeIngredientSuggestor.suggest(
+                recipeName: "   ",
+                notes: "",
+                dietaryKind: .standard,
+                existingIngredients: []
+            )
+            Issue.record("Expected missingRecipeName")
+        } catch let error as RecipeIngredientSuggestionError {
+            #expect(error == .missingRecipeName)
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+    }
+
+    @Test
+    func generatedContentDisclaimerIsNonEmpty() {
+        #expect(RecipeIngredientSuggestor.generatedContentDisclaimer.contains("Always check"))
+    }
+}
+
+@MainActor
+@Suite
+struct AddRecipeSuggestIngredientsCoordinatorTests {
+    @Test
+    func acceptIngredientSuggestionAppendsDraft() {
+        let coordinator = AddRecipeCoordinator()
+        coordinator.name = "Pasta"
+        coordinator.ingredientSuggestions = [
+            RecipeIngredientSuggestion(name: "Parmesan", amountText: "50", unit: "g"),
+            RecipeIngredientSuggestion(name: "Basil", amountText: "", unit: "")
+        ]
+
+        coordinator.acceptIngredientSuggestion(
+            RecipeIngredientSuggestion(name: "Parmesan", amountText: "50", unit: "g")
+        )
+
+        #expect(coordinator.ingredientDrafts.count == 1)
+        #expect(coordinator.ingredientDrafts[0].name == "Parmesan")
+        #expect(coordinator.ingredientDrafts[0].selectedUnit == "g")
+        #expect(coordinator.ingredientSuggestions.map(\.name) == ["Basil"])
+    }
+
+    @Test
+    func dismissIngredientSuggestionsClearsList() {
+        let coordinator = AddRecipeCoordinator()
+        coordinator.ingredientSuggestions = [
+            RecipeIngredientSuggestion(name: "Salt", amountText: "", unit: "")
+        ]
+        coordinator.dismissIngredientSuggestions()
+        #expect(coordinator.ingredientSuggestions.isEmpty)
+    }
+}

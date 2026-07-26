@@ -63,6 +63,10 @@ final class AddRecipeCoordinator {
     var pasteText = ""
     /// True while ``extractRecipeFromPaste()`` is in flight.
     var isExtractingPaste = false
+    /// True while ``suggestMissingIngredients()`` is in flight.
+    var isSuggestingIngredients = false
+    /// Pending AI ingredient suggestions awaiting user accept/dismiss (not saved yet).
+    var ingredientSuggestions: [RecipeIngredientSuggestion] = []
     private var pendingRecipe: Recipe?
 
     func loadExistingRecipe(from recipe: Recipe) {
@@ -102,18 +106,28 @@ final class AddRecipeCoordinator {
         name = draft.name
         notes = draft.notes
         dietaryKind = draft.dietaryKind
-        ingredientDrafts = draft.ingredients.map { ingredient in
-            let unit = ingredient.unit
-            let isPreset = IngredientUnitOption.presetUnits.contains(unit)
-            return IngredientDraft(
-                name: ingredient.name,
-                amountText: ingredient.amountText,
-                selectedUnit: isPreset ? unit : "",
-                customUnit: isPreset ? "" : unit,
-                usesCustomUnit: !unit.isEmpty && !isPreset
-            )
+        ingredientDrafts = draft.ingredients.map(Self.ingredientDraft(from:))
+        ingredientSuggestions = []
+        errorMessage = nil
+    }
+
+    /// Appends one accepted suggestion into the ingredient list and removes it from the pending list.
+    func acceptIngredientSuggestion(_ suggestion: RecipeIngredientSuggestion) {
+        let draft = RecipePasteIngredientDraft(
+            name: suggestion.name,
+            amountText: suggestion.amountText,
+            unit: suggestion.unit
+        )
+        ingredientDrafts.append(Self.ingredientDraft(from: draft))
+        ingredientSuggestions.removeAll {
+            $0.name.caseInsensitiveCompare(suggestion.name) == .orderedSame
         }
         errorMessage = nil
+    }
+
+    /// Clears pending ingredient suggestions without adding them.
+    func dismissIngredientSuggestions() {
+        ingredientSuggestions = []
     }
 
     /// Runs on-device paste extraction and fills the form on success.
@@ -133,6 +147,54 @@ final class AddRecipeCoordinator {
                 errorMessage = "Couldn't extract a recipe. Try again or enter it manually."
             }
         }
+    }
+
+    /// Suggests ingredients from the recipe name (notes optional) via Foundation Models.
+    func suggestMissingIngredients() {
+        guard !isSuggestingIngredients else { return }
+        isSuggestingIngredients = true
+        errorMessage = nil
+        let recipeName = name
+        let recipeNotes = notes
+        let kind = dietaryKind
+        let existing = ingredientDrafts
+            .filter { !$0.isBlank }
+            .map {
+                RecipePasteIngredientDraft(
+                    name: $0.name,
+                    amountText: $0.amountText,
+                    unit: $0.resolvedUnit
+                )
+            }
+        Task { @MainActor in
+            defer { isSuggestingIngredients = false }
+            do {
+                ingredientSuggestions = try await RecipeIngredientSuggestor.suggest(
+                    recipeName: recipeName,
+                    notes: recipeNotes,
+                    dietaryKind: kind,
+                    existingIngredients: existing
+                )
+            } catch let error as RecipeIngredientSuggestionError {
+                ingredientSuggestions = []
+                errorMessage = error.errorDescription
+            } catch {
+                ingredientSuggestions = []
+                errorMessage = "Couldn't suggest ingredients. Try again or add them manually."
+            }
+        }
+    }
+
+    private static func ingredientDraft(from ingredient: RecipePasteIngredientDraft) -> IngredientDraft {
+        let unit = ingredient.unit
+        let isPreset = IngredientUnitOption.presetUnits.contains(unit)
+        return IngredientDraft(
+            name: ingredient.name,
+            amountText: ingredient.amountText,
+            selectedUnit: isPreset ? unit : "",
+            customUnit: isPreset ? "" : unit,
+            usesCustomUnit: !unit.isEmpty && !isPreset
+        )
     }
 
     func loadSelectedImage() {
