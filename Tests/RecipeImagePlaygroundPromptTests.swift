@@ -69,7 +69,9 @@ struct RecipeImagePlaygroundPromptTests {
             dietaryKind: .standard
         )
         #expect(RecipeImagePlaygroundPrompt.notesExtractionSource(for: short) == nil)
-        #expect(RecipeImagePlaygroundPrompt.notesExtractionSource(for: long) == longNotes)
+        let extracted = RecipeImagePlaygroundPrompt.notesExtractionSource(for: long)
+        #expect(extracted == longNotes.trimmingCharacters(in: .whitespacesAndNewlines))
+        #expect((extracted?.count ?? 0) >= 40)
     }
 
     @Test
