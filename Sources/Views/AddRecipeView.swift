@@ -17,7 +17,7 @@ struct AddRecipeView: View {
     @State private var suggestModelAvailable = RecipeIngredientSuggestor.isModelAvailable
 
     enum Field: Hashable {
-        case name, notes
+        case paste, name, notes
         case ingredientName(UUID)
         case ingredientAmount(UUID)
         case ingredientCustomUnit(UUID)
@@ -25,14 +25,13 @@ struct AddRecipeView: View {
 
     private var isEditing: Bool { existingRecipe != nil }
 
-    /// Keyboard Done belongs on single-line fields only; Notes stays multiline (Return = newline).
+    /// Done dismisses keyboard for every tracked field (including multiline paste/notes).
     private var showsKeyboardDoneButton: Bool {
-        switch focusedField {
-        case .name, .ingredientName, .ingredientAmount, .ingredientCustomUnit:
-            true
-        case .notes, .none:
-            false
-        }
+        focusedField != nil
+    }
+
+    private func resignFocus() {
+        focusedField = nil
     }
 
     var body: some View {
@@ -70,27 +69,40 @@ struct AddRecipeView: View {
                         .textInputAutocapitalization(.sentences)
                         .autocorrectionDisabled(false)
                         .writingToolsBehavior(.disabled)
+                        .focused($focusedField, equals: .paste)
                         .disabled(coordinator.isAIBusy)
                         .accessibilityIdentifier("pasteRecipeField")
 
                     Button {
-                        focusedField = nil
+                        resignFocus()
                         coordinator.requestExtractRecipeFromPaste()
                     } label: {
-                        if coordinator.isExtractingPaste {
-                            ProgressView()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        } else {
-                            Label("Extract Recipe", systemImage: "wand.and.stars")
-                                .font(FpTypography.body)
+                        HStack(spacing: 8) {
+                            if coordinator.isExtractingPaste {
+                                ProgressView()
+                                Text("Extracting…")
+                                    .font(FpTypography.body)
+                            } else {
+                                Label("Extract Recipe", systemImage: "wand.and.stars")
+                                    .font(FpTypography.body)
+                            }
+                            Spacer(minLength: 0)
                         }
                     }
+                    .buttonStyle(.borderless)
                     .disabled(
                         coordinator.isAIBusy
                             || coordinator.pasteText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                             || !pasteModelAvailable
                     )
                     .accessibilityIdentifier("extractRecipeButton")
+
+                    if coordinator.isExtractingPaste {
+                        Text("Apple Intelligence is reading the pasted recipe…")
+                            .font(FpTypography.caption)
+                            .foregroundStyle(Color.fpSecondaryLabel)
+                            .accessibilityIdentifier("extractRecipeProgressMessage")
+                    }
 
                     if let unavailable = pasteUnavailableReason {
                         Text(unavailable)
@@ -102,6 +114,15 @@ struct AddRecipeView: View {
                     Text("Paste recipe")
                 } footer: {
                     Text(RecipeIngredientSuggestor.generatedContentDisclaimer)
+                }
+            }
+
+            if let error = coordinator.errorMessage {
+                Section {
+                    Text(error)
+                        .font(FpTypography.body)
+                        .foregroundStyle(.red)
+                        .accessibilityIdentifier("errorMessage")
                 }
             }
 
@@ -175,23 +196,35 @@ struct AddRecipeView: View {
                 .accessibilityIdentifier("addIngredientButton")
 
                 Button {
-                    focusedField = nil
+                    resignFocus()
                     coordinator.suggestMissingIngredients()
                 } label: {
-                    if coordinator.isSuggestingIngredients {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    } else {
-                        Label("Suggest Missing Ingredients", systemImage: "wand.and.stars")
-                            .font(FpTypography.body)
+                    HStack(spacing: 8) {
+                        if coordinator.isSuggestingIngredients {
+                            ProgressView()
+                            Text("Suggesting…")
+                                .font(FpTypography.body)
+                        } else {
+                            Label("Suggest Missing Ingredients", systemImage: "wand.and.stars")
+                                .font(FpTypography.body)
+                        }
+                        Spacer(minLength: 0)
                     }
                 }
+                .buttonStyle(.borderless)
                 .disabled(
                     coordinator.isAIBusy
                         || coordinator.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         || !suggestModelAvailable
                 )
                 .accessibilityIdentifier("suggestIngredientsButton")
+
+                if coordinator.isSuggestingIngredients {
+                    Text("Apple Intelligence is suggesting missing ingredients…")
+                        .font(FpTypography.caption)
+                        .foregroundStyle(Color.fpSecondaryLabel)
+                        .accessibilityIdentifier("suggestIngredientsProgressMessage")
+                }
 
                 if !coordinator.ingredientSuggestions.isEmpty {
                     ForEach(Array(coordinator.ingredientSuggestions.enumerated()), id: \.element.id) { index, suggestion in
@@ -229,7 +262,7 @@ struct AddRecipeView: View {
                 Text(RecipeIngredientSuggestor.generatedContentDisclaimer)
             }
 
-            // MARK: Status / Error
+            // MARK: Status
             if let status = coordinator.suggestionStatusMessage {
                 Section {
                     Text(status)
@@ -238,21 +271,10 @@ struct AddRecipeView: View {
                         .accessibilityIdentifier("suggestionStatusMessage")
                 }
             }
-
-            if let error = coordinator.errorMessage {
-                Section {
-                    Text(error)
-                        .font(FpTypography.body)
-                        .foregroundStyle(.red)
-                        .accessibilityIdentifier("errorMessage")
-                }
-            }
         }
         .listStyle(.insetGrouped)
         .navigationTitle(isEditing ? "Edit Recipe" : "Add Recipe")
         .scrollDismissesKeyboard(.interactively)
-        // Tap non-control list chrome to resign any focused field (including Notes).
-        .onTapGesture { focusedField = nil }
         .onAppear(perform: refreshModelAvailability)
         .onDisappear {
             coordinator.cancelAIWork()
@@ -263,6 +285,7 @@ struct AddRecipeView: View {
             titleVisibility: .visible
         ) {
             Button("Replace", role: .destructive) {
+                resignFocus()
                 coordinator.extractRecipeFromPaste()
             }
             Button("Cancel", role: .cancel) {}
@@ -274,7 +297,7 @@ struct AddRecipeView: View {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
                     Button("Done") {
-                        focusedField = nil
+                        resignFocus()
                     }
                     .font(FpTypography.body)
                     .accessibilityIdentifier("dismissKeyboardButton")
