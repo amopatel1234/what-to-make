@@ -177,11 +177,10 @@ final class AddRecipeCoordinator {
 
     /// Runs on-device paste extraction and fills the form on success.
     func extractRecipeFromPaste() {
-        guard !isSuggestingIngredients else { return }
-
         extractionTask?.cancel()
         suggestionTask?.cancel()
         suggestionGeneration += 1
+        isSuggestingIngredients = false
         ingredientSuggestions = []
         suggestionStatusMessage = nil
 
@@ -216,9 +215,11 @@ final class AddRecipeCoordinator {
 
     /// Suggests ingredients from the recipe name (notes optional) via Foundation Models.
     func suggestMissingIngredients() {
-        guard !isExtractingPaste else { return }
-
         suggestionTask?.cancel()
+        extractionTask?.cancel()
+        extractionGeneration += 1
+        isExtractingPaste = false
+
         let generation = suggestionGeneration + 1
         suggestionGeneration = generation
         isSuggestingIngredients = true
@@ -254,7 +255,6 @@ final class AddRecipeCoordinator {
                     existingIngredients: existing
                 )
                 guard !Task.isCancelled, suggestionGeneration == generation else { return }
-                guard !isExtractingPaste else { return }
                 ingredientSuggestions = suggestions
                 if suggestions.isEmpty {
                     suggestionStatusMessage = "No additional ingredients to suggest for this recipe."
