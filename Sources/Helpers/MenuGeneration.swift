@@ -126,7 +126,10 @@ enum MenuGeneration {
         )
     }
 
-    /// Re-rolls a single day using cook-recency weighting, excluding other days' recipes.
+    /// Re-rolls a single day using cook-recency weighting.
+    ///
+    /// Excludes every recipe already on the menu (including the day’s current
+    /// recipe) so a re-roll always picks a different dish when one is available.
     ///
     /// - Returns: A user-visible error message when the day cannot be filled, otherwise `nil`.
     @MainActor
@@ -146,8 +149,7 @@ enum MenuGeneration {
             return "Couldn’t update that day. Try regenerating the menu."
         }
 
-        var excluded = Set(ordered.map(\.id))
-        excluded.remove(ordered[dayIndex].id)
+        let excluded = Set(ordered.map(\.id))
 
         let inputs = selectionInputs(from: library)
         guard let picked = MenuGenerator.selectOne(
