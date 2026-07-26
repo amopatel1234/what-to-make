@@ -40,7 +40,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 **Open:** `whattomake.xcworkspace` (not `.xcodeproj` alone).
 
-**Deferred (not implemented yet):** Usage-weighted menu selection (Phase 3 / Epic 3). Imperial/metric unit display conversion. Additional Foundation Models features beyond paste→recipe and suggest-missing-ingredients.
+**Deferred (not implemented yet):** Imperial/metric unit display conversion. Additional Foundation Models features beyond paste→recipe and suggest-missing-ingredients.
 
 ---
 
@@ -80,10 +80,17 @@ Views (@Query + @State) → Models ← SwiftData
 User action (view)
   → validate (≥ 7 recipes, ≥ 1 day, diet pools) via MenuGeneration.validationMessage
   → map recipes → RecipeSelectionInput [Sendable snapshot]
-  → MenuGenerator.select(from:requests:) [pure struct, no @MainActor]
+  → MenuGenerator.select(from:requests:) [cook-recency weighted; pure struct, no @MainActor]
   → compactMap selected inputs back to Recipe by id
-  → MenuGeneration.run → MenuPersistence.replaceMenu + usageCount increment
+  → MenuGeneration.run → MenuPersistence.replaceMenu (cook stats unchanged)
   → @Query auto-updates view
+```
+
+Day tweak / cook tracking:
+
+```
+Menu day swipe → MenuGeneration.rerollDay / assignRecipe / markCooked
+  → markCooked bumps usageCount + lastCookedAt only
 ```
 
 **State management:**
@@ -112,13 +119,16 @@ User action (view)
 - Normal launches use a **persistent** `ModelContainer` only — no launch-argument store modes.
 - Menu lifecycle: **delete-before-insert** on regenerate — `MenuPersistence.replaceMenu(with:in:)` deletes all existing `Menu` records before inserting the new one.
 - Latest menu: `@Query` via `Menu.latestDescriptor()` → display `menus.first`.
-- Recipe fields: `name` (required), `notes` (optional), `usageCount`, `thumbnailBase64`, `imageFilename`, `dietaryKindRaw` / `dietaryKind` (`standard` \| `vegetarian` \| `vegan`), `ingredients`.
+- Recipe fields: `name` (required), `notes` (optional), `usageCount` (times marked cooked), `lastCookedAt`, `thumbnailBase64`, `imageFilename`, `dietaryKindRaw` / `dietaryKind` (`standard` \| `vegetarian` \| `vegan`), `ingredients`.
 - `RecipeIngredient` fields: `name` (required), `amount` (optional `Decimal`), `unit` (optional free text, stored as entered), `sortOrder`.
 - Ingredient units are stored as-entered — no imperial/metric conversion in v1.
 - Menu fields: `generatedDate`, `days`, `recipes` (snapshot of selected recipes).
 - Canonical day identifiers: `"Mon"` … `"Sun"` (locale-independent).
 - Per-day diet constraints: ``DayDietConstraint`` (`any` / `vegetarian` / `vegan`); vegan recipes satisfy vegetarian days; restricted days are hard filters (no fallback onto a veg/vegan day).
 - Menu generation validates diet pools before select (enough vegan recipes for vegan days; enough vegetarian∪remaining vegan for veg days).
+- Menu selection weights recipes by cook recency (`lastCookedAt`; never-cooked preferred). Planning a menu does **not** change cook stats.
+- Day actions on an existing menu: re-roll one day, choose a library recipe, or mark that day’s recipe cooked.
+- ``MenuGeneration/markCooked`` increments ``usageCount`` and sets ``lastCookedAt``.
 
 **Image storage (split design — do not blur):**
 
@@ -130,7 +140,7 @@ User action (view)
 
 - Menu generation requires **≥ 7 recipes** (`minRecipesRequired = 7`).
 - User selects any subset of days Mon–Sun; each selected day may be **Any**, **Veg**, or **Vegan**.
-- Generating a menu **increments `usageCount`** on selected recipes.
+- Generating or tweaking a menu does **not** increment cook stats; only **Mark as cooked** does.
 - Recipe `name` is required; `notes` and photos are optional.
 - Recipe diet default is ``RecipeDietaryKind/standard``.
 
@@ -223,8 +233,7 @@ Tests/
 |------|------------|
 | Recipes | `recipesList`, `emptyRecipesView`, `addRecipeButton` |
 | Add recipe | `recipeNameField`, `notesField`, `choosePhotoButton`, `generateRecipeImageButton`, `saveRecipeButton`, `recipeDietaryKindPicker`, `ingredientNameField_<index>`, `ingredientAmountField_<index>`, `ingredientUnitField_<index>`, `addIngredientButton`, `pasteRecipeField`, `extractRecipeButton`, `suggestIngredientsButton` |
-| Menu | `toggleDay_<Day>`, `dayDiet_<Day>`, `generateMenuButton`, `menuItem_<Day>`, `menuRecipesRequirementMessage`, `menuValidationMessage` |
-
+| Menu | `toggleDay_<Day>`, `dayDiet_<Day>`, `generateMenuButton`, `menuItem_<Day>`, `menuRecipesRequirementMessage`, `menuValidationMessage`, `rerollDay_<Day>`, `chooseRecipeDay_<Day>`, `markCookedDay_<Day>` |
 - Add accessibility identifiers to **all user-interactive elements**.
 - Ignore naming inconsistencies (`whattomake` vs `ForkPlan`) unless they cause build, import, or test failures.
 

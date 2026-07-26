@@ -12,13 +12,15 @@ struct MenuGeneratorTests {
     private func makeInputs(
         count: Int,
         namePrefix: String = "Recipe",
-        dietaryKind: RecipeDietaryKind = .standard
+        dietaryKind: RecipeDietaryKind = .standard,
+        lastCookedAt: Date? = nil
     ) -> [RecipeSelectionInput] {
         (1...count).map {
             RecipeSelectionInput(
                 id: UUID(),
                 name: "\(namePrefix) \($0)",
-                usageCount: 0,
+                timesCooked: 0,
+                lastCookedAt: lastCookedAt,
                 dietaryKind: dietaryKind
             )
         }
@@ -26,12 +28,15 @@ struct MenuGeneratorTests {
 
     private func makeInput(
         name: String,
-        dietaryKind: RecipeDietaryKind
+        dietaryKind: RecipeDietaryKind,
+        timesCooked: Int = 0,
+        lastCookedAt: Date? = nil
     ) -> RecipeSelectionInput {
         RecipeSelectionInput(
             id: UUID(),
             name: name,
-            usageCount: 0,
+            timesCooked: timesCooked,
+            lastCookedAt: lastCookedAt,
             dietaryKind: dietaryKind
         )
     }
@@ -156,7 +161,63 @@ struct MenuGeneratorTests {
         #expect(selected.count == 2)
         let selectedNames = Set(selected.map(\.name))
         #expect(selectedNames == ["Vegan A", "Vegan B"])
-        // Both vegan days should be filled; the any day is skipped when pool is exhausted.
         #expect(selected.allSatisfy { $0.dietaryKind == .vegan })
+    }
+
+    @Test
+    func neverCookedWeightExceedsRecentCook() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let never = MenuGenerator.cookRecencyWeight(lastCookedAt: nil, now: now)
+        let yesterday = MenuGenerator.cookRecencyWeight(
+            lastCookedAt: now.addingTimeInterval(-86_400),
+            now: now
+        )
+        #expect(never > yesterday)
+        #expect(yesterday == 1)
+    }
+
+    @Test
+    func weightedPickWithZeroRandomSelectsFirstBucket() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let recent = makeInput(
+            name: "Recent",
+            dietaryKind: .standard,
+            lastCookedAt: now
+        )
+        let never = makeInput(
+            name: "Never",
+            dietaryKind: .standard,
+            lastCookedAt: nil
+        )
+        // Pool order: recent first (weight 1), never second (weight 3650).
+        // randomValue 0 lands in the first bucket → Recent.
+        let first = MenuGenerator.pickWeighted(
+            from: [recent, never],
+            now: now,
+            randomValue: { 0 }
+        )
+        #expect(first?.name == "Recent")
+
+        // A value just above recent's share of total lands in Never.
+        let total = 1 + MenuGenerator.neverCookedWeight
+        let intoNever = MenuGenerator.pickWeighted(
+            from: [recent, never],
+            now: now,
+            randomValue: { (1.5) / total }
+        )
+        #expect(intoNever?.name == "Never")
+    }
+
+    @Test
+    func selectOneExcludesUsedIDs() {
+        let a = makeInput(name: "A", dietaryKind: .standard)
+        let b = makeInput(name: "B", dietaryKind: .standard)
+        let picked = MenuGenerator.selectOne(
+            from: [a, b],
+            diet: .any,
+            excluding: [a.id],
+            randomValue: { 0 }
+        )
+        #expect(picked?.id == b.id)
     }
 }

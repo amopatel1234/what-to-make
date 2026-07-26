@@ -17,6 +17,9 @@ struct GenerateMenuView: View {
     @AppStorage(AppStorageKey.dayDietConstraints.rawValue) private var dayDietConstraintsRaw = DayDietConstraintStorage.defaultValue
     @State private var showNewPlanSheet = false
     @State private var showRegenerateConfirmation = false
+    @State private var recipePickerDay: MenuDayPickerItem?
+    @State private var cookConfirmDay: String?
+    @State private var statusMessage: String?
 
     private var latestMenu: Menu? { menus.first }
     private var selectedDays: Set<String> { DaySelectionStorage.decode(selectedDaysRaw) }
@@ -48,6 +51,44 @@ struct GenerateMenuView: View {
                     initialDaysRaw: newPlanInitialDaysRaw,
                     initialDietConstraintsRaw: dayDietConstraintsRaw
                 )
+            }
+            .sheet(item: $recipePickerDay) { item in
+                if let menu = latestMenu {
+                    MenuDayRecipePickerSheet(
+                        day: item.day,
+                        recipes: MenuGeneration.eligibleRecipes(
+                            forDay: item.day,
+                            on: menu,
+                            library: recipes,
+                            diet: dietConstraints[item.day] ?? .any
+                        ),
+                        onSelect: { recipe in
+                            assignRecipe(recipe, toDay: item.day, on: menu)
+                            recipePickerDay = nil
+                        },
+                        onCancel: { recipePickerDay = nil }
+                    )
+                }
+            }
+            .alert(
+                "Mark as cooked?",
+                isPresented: Binding(
+                    get: { cookConfirmDay != nil },
+                    set: { if !$0 { cookConfirmDay = nil } }
+                )
+            ) {
+                Button("Cancel", role: .cancel) { cookConfirmDay = nil }
+                Button("Mark Cooked") {
+                    if let day = cookConfirmDay, let menu = latestMenu {
+                        markCooked(day: day, on: menu)
+                    }
+                    cookConfirmDay = nil
+                }
+            } message: {
+                if let day = cookConfirmDay, let menu = latestMenu {
+                    let name = recipeName(for: day, on: menu) ?? "this recipe"
+                    Text("Record that you cooked \(name)? This updates cook history used for future menus.")
+                }
             }
         }
     }
@@ -91,7 +132,10 @@ struct GenerateMenuView: View {
                 MenuDaySectionRow(
                     day: row.day,
                     recipeName: row.name,
-                    highlight: highlight
+                    highlight: highlight,
+                    onReroll: { rerollDay(row.day, on: menu) },
+                    onChoose: { recipePickerDay = MenuDayPickerItem(day: row.day) },
+                    onMarkCooked: { cookConfirmDay = row.day }
                 )
             }
 
@@ -131,20 +175,30 @@ struct GenerateMenuView: View {
                 regenerateMenu()
             }
         } message: {
-            Text("New recipes will be picked for the same days and diet settings.")
+            Text("New recipes will be picked for the same days and diet settings. Cook history is unchanged.")
         }
         .overlay(alignment: .bottom) {
-            if let message = coordinator.errorMessage {
-                Text(message)
-                    .font(FpTypography.caption)
-                    .foregroundStyle(.red)
-                    .padding()
-                    .accessibilityIdentifier("menuValidationMessage")
+            VStack(spacing: 8) {
+                if let message = statusMessage {
+                    Text(message)
+                        .font(FpTypography.caption)
+                        .foregroundStyle(Color.fpSecondaryLabel)
+                        .padding(.horizontal)
+                        .accessibilityIdentifier("menuStatusMessage")
+                }
+                if let message = coordinator.errorMessage {
+                    Text(message)
+                        .font(FpTypography.caption)
+                        .foregroundStyle(.red)
+                        .padding(.horizontal)
+                        .accessibilityIdentifier("menuValidationMessage")
+                }
             }
+            .padding(.bottom, 8)
         }
     }
 
-    // MARK: - Generation
+    // MARK: - Generation & day actions
 
     private func regenerateMenu() {
         guard let menu = latestMenu else { return }
@@ -167,6 +221,7 @@ struct GenerateMenuView: View {
         }
 
         coordinator.errorMessage = nil
+        statusMessage = nil
         coordinator.isGenerating = true
         selectedDaysRaw = DaySelectionStorage.encode(days)
 
@@ -187,6 +242,83 @@ struct GenerateMenuView: View {
             }
         }
     }
+
+    private func rerollDay(_ day: String, on menu: Menu) {
+        do {
+            if let message = try MenuGeneration.rerollDay(
+                day,
+                on: menu,
+                recipes: recipes,
+                diet: dietConstraints[day] ?? .any,
+                modelContext: modelContext
+            ) {
+                coordinator.errorMessage = message
+                statusMessage = nil
+            } else {
+                coordinator.errorMessage = nil
+                statusMessage = "Picked a new recipe for \(day)."
+            }
+        } catch {
+            coordinator.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func assignRecipe(_ recipe: Recipe, toDay day: String, on menu: Menu) {
+        do {
+            if let message = try MenuGeneration.assignRecipe(
+                recipe,
+                toDay: day,
+                on: menu,
+                library: recipes,
+                modelContext: modelContext
+            ) {
+                coordinator.errorMessage = message
+                statusMessage = nil
+            } else {
+                coordinator.errorMessage = nil
+                statusMessage = "\(day) is now \(recipe.name)."
+            }
+        } catch {
+            coordinator.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func markCooked(day: String, on menu: Menu) {
+        guard let recipe = recipe(for: day, on: menu) else {
+            coordinator.errorMessage = "Couldn’t find that recipe."
+            return
+        }
+        do {
+            try MenuGeneration.markCooked(recipe, in: modelContext)
+            coordinator.errorMessage = nil
+            statusMessage = "Marked \(recipe.name) as cooked."
+        } catch {
+            coordinator.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func recipeName(for day: String, on menu: Menu) -> String? {
+        guard let index = menu.days.firstIndex(of: day) else { return nil }
+        let names = menu.recipeNames.count == menu.days.count
+            ? menu.recipeNames
+            : menu.recipes.map(\.name)
+        guard names.indices.contains(index) else { return nil }
+        return names[index]
+    }
+
+    private func recipe(for day: String, on menu: Menu) -> Recipe? {
+        guard let name = recipeName(for: day, on: menu) else { return nil }
+        return MenuGeneration.orderedRecipes(for: menu, from: recipes)
+            .first { $0.name == name }
+            ?? recipes.first { $0.name == name }
+    }
+}
+
+// MARK: - Day picker identity
+
+private struct MenuDayPickerItem: Identifiable {
+    let day: String
+    var id: String { day }
 }
 
 // MARK: - Menu day row
@@ -195,6 +327,9 @@ private struct MenuDaySectionRow: View {
     let day: String
     let recipeName: String
     let highlight: MenuHighlightDay.Result?
+    let onReroll: () -> Void
+    let onChoose: () -> Void
+    let onMarkCooked: () -> Void
 
     private var isHighlighted: Bool { highlight?.day == day }
 
@@ -213,6 +348,22 @@ private struct MenuDaySectionRow: View {
                 .foregroundStyle(Color.fpLabel)
                 .accessibilityIdentifier("menuItem_\(day)")
                 .listRowBackground(rowBackground)
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button("Re-roll", action: onReroll)
+                        .tint(Color.fpAccent)
+                        .accessibilityIdentifier("rerollDay_\(day)")
+                    Button("Choose", action: onChoose)
+                        .tint(.indigo)
+                        .accessibilityIdentifier("chooseRecipeDay_\(day)")
+                    Button("Cooked", action: onMarkCooked)
+                        .tint(.green)
+                        .accessibilityIdentifier("markCookedDay_\(day)")
+                }
+                .contextMenu {
+                    Button("Re-roll day", action: onReroll)
+                    Button("Choose recipe…", action: onChoose)
+                    Button("Mark as cooked", action: onMarkCooked)
+                }
         } header: {
             HStack(spacing: 8) {
                 Text(day)
@@ -239,6 +390,53 @@ private struct MenuDaySectionRow: View {
         if isHighlighted {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.fpAccent.opacity(0.1))
+        }
+    }
+}
+
+// MARK: - Recipe picker
+
+private struct MenuDayRecipePickerSheet: View {
+    let day: String
+    let recipes: [Recipe]
+    let onSelect: (Recipe) -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if recipes.isEmpty {
+                    ContentUnavailableView(
+                        "No Matching Recipes",
+                        systemImage: "fork.knife",
+                        description: Text("Nothing else fits this day’s diet filter.")
+                    )
+                } else {
+                    List(recipes, id: \.id) { recipe in
+                        Button {
+                            onSelect(recipe)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(recipe.name)
+                                    .font(FpTypography.body)
+                                    .foregroundStyle(Color.fpLabel)
+                                Text(recipe.dietaryKind.displayName)
+                                    .font(FpTypography.caption)
+                                    .foregroundStyle(Color.fpSecondaryLabel)
+                            }
+                        }
+                        .accessibilityIdentifier("pickRecipe_\(recipe.id.uuidString)")
+                    }
+                    .listStyle(.plain)
+                }
+            }
+            .navigationTitle("\(day) recipe")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: onCancel)
+                }
+            }
         }
     }
 }

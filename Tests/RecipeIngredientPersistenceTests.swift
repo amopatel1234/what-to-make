@@ -46,6 +46,17 @@ struct RecipeIngredientPersistenceTests {
         #expect(dietaryKindAttribute?.defaultValue != nil)
     }
 
+    /// Optional `lastCookedAt` migrates without a schema default — `nil` is already valid.
+    /// Guard that the attribute exists so it is not dropped from the model accidentally.
+    @Test
+    func lastCookedAtAttributeExistsOnRecipeSchema() {
+        let schema = Schema([Recipe.self, Menu.self, RecipeIngredient.self])
+        let recipeEntity = schema.entities.first { $0.name == "Recipe" }
+        let lastCookedAttribute = recipeEntity?.attributes.first { $0.name == "lastCookedAt" }
+        #expect(lastCookedAttribute != nil)
+        #expect(lastCookedAttribute?.isOptional == true)
+    }
+
     @Test
     func deletingRecipeCascadesToIngredients() throws {
         let container = try makeTestContainer()

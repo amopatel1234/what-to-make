@@ -8,7 +8,7 @@
 import Foundation
 import SwiftData
 
-/// Product-rule validation and persistence for weekly menu generation.
+/// Product-rule validation and persistence for weekly menu generation and day tweaks.
 enum MenuGeneration {
     /// Minimum recipe library size required before a menu can be generated.
     static let minRecipesRequired = 7
@@ -72,12 +72,26 @@ enum MenuGeneration {
         return nil
     }
 
-    /// Selects recipes, replaces the stored menu, increments usage, and persists day selection.
+    /// Maps library recipes into selection snapshots for ``MenuGenerator``.
+    static func selectionInputs(from recipes: [Recipe]) -> [RecipeSelectionInput] {
+        recipes.map {
+            RecipeSelectionInput(
+                id: $0.id,
+                name: $0.name,
+                timesCooked: $0.usageCount,
+                lastCookedAt: $0.lastCookedAt,
+                dietaryKind: $0.dietaryKind
+            )
+        }
+    }
+
+    /// Selects recipes and replaces the stored menu. Does **not** change cook stats.
+    ///
     /// - Parameters:
     ///   - recipes: Available recipes to choose from.
     ///   - days: Selected day identifiers (order normalized via ``DaySelectionStorage``).
     ///   - dietConstraints: Per-day diet filters (missing keys mean ``DayDietConstraint/any``).
-    ///   - modelContext: SwiftData context for menu and usage writes.
+    ///   - modelContext: SwiftData context for menu writes.
     /// - Throws: Persistence errors from ``MenuPersistence`` or `modelContext.save()`.
     @MainActor
     static func run(
@@ -90,14 +104,7 @@ enum MenuGeneration {
         let requests = orderedDays.map { day in
             DayMenuRequest(day: day, diet: dietConstraints[day] ?? .any)
         }
-        let inputs = recipes.map {
-            RecipeSelectionInput(
-                id: $0.id,
-                name: $0.name,
-                usageCount: $0.usageCount,
-                dietaryKind: $0.dietaryKind
-            )
-        }
+        let inputs = selectionInputs(from: recipes)
         let selectedInputs = MenuGenerator.select(from: inputs, requests: requests)
         let selectedRecipes = selectedInputs.compactMap { input in
             recipes.first { $0.id == input.id }
@@ -105,10 +112,6 @@ enum MenuGeneration {
         let menu = Menu(days: orderedDays, recipes: selectedRecipes)
 
         try MenuPersistence.replaceMenu(with: menu, in: modelContext)
-        for recipe in selectedRecipes {
-            recipe.usageCount += 1
-        }
-        try modelContext.save()
         UserDefaults.standard.set(
             DaySelectionStorage.encode(Set(orderedDays)),
             forKey: AppStorageKey.selectedDays.rawValue
@@ -121,5 +124,129 @@ enum MenuGeneration {
             DayDietConstraintStorage.encode(persistedConstraints),
             forKey: AppStorageKey.dayDietConstraints.rawValue
         )
+    }
+
+    /// Re-rolls a single day using cook-recency weighting, excluding other days' recipes.
+    ///
+    /// - Returns: A user-visible error message when the day cannot be filled, otherwise `nil`.
+    @MainActor
+    @discardableResult
+    static func rerollDay(
+        _ day: String,
+        on menu: Menu,
+        recipes library: [Recipe],
+        diet: DayDietConstraint,
+        modelContext: ModelContext
+    ) throws -> String? {
+        guard let dayIndex = menu.days.firstIndex(of: day) else {
+            return "That day isn’t on this menu."
+        }
+        let ordered = orderedRecipes(for: menu, from: library)
+        guard ordered.count == menu.days.count else {
+            return "Couldn’t update that day. Try regenerating the menu."
+        }
+
+        var excluded = Set(ordered.map(\.id))
+        excluded.remove(ordered[dayIndex].id)
+
+        let inputs = selectionInputs(from: library)
+        guard let picked = MenuGenerator.selectOne(
+            from: inputs,
+            diet: diet,
+            excluding: excluded
+        ) else {
+            return "No other recipes fit this day’s diet filter."
+        }
+        guard let recipe = library.first(where: { $0.id == picked.id }) else {
+            return "No other recipes fit this day’s diet filter."
+        }
+
+        try assignRecipe(recipe, toDayIndex: dayIndex, on: menu, orderedRecipes: ordered, in: modelContext)
+        return nil
+    }
+
+    /// Assigns a library recipe to an existing menu day (manual pick).
+    @MainActor
+    static func assignRecipe(
+        _ recipe: Recipe,
+        toDay day: String,
+        on menu: Menu,
+        library: [Recipe],
+        modelContext: ModelContext
+    ) throws -> String? {
+        guard let dayIndex = menu.days.firstIndex(of: day) else {
+            return "That day isn’t on this menu."
+        }
+        let ordered = orderedRecipes(for: menu, from: library)
+        guard ordered.count == menu.days.count else {
+            return "Couldn’t update that day. Try regenerating the menu."
+        }
+        try assignRecipe(recipe, toDayIndex: dayIndex, on: menu, orderedRecipes: ordered, in: modelContext)
+        return nil
+    }
+
+    /// Marks a recipe as cooked: bumps ``Recipe/usageCount`` and sets ``Recipe/lastCookedAt``.
+    @MainActor
+    static func markCooked(
+        _ recipe: Recipe,
+        at date: Date = Date(),
+        in modelContext: ModelContext
+    ) throws {
+        recipe.usageCount += 1
+        recipe.lastCookedAt = date
+        try modelContext.save()
+    }
+
+    /// Recipes eligible to manually assign to `day` (diet-aware; may include the current pick).
+    static func eligibleRecipes(
+        forDay day: String,
+        on menu: Menu,
+        library: [Recipe],
+        diet: DayDietConstraint
+    ) -> [Recipe] {
+        let ordered = orderedRecipes(for: menu, from: library)
+        guard let dayIndex = menu.days.firstIndex(of: day), ordered.count == menu.days.count else {
+            return library.filter { $0.dietaryKind.satisfies(diet) }
+                .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        }
+        let currentID = ordered[dayIndex].id
+        let usedElsewhere = Set(ordered.enumerated().compactMap { index, recipe in
+            index == dayIndex ? nil : recipe.id
+        })
+        return library.filter { recipe in
+            recipe.dietaryKind.satisfies(diet)
+                && (recipe.id == currentID || !usedElsewhere.contains(recipe.id))
+        }
+        .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    /// Resolves day-parallel recipes using ``Menu/recipeNames`` (relationship order is unreliable).
+    static func orderedRecipes(for menu: Menu, from library: [Recipe]) -> [Recipe] {
+        let names: [String]
+        if menu.recipeNames.count == menu.days.count {
+            names = menu.recipeNames
+        } else {
+            names = menu.recipes.map(\.name)
+        }
+        let linkedByName = Dictionary(grouping: menu.recipes, by: \.name)
+        let libraryByName = Dictionary(grouping: library, by: \.name)
+        return names.compactMap { name in
+            linkedByName[name]?.first ?? libraryByName[name]?.first
+        }
+    }
+
+    @MainActor
+    private static func assignRecipe(
+        _ recipe: Recipe,
+        toDayIndex dayIndex: Int,
+        on menu: Menu,
+        orderedRecipes: [Recipe],
+        in modelContext: ModelContext
+    ) throws {
+        var next = orderedRecipes
+        next[dayIndex] = recipe
+        menu.recipes = next
+        menu.recipeNames = next.map(\.name)
+        try modelContext.save()
     }
 }
