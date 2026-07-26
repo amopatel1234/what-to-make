@@ -14,7 +14,8 @@ import SwiftData
 /// Fields
 /// - ``name``: Required display name.
 /// - ``notes``: Optional free-form notes.
-/// - ``usageCount``: Incremented when included in a generated menu.
+/// - ``usageCount``: Times the user has marked this recipe as cooked.
+/// - ``lastCookedAt``: When the user last marked this recipe as cooked (drives menu weighting).
 /// - ``thumbnailBase64``: Optional Base64 JPEG thumbnail for fast list rendering.
 /// - ``imageFilename``: Optional filename of the original image on disk (via ``ImageStore``).
 /// - ``dietaryKindRaw``: Stored raw value for ``RecipeDietaryKind``.
@@ -32,8 +33,13 @@ final class Recipe {
     var name: String
     /// Optional notes shown on detail/list.
     var notes: String?
-    /// Number of times this recipe has been used in generated menus.
+    /// Times the user has marked this recipe as cooked (not bumped by menu planning).
     var usageCount: Int
+    /// When the user last marked this recipe as cooked; `nil` if never.
+    ///
+    /// Inline default required so lightweight migration can load stores created before
+    /// this attribute existed.
+    var lastCookedAt: Date? = nil
 
     // NEW: tiny, sync-friendly image data
     /// Base64-encoded JPEG thumbnail (~300–600 px) used for lightweight previews.
@@ -64,18 +70,28 @@ final class Recipe {
     ///   - id: Unique identifier (auto-generated if omitted).
     ///   - name: Required recipe name.
     ///   - notes: Optional notes.
-    ///   - usageCount: Initial usage count (defaults to 0).
+    ///   - usageCount: Initial times-cooked count (defaults to 0).
+    ///   - lastCookedAt: Optional last-cooked timestamp.
     ///   - thumbnailBase64: Optional Base64 thumbnail.
     ///   - imageFilename: Optional original image filename in ``ImageStore``.
     ///   - dietaryKind: Dietary classification (defaults to ``RecipeDietaryKind/standard``).
     ///   - ingredients: Initial ingredient lines (defaults to empty).
-    init(id: UUID = UUID(), name: String, notes: String? = nil,
-         usageCount: Int = 0, thumbnailBase64: String? = nil, imageFilename: String? = nil,
-         dietaryKind: RecipeDietaryKind = .standard, ingredients: [RecipeIngredient] = []) {
+    init(
+        id: UUID = UUID(),
+        name: String,
+        notes: String? = nil,
+        usageCount: Int = 0,
+        lastCookedAt: Date? = nil,
+        thumbnailBase64: String? = nil,
+        imageFilename: String? = nil,
+        dietaryKind: RecipeDietaryKind = .standard,
+        ingredients: [RecipeIngredient] = []
+    ) {
         self.id = id
         self.name = name
         self.notes = notes
         self.usageCount = usageCount
+        self.lastCookedAt = lastCookedAt
         self.thumbnailBase64 = thumbnailBase64
         self.imageFilename = imageFilename
         self.dietaryKindRaw = dietaryKind.rawValue

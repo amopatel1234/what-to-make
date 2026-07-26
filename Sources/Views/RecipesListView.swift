@@ -12,7 +12,7 @@ struct RecipesView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var showAdd = false
     @State private var selectedRecipe: Recipe?
-    @State private var deleteErrorMessage: String?
+    @State private var actionErrorMessage: String?
 
     var body: some View {
         NavigationStack {
@@ -49,8 +49,24 @@ struct RecipesView: View {
                                 }
                             }
                             .frame(minHeight: 56)
+                            .contentShape(Rectangle())
                             .onTapGesture {
                                 selectedRecipe = recipe
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button("Cooked") {
+                                    markCooked(recipe)
+                                }
+                                .tint(.green)
+                                .accessibilityIdentifier("markCookedRecipe_\(recipe.id.uuidString)")
+                            }
+                            .contextMenu {
+                                Button("Mark as cooked") {
+                                    markCooked(recipe)
+                                }
+                                Button("Edit") {
+                                    selectedRecipe = recipe
+                                }
                             }
                         }
                         .onDelete(perform: deleteRecipes)
@@ -86,21 +102,21 @@ struct RecipesView: View {
                     onDismiss: { selectedRecipe = nil }
                 )
             }
-            .alert("Could Not Delete Recipe", isPresented: deleteErrorPresented) {
-                Button("OK", role: .cancel) { deleteErrorMessage = nil }
+            .alert("Couldn't Update", isPresented: actionErrorPresented) {
+                Button("OK", role: .cancel) { actionErrorMessage = nil }
             } message: {
-                if let deleteErrorMessage {
-                    Text(deleteErrorMessage)
+                if let actionErrorMessage {
+                    Text(actionErrorMessage)
                 }
             }
             .background(Color.fpBackground)
         }
     }
 
-    private var deleteErrorPresented: Binding<Bool> {
+    private var actionErrorPresented: Binding<Bool> {
         Binding(
-            get: { deleteErrorMessage != nil },
-            set: { if !$0 { deleteErrorMessage = nil } }
+            get: { actionErrorMessage != nil },
+            set: { if !$0 { actionErrorMessage = nil } }
         )
     }
 
@@ -114,9 +130,18 @@ struct RecipesView: View {
         }
         do {
             try modelContext.save()
-            deleteErrorMessage = nil
+            actionErrorMessage = nil
         } catch {
-            deleteErrorMessage = error.localizedDescription
+            actionErrorMessage = error.localizedDescription
+        }
+    }
+
+    private func markCooked(_ recipe: Recipe) {
+        do {
+            try MenuGeneration.markCooked(recipe, in: modelContext)
+            actionErrorMessage = nil
+        } catch {
+            actionErrorMessage = error.localizedDescription
         }
     }
 }
