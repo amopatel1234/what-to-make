@@ -63,7 +63,8 @@ struct AddRecipeView: View {
             if !isEditing {
                 Section {
                     TextField("Paste recipe text…", text: $coordinator.pasteText, axis: .vertical)
-                        .lineLimit(4...12)
+                        .lineLimit(3...5)
+                        .frame(maxHeight: 120, alignment: .topLeading)
                         .font(FpTypography.body)
                         .foregroundStyle(Color.fpLabel)
                         .textInputAutocapitalization(.sentences)
@@ -88,6 +89,8 @@ struct AddRecipeView: View {
                             }
                             Spacer(minLength: 0)
                         }
+                        .frame(minHeight: 44, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.borderless)
                     .disabled(
