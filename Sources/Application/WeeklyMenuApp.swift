@@ -14,14 +14,20 @@ import SwiftData
 struct WeeklyMenuApp: App {
     private static let isRunningUnderTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
 
+    /// Dependency key shared with App Intents (`@Dependency(key:)`).
+    static let modelContainerDependencyKey = "ModelContainer"
+
     private let modelContainer: ModelContainer
 
     init() {
         DaySelectionStorage.registerDefaults()
 
         if Self.isRunningUnderTests {
-            modelContainer = (try? ForkPlanModelContainer.makeInMemory())
-                ?? ForkPlanModelContainer.shared
+            do {
+                modelContainer = try ForkPlanModelContainer.makeInMemory()
+            } catch {
+                fatalError("Failed to create in-memory ModelContainer for tests: \(error)")
+            }
         } else {
             modelContainer = ForkPlanModelContainer.shared
         }
@@ -30,7 +36,10 @@ struct WeeklyMenuApp: App {
         let asyncDependency: @Sendable () async -> ModelContainer = { @MainActor in
             container
         }
-        AppDependencyManager.shared.add(key: "ModelContainer", dependency: asyncDependency)
+        AppDependencyManager.shared.add(
+            key: Self.modelContainerDependencyKey,
+            dependency: asyncDependency
+        )
         ForkPlanShortcuts.updateAppShortcutParameters()
     }
 

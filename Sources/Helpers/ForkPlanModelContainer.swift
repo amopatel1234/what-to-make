@@ -10,11 +10,11 @@ import SwiftData
 
 /// Shared SwiftData container for the app UI and App Intents.
 ///
-/// Intents run outside the SwiftUI view tree, so they cannot rely on
-/// `@Environment(\.modelContext)`. Both surfaces use this container so reads and
-/// writes hit the same persistent store.
+/// Intents resolve this container via `AppDependencyManager` (`@Dependency`) so they
+/// share the same store as ``WeeklyMenuApp``. The persistent ``shared`` instance is
+/// the production fallback registered at launch.
 enum ForkPlanModelContainer {
-    /// Persistent store used by the running app and App Intents.
+    /// Persistent store used by the running app (and registered for App Intents).
     ///
     /// Lazily created so SwiftUI previews that never touch intents avoid opening
     /// the on-disk store unless needed.
@@ -31,6 +31,9 @@ enum ForkPlanModelContainer {
     }()
 
     /// In-memory container for unit tests and the XCTest host path in ``WeeklyMenuApp``.
+    ///
+    /// Callers must not fall back to ``shared`` on failure — that would open the
+    /// on-disk store under test.
     static func makeInMemory() throws -> ModelContainer {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
         return try ModelContainer(

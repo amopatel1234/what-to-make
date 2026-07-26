@@ -53,11 +53,15 @@ View action
 
 ```
 Siri / Shortcuts
-  → Sources/Intents/* (thin AppIntent)
+  → Sources/Intents/* (thin AppIntent, @Dependency ModelContainer)
   → MenuIntentSupport + MenuGeneration (Helpers)
-  → ForkPlanModelContainer.shared
+  → same ModelContainer as WeeklyMenuApp
 ```
 
 Keep intent `perform()` thin. Put dialog formatting and UserDefaults reads in `Helpers/` so they stay unit-testable without invoking App Intents runtime.
+
+- Register the container with `AppDependencyManager` in `WeeklyMenuApp` (`key: "ModelContainer"`); intents resolve it via `@Dependency`.
+- Destructive intents (generate/replace menu) must `requestConfirmation` before writing.
+- Validation failures should `throw` (e.g. `MenuIntentError`) so Shortcuts can treat them as failures.
 
 See [`project-context.md`](project-context.md) for full product and testing contracts.

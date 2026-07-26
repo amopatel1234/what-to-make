@@ -8,12 +8,26 @@
 import Foundation
 import SwiftData
 
+/// Errors surfaced through App Intents (validation / empty results that should fail the run).
+enum MenuIntentError: Error, CustomLocalizedStringResourceConvertible {
+    /// Menu generation cannot proceed; associated value is the user-visible reason.
+    case validationFailed(String)
+
+    var localizedStringResource: LocalizedStringResource {
+        switch self {
+        case .validationFailed(let message):
+            LocalizedStringResource(stringLiteral: message)
+        }
+    }
+}
+
 /// Pure helpers shared by App Intents: fetch latest menu, format spoken dialogs,
 /// and load saved day/diet preferences from `UserDefaults`.
 enum MenuIntentSupport {
     /// Spoken / Shortcuts result for “what’s for dinner?”.
     struct TodaysMealResult: Equatable, Sendable {
         let dialog: String
+        /// Recipe name when a meal was resolved; `nil` when Shortcuts should not treat a value as a recipe.
         let recipeName: String?
         let day: String?
         let kind: MenuHighlightDay.Kind?
@@ -66,7 +80,16 @@ enum MenuIntentSupport {
             )
         }
 
-        let recipeNames = resolvedRecipeNames(for: menu)
+        let recipeNames = orderedRecipeNames(for: menu)
+        guard !recipeNames.isEmpty else {
+            return TodaysMealResult(
+                dialog: "Nothing planned for today.",
+                recipeName: nil,
+                day: nil,
+                kind: nil
+            )
+        }
+
         let rows = Array(zip(menu.days, recipeNames))
         guard let highlight = MenuHighlightDay.resolve(
             menuDays: menu.days,
@@ -101,34 +124,37 @@ enum MenuIntentSupport {
         }
     }
 
-    /// Builds a short spoken summary of the whole week.
+    /// Spoken summary of the week, or a missing-menu message.
     static func weeklyMenuDialog(menu: Menu?) -> String {
-        guard let menu else {
-            return "No weekly menu yet. Generate one in ForkPlan first."
+        if let summary = weeklyMenuSummary(menu: menu) {
+            return summary
         }
+        return "No weekly menu yet. Generate one in ForkPlan first."
+    }
 
-        let recipeNames = resolvedRecipeNames(for: menu)
+    /// Day → recipe summary for Shortcuts chaining, or `nil` when there is no usable plan.
+    static func weeklyMenuSummary(menu: Menu?) -> String? {
+        guard let menu else { return nil }
+        let recipeNames = orderedRecipeNames(for: menu)
+        guard !recipeNames.isEmpty else { return nil }
         let rows = Array(zip(menu.days, recipeNames))
-        guard !rows.isEmpty else {
-            return "No weekly menu yet. Generate one in ForkPlan first."
-        }
-
         return rows.map { "\($0.0): \($0.1)" }.joined(separator: ". ") + "."
     }
 
     /// Success dialog after ``MenuGeneration/run`` replaces the stored menu.
     static func generationSuccessDialog(menu: Menu) -> String {
-        let summary = weeklyMenuDialog(menu: menu)
-        if summary.hasPrefix("No weekly") {
-            return "New plan ready."
+        if let summary = weeklyMenuSummary(menu: menu) {
+            return "New plan ready. \(summary)"
         }
-        return "New plan ready. \(summary)"
+        return "New plan ready."
     }
 
-    private static func resolvedRecipeNames(for menu: Menu) -> [String] {
-        if !menu.recipeNames.isEmpty {
-            return menu.recipeNames
-        }
-        return menu.recipes.map(\.name)
+    /// Ordered names parallel to ``Menu/days``.
+    ///
+    /// Uses ``Menu/recipeNames`` only — SwiftData relationship order on ``Menu/recipes``
+    /// is not day-parallel.
+    private static func orderedRecipeNames(for menu: Menu) -> [String] {
+        guard menu.recipeNames.count == menu.days.count else { return [] }
+        return menu.recipeNames
     }
 }

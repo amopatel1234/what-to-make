@@ -5,6 +5,7 @@
 
 @testable import ForkPlan
 import Foundation
+import SwiftData
 import Testing
 
 @MainActor
@@ -75,6 +76,27 @@ struct MenuIntentSupportTests {
     }
 
     @Test
+    func todaysMealReturnsNilRecipeNameWhenNamesMismatchDays() throws {
+        let container = try makeTestContainer()
+        let context = ModelContext(container)
+        let pasta = Recipe(name: "Pasta")
+        context.insert(pasta)
+        let menu = Menu(days: ["Mon", "Tue"], recipes: [pasta])
+        // Force an inconsistent snapshot (relationship order must not be trusted).
+        menu.recipeNames = ["Pasta"]
+        context.insert(menu)
+        try context.save()
+
+        let result = MenuIntentSupport.todaysMeal(
+            menu: menu,
+            referenceDate: date(year: 2026, month: 6, day: 15),
+            calendar: calendar
+        )
+        #expect(result.recipeName == nil)
+        #expect(result.dialog == "Nothing planned for today.")
+    }
+
+    @Test
     func weeklyMenuDialogListsDaysAndRecipes() throws {
         let container = try makeTestContainer()
         let context = ModelContext(container)
@@ -88,6 +110,13 @@ struct MenuIntentSupportTests {
 
         let dialog = MenuIntentSupport.weeklyMenuDialog(menu: menu)
         #expect(dialog == "Mon: Pasta. Tue: Tacos.")
+        #expect(MenuIntentSupport.weeklyMenuSummary(menu: menu) == "Mon: Pasta. Tue: Tacos.")
+    }
+
+    @Test
+    func weeklyMenuSummaryIsNilWithoutMenu() {
+        #expect(MenuIntentSupport.weeklyMenuSummary(menu: nil) == nil)
+        #expect(MenuIntentSupport.weeklyMenuDialog(menu: nil).contains("No weekly menu yet"))
     }
 
     @Test
@@ -105,13 +134,60 @@ struct MenuIntentSupportTests {
     }
 
     @Test
+    func generationSuccessDialogWithoutSummary() throws {
+        let container = try makeTestContainer()
+        let context = ModelContext(container)
+        let pasta = Recipe(name: "Pasta")
+        context.insert(pasta)
+        let menu = Menu(days: ["Fri", "Sat"], recipes: [pasta])
+        menu.recipeNames = ["Pasta"]
+        context.insert(menu)
+        try context.save()
+
+        #expect(MenuIntentSupport.generationSuccessDialog(menu: menu) == "New plan ready.")
+    }
+
+    @Test
     func savedSelectedDaysReadsUserDefaults() {
-        let defaults = UserDefaults(suiteName: "MenuIntentSupportTests.days")!
-        defaults.removePersistentDomain(forName: "MenuIntentSupportTests.days")
+        let suiteName = "MenuIntentSupportTests.days.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
         defaults.set("Mon,Wed", forKey: AppStorageKey.selectedDays.rawValue)
 
         let days = MenuIntentSupport.savedSelectedDays(defaults: defaults)
         #expect(days == Set(["Mon", "Wed"]))
+    }
+
+    @Test
+    func savedDietConstraintsReadsUserDefaults() {
+        let suiteName = "MenuIntentSupportTests.diet.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set("Mon=vegan,Wed=vegetarian", forKey: AppStorageKey.dayDietConstraints.rawValue)
+
+        let constraints = MenuIntentSupport.savedDietConstraints(defaults: defaults)
+        #expect(constraints == ["Mon": .vegan, "Wed": .vegetarian])
+    }
+
+    @Test
+    func savedSelectedDaysEmptyFailsGenerationValidation() {
+        let suiteName = "MenuIntentSupportTests.emptyDays.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set("", forKey: AppStorageKey.selectedDays.rawValue)
+
+        let days = MenuIntentSupport.savedSelectedDays(defaults: defaults)
+        let message = MenuGeneration.validationMessage(
+            recipeCount: 7,
+            dietaryKinds: Array(repeating: .standard, count: 7),
+            days: days
+        )
+        #expect(message == "Please select at least one day.")
+        guard let message else { return }
+        switch MenuIntentError.validationFailed(message) {
+        case .validationFailed(let text):
+            #expect(text == "Please select at least one day.")
+        }
     }
 
     @Test
@@ -139,5 +215,11 @@ struct MenuIntentSupportTests {
         let latest = try MenuIntentSupport.latestMenu(in: context)
         #expect(latest?.recipeNames == ["New"])
         #expect(latest?.days == ["Tue"])
+    }
+
+    @Test
+    func makeInMemoryContainerDoesNotSharePersistentStore() throws {
+        let inMemory = try ForkPlanModelContainer.makeInMemory()
+        #expect(inMemory !== ForkPlanModelContainer.shared)
     }
 }

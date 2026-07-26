@@ -11,6 +11,7 @@ import SwiftData
 /// Generates a new weekly menu using the saved day and diet preferences.
 ///
 /// Replaces any existing menu (same delete-before-insert path as the Menu tab).
+/// Asks for confirmation before writing because the replace is destructive.
 struct GenerateWeeklyMenuIntent: AppIntent {
     static let title: LocalizedStringResource = "Generate Weekly Menu"
     static let description = IntentDescription(
@@ -18,9 +19,13 @@ struct GenerateWeeklyMenuIntent: AppIntent {
     )
     static let openAppWhenRun = false
 
+    /// Must match ``WeeklyMenuApp/modelContainerDependencyKey``.
+    @Dependency(key: "ModelContainer")
+    private var modelContainer: ModelContainer
+
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog & ReturnsValue<String> {
-        let context = ModelContext(ForkPlanModelContainer.shared)
+        let context = ModelContext(modelContainer)
         let recipes = try MenuIntentSupport.allRecipes(in: context)
         let days = MenuIntentSupport.savedSelectedDays()
         let dietConstraints = MenuIntentSupport.savedDietConstraints()
@@ -30,8 +35,14 @@ struct GenerateWeeklyMenuIntent: AppIntent {
             days: days,
             dietConstraints: dietConstraints
         ) {
-            return .result(value: validationMessage, dialog: IntentDialog(LocalizedStringResource(stringLiteral: validationMessage)))
+            throw MenuIntentError.validationFailed(validationMessage)
         }
+
+        // Cancellation throws — let it propagate so perform() stops without generating.
+        try await requestConfirmation(
+            actionName: .continue,
+            dialog: IntentDialog("This replaces your current weekly menu.")
+        )
 
         try MenuGeneration.run(
             recipes: recipes,
@@ -47,6 +58,9 @@ struct GenerateWeeklyMenuIntent: AppIntent {
         } else {
             dialog = "New plan ready."
         }
-        return .result(value: dialog, dialog: IntentDialog(LocalizedStringResource(stringLiteral: dialog)))
+        return .result(
+            value: dialog,
+            dialog: IntentDialog(LocalizedStringResource(stringLiteral: dialog))
+        )
     }
 }

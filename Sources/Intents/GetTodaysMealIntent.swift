@@ -16,11 +16,18 @@ struct GetTodaysMealIntent: AppIntent {
     )
     static let openAppWhenRun = false
 
+    /// Must match ``WeeklyMenuApp/modelContainerDependencyKey``.
+    @Dependency(key: "ModelContainer")
+    private var modelContainer: ModelContainer
+
     @MainActor
-    func perform() async throws -> some IntentResult & ProvidesDialog & ReturnsValue<String> {
-        let context = ModelContext(ForkPlanModelContainer.shared)
+    func perform() async throws -> some IntentResult & ProvidesDialog & ReturnsValue<String?> {
+        let context = ModelContext(modelContainer)
         let menu = try MenuIntentSupport.latestMenu(in: context)
         let result = MenuIntentSupport.todaysMeal(menu: menu)
-        return .result(value: result.recipeName ?? result.dialog, dialog: IntentDialog(LocalizedStringResource(stringLiteral: result.dialog)))
+        return .result(
+            value: result.recipeName,
+            dialog: IntentDialog(LocalizedStringResource(stringLiteral: result.dialog))
+        )
     }
 }
