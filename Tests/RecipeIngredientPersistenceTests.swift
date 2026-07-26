@@ -47,6 +47,15 @@ struct RecipeIngredientPersistenceTests {
     }
 
     @Test
+    func lastCookedAtHasSchemaDefaultForMigration() {
+        let schema = Schema([Recipe.self, Menu.self, RecipeIngredient.self])
+        let recipeEntity = schema.entities.first { $0.name == "Recipe" }
+        let lastCookedAttribute = recipeEntity?.attributes.first { $0.name == "lastCookedAt" }
+        #expect(lastCookedAttribute != nil)
+        #expect(lastCookedAttribute?.defaultValue != nil)
+    }
+
+    @Test
     func deletingRecipeCascadesToIngredients() throws {
         let container = try makeTestContainer()
         let context = container.mainContext
