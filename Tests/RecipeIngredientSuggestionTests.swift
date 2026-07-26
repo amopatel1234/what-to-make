@@ -75,6 +75,82 @@ struct AddRecipeSuggestIngredientsCoordinatorTests {
     }
 
     @Test
+    func applyIngredientSuggestionsAppendsAllDraftsAndClearsPending() {
+        let coordinator = AddRecipeCoordinator()
+        coordinator.name = "Pasta"
+
+        coordinator.applyIngredientSuggestions([
+            RecipeIngredientSuggestion(name: "Parmesan", amountText: "50", unit: "g"),
+            RecipeIngredientSuggestion(name: "Basil", amountText: "", unit: "")
+        ])
+
+        #expect(coordinator.ingredientDrafts.map(\.name) == ["Parmesan", "Basil"])
+        #expect(coordinator.ingredientSuggestions.isEmpty)
+        #expect(coordinator.suggestionStatusMessage?.contains("2 suggested ingredients") == true)
+    }
+
+    @Test
+    func applyIngredientSuggestionsEmptySetsNeutralStatus() {
+        let coordinator = AddRecipeCoordinator()
+        coordinator.applyIngredientSuggestions([])
+        #expect(coordinator.ingredientDrafts.isEmpty)
+        #expect(coordinator.suggestionStatusMessage == "No additional ingredients to suggest for this recipe.")
+    }
+
+    @Test
+    func saveCommitsPendingSuggestionsIntoPersistedIngredients() throws {
+        let container = try makeTestContainer()
+        let context = container.mainContext
+        let coordinator = AddRecipeCoordinator()
+        coordinator.name = "Tacos"
+        // Simulate leftover pending rows (e.g. older UI path) — Save must not drop them.
+        coordinator.ingredientSuggestions = [
+            RecipeIngredientSuggestion(name: "Tortillas", amountText: "8", unit: ""),
+            RecipeIngredientSuggestion(name: "Beans", amountText: "400", unit: "g")
+        ]
+
+        let didSave = coordinator.save(existingRecipe: nil, in: context)
+        #expect(didSave)
+        #expect(coordinator.ingredientSuggestions.isEmpty)
+
+        let recipe = try context.fetch(FetchDescriptor<Recipe>()).first
+        let ingredients = recipe?.ingredients.sorted { $0.sortOrder < $1.sortOrder } ?? []
+        #expect(ingredients.map(\.name) == ["Tortillas", "Beans"])
+        #expect(ingredients[1].amount == 400)
+        #expect(ingredients[1].unit == "g")
+    }
+
+    @Test
+    func appliedSuggestionsSurviveSimulatedRelaunch() throws {
+        let storeURL = try makePersistentTestStoreURL()
+        defer { try? FileManager.default.removeItem(at: storeURL.deletingLastPathComponent()) }
+
+        do {
+            let container = try makePersistentTestContainer(storeURL: storeURL)
+            let context = container.mainContext
+            let coordinator = AddRecipeCoordinator()
+            coordinator.name = "Curry"
+            coordinator.applyIngredientSuggestions([
+                RecipeIngredientSuggestion(name: "Garlic", amountText: "2", unit: "clove(s)"),
+                RecipeIngredientSuggestion(name: "Coconut milk", amountText: "400", unit: "ml")
+            ])
+            #expect(coordinator.save(existingRecipe: nil, in: context))
+        }
+
+        let relaunchContainer = try makePersistentTestContainer(storeURL: storeURL)
+        let recipe = try #require(relaunchContainer.mainContext.fetch(FetchDescriptor<Recipe>()).first)
+        let ingredients = recipe.ingredients.sorted { $0.sortOrder < $1.sortOrder }
+        #expect(ingredients.map(\.name) == ["Garlic", "Coconut milk"])
+        #expect(ingredients[0].amount == 2)
+        #expect(ingredients[0].unit == "clove(s)")
+        #expect(ingredients[1].unit == "ml")
+
+        let reloadCoordinator = AddRecipeCoordinator()
+        reloadCoordinator.loadExistingRecipe(from: recipe)
+        #expect(reloadCoordinator.ingredientDrafts.map(\.name) == ["Garlic", "Coconut milk"])
+    }
+
+    @Test
     func dismissIngredientSuggestionsClearsList() {
         let coordinator = AddRecipeCoordinator()
         coordinator.ingredientSuggestions = [

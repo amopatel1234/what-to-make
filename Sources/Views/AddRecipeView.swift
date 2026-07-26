@@ -273,37 +273,6 @@ struct AddRecipeView: View {
                         .foregroundStyle(Color.fpSecondaryLabel)
                         .accessibilityIdentifier("suggestIngredientsProgressMessage")
                 }
-
-                if !coordinator.ingredientSuggestions.isEmpty {
-                    ForEach(Array(coordinator.ingredientSuggestions.enumerated()), id: \.element.id) { index, suggestion in
-                        HStack(alignment: .firstTextBaseline, spacing: 8) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(suggestion.name)
-                                    .font(FpTypography.body)
-                                    .foregroundStyle(Color.fpLabel)
-                                let detail = [suggestion.amountText, suggestion.unit]
-                                    .filter { !$0.isEmpty }
-                                    .joined(separator: " ")
-                                if !detail.isEmpty {
-                                    Text(detail)
-                                        .font(FpTypography.caption)
-                                        .foregroundStyle(Color.fpSecondaryLabel)
-                                }
-                            }
-                            Spacer()
-                            Button("Add") {
-                                coordinator.acceptIngredientSuggestion(suggestion)
-                            }
-                            .accessibilityIdentifier("acceptIngredientSuggestion_\(index)")
-                        }
-                        .accessibilityIdentifier("ingredientSuggestion_\(index)")
-                    }
-
-                    Button("Dismiss Suggestions", role: .cancel) {
-                        coordinator.dismissIngredientSuggestions()
-                    }
-                    .accessibilityIdentifier("dismissIngredientSuggestionsButton")
-                }
             } header: {
                 Text("Ingredients")
             } footer: {

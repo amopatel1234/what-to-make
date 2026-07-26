@@ -67,7 +67,7 @@ final class AddRecipeCoordinator {
     var isExtractingPaste = false
     /// True while ``suggestMissingIngredients()`` is in flight.
     var isSuggestingIngredients = false
-    /// Pending AI ingredient suggestions awaiting user accept/dismiss (not saved yet).
+    /// Transient AI suggestions not yet merged into ``ingredientDrafts`` (normally empty after apply).
     var ingredientSuggestions: [RecipeIngredientSuggestion] = []
     /// Confirms replacing form fields when paste extraction would overwrite user input.
     var showingPasteOverwriteConfirmation = false
@@ -149,10 +149,40 @@ final class AddRecipeCoordinator {
         suggestionStatusMessage = nil
     }
 
+    /// Adds suggested ingredients into the editable draft list for review before Save.
+    ///
+    /// Suggestions must land in ``ingredientDrafts`` (not only a pending side list) so Save
+    /// persists them — matching paste extract and the “fill the form, then Save” contract.
+    func applyIngredientSuggestions(_ suggestions: [RecipeIngredientSuggestion]) {
+        for suggestion in suggestions {
+            acceptIngredientSuggestion(suggestion)
+        }
+        ingredientSuggestions = []
+        errorMessage = nil
+        if suggestions.isEmpty {
+            suggestionStatusMessage = "No additional ingredients to suggest for this recipe."
+        } else if suggestions.count == 1 {
+            suggestionStatusMessage = "Added 1 suggested ingredient — review before saving."
+        } else {
+            suggestionStatusMessage =
+                "Added \(suggestions.count) suggested ingredients — review before saving."
+        }
+    }
+
     /// Clears pending ingredient suggestions without adding them.
     func dismissIngredientSuggestions() {
         ingredientSuggestions = []
         suggestionStatusMessage = nil
+    }
+
+    /// Moves any leftover pending suggestions into drafts immediately before persist.
+    private func commitPendingIngredientSuggestions() {
+        let pending = ingredientSuggestions
+        guard !pending.isEmpty else { return }
+        for suggestion in pending {
+            acceptIngredientSuggestion(suggestion)
+        }
+        ingredientSuggestions = []
     }
 
     /// Asks to extract from paste, confirming first when the form already has content.
@@ -257,10 +287,7 @@ final class AddRecipeCoordinator {
                     existingIngredients: existing
                 )
                 guard !Task.isCancelled, suggestionGeneration == generation else { return }
-                ingredientSuggestions = suggestions
-                if suggestions.isEmpty {
-                    suggestionStatusMessage = "No additional ingredients to suggest for this recipe."
-                }
+                applyIngredientSuggestions(suggestions)
             } catch is CancellationError {
                 return
             } catch let error as RecipeIngredientSuggestionError {
@@ -331,6 +358,10 @@ final class AddRecipeCoordinator {
                 return false
             }
         }
+
+        // Pending AI rows live in the Ingredients section; commit them so Save matches
+        // what the user reviewed (do not require a separate per-row Add tap).
+        commitPendingIngredientSuggestions()
 
         let validDrafts = ingredientDrafts.filter { !$0.isBlank }
         for draft in validDrafts where draft.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {

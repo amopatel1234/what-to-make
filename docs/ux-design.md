@@ -155,6 +155,7 @@ Keep motion light: button press opacity (~0.15s ease-in-out), ProgressView on ge
 
 - Cancel / Save in toolbar; Save disabled while saving or AI busy.
 - Paste overwrite confirmation when the form already has content.
+- Suggest Missing Ingredients appends rows into the draft list for review (delete unwanted lines before Save).
 - Footer disclaimer on paste and ingredients: *Always check Apple Intelligence suggestions before saving — they can be wrong or incomplete.*
 - Hide/disable AI when the on-device model is unavailable; empty suggestions are neutral status, not an error.
 

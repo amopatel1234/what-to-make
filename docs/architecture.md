@@ -86,8 +86,8 @@ Add Recipe only (not Edit)
 
 Add/Edit Recipe (name required; notes optional)
   → RecipeIngredientSuggestor.suggest
-  → pending suggestions → user accepts into IngredientDrafts
-    (empty → neutral status, not error)
+  → suggestions appended into IngredientDrafts for review
+    (empty → neutral status, not error; user may delete unwanted rows)
   → existing save
 ```
 
