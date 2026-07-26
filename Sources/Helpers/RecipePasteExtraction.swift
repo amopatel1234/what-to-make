@@ -156,22 +156,23 @@ enum RecipePasteExtractor {
             """
         }
 
-        let response: LanguageModelSession.Response<GenerableRecipePaste>
+        let extracted: GenerableRecipePaste
         do {
-            response = try await session.respond(
+            let response = try await session.respond(
                 to: """
                 Pasted recipe text:
                 \(trimmed)
                 """,
                 generating: GenerableRecipePaste.self
             )
+            extracted = response.content
         } catch {
             throw RecipePasteError.extractionFailed(
                 "Couldn't extract a recipe. Try editing the text or enter it manually."
             )
         }
 
-        let draft = mapGenerable(response.content)
+        let draft = mapGenerable(extracted)
         if let message = validationMessage(for: draft) {
             throw RecipePasteError.extractionFailed(message)
         }
