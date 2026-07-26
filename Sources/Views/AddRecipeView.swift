@@ -55,6 +55,49 @@ struct AddRecipeView: View {
             }
             .listRowSeparator(.hidden)
 
+            // MARK: Paste recipe (Apple Intelligence)
+            Section {
+                TextField("Paste recipe text…", text: $coordinator.pasteText, axis: .vertical)
+                    .lineLimit(4...12)
+                    .font(FpTypography.body)
+                    .foregroundStyle(Color.fpLabel)
+                    .textInputAutocapitalization(.sentences)
+                    .autocorrectionDisabled(false)
+                    .writingToolsBehavior(.disabled)
+                    .disabled(coordinator.isExtractingPaste)
+                    .accessibilityIdentifier("pasteRecipeField")
+
+                Button {
+                    focusedField = nil
+                    coordinator.extractRecipeFromPaste()
+                } label: {
+                    if coordinator.isExtractingPaste {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        Label("Extract Recipe", systemImage: "wand.and.stars")
+                            .font(FpTypography.body)
+                    }
+                }
+                .disabled(
+                    coordinator.isExtractingPaste
+                        || coordinator.pasteText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        || !RecipePasteExtractor.isModelAvailable
+                )
+                .accessibilityIdentifier("extractRecipeButton")
+
+                if let unavailable = RecipePasteExtractor.unavailableReasonMessage {
+                    Text(unavailable)
+                        .font(FpTypography.caption)
+                        .foregroundStyle(Color.fpSecondaryLabel)
+                        .accessibilityIdentifier("pasteRecipeUnavailableMessage")
+                }
+            } header: {
+                Text("Paste recipe")
+            } footer: {
+                Text("Uses on-device Apple Intelligence. Review the fields below before saving.")
+            }
+
             // MARK: Recipe
             Section("Recipe") {
                 TextField("Recipe Name", text: $coordinator.name)

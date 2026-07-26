@@ -59,6 +59,10 @@ final class AddRecipeCoordinator {
     var imageFilename: String?
     var errorMessage: String?
     var isSaving = false
+    /// Raw text awaiting Foundation Models extraction.
+    var pasteText = ""
+    /// True while ``extractRecipeFromPaste()`` is in flight.
+    var isExtractingPaste = false
     private var pendingRecipe: Recipe?
 
     func loadExistingRecipe(from recipe: Recipe) {
@@ -91,6 +95,44 @@ final class AddRecipeCoordinator {
 
     func removeIngredient(id: UUID) {
         ingredientDrafts.removeAll { $0.id == id }
+    }
+
+    /// Copies a paste-extraction draft into the editable form fields (does not save).
+    func applyPasteDraft(_ draft: RecipePasteDraft) {
+        name = draft.name
+        notes = draft.notes
+        dietaryKind = draft.dietaryKind
+        ingredientDrafts = draft.ingredients.map { ingredient in
+            let unit = ingredient.unit
+            let isPreset = IngredientUnitOption.presetUnits.contains(unit)
+            return IngredientDraft(
+                name: ingredient.name,
+                amountText: ingredient.amountText,
+                selectedUnit: isPreset ? unit : "",
+                customUnit: isPreset ? "" : unit,
+                usesCustomUnit: !unit.isEmpty && !isPreset
+            )
+        }
+        errorMessage = nil
+    }
+
+    /// Runs on-device paste extraction and fills the form on success.
+    func extractRecipeFromPaste() {
+        guard !isExtractingPaste else { return }
+        isExtractingPaste = true
+        errorMessage = nil
+        let text = pasteText
+        Task { @MainActor in
+            defer { isExtractingPaste = false }
+            do {
+                let draft = try await RecipePasteExtractor.extract(from: text)
+                applyPasteDraft(draft)
+            } catch let error as RecipePasteError {
+                errorMessage = error.errorDescription
+            } catch {
+                errorMessage = "Couldn't extract a recipe. Try again or enter it manually."
+            }
+        }
     }
 
     func loadSelectedImage() {

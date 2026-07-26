@@ -62,6 +62,8 @@
 		3C0A00792E6700600000000A /* GenerateWeeklyMenuIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00782E67006000000009 /* GenerateWeeklyMenuIntent.swift */; };
 		3C0A007B2E6700600000000C /* ForkPlanShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A007A2E6700600000000B /* ForkPlanShortcuts.swift */; };
 		3C0A007E2E6700600000000F /* MenuIntentSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A007D2E6700600000000E /* MenuIntentSupportTests.swift */; };
+		3C0A00812E68007000000002 /* RecipePasteExtraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00802E68007000000001 /* RecipePasteExtraction.swift */; };
+		3C0A00832E68007000000004 /* RecipePasteExtractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00822E68007000000003 /* RecipePasteExtractionTests.swift */; };
 		3C0A00052E60A00100000005 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3C0A00042E60A00100000004 /* SnapshotTesting */; };
 /* End PBXBuildFile section */
 
@@ -135,6 +137,8 @@
 		3C0A00782E67006000000009 /* GenerateWeeklyMenuIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateWeeklyMenuIntent.swift; sourceTree = "<group>"; };
 		3C0A007A2E6700600000000B /* ForkPlanShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForkPlanShortcuts.swift; sourceTree = "<group>"; };
 		3C0A007D2E6700600000000E /* MenuIntentSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuIntentSupportTests.swift; sourceTree = "<group>"; };
+		3C0A00802E68007000000001 /* RecipePasteExtraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipePasteExtraction.swift; sourceTree = "<group>"; };
+		3C0A00822E68007000000003 /* RecipePasteExtractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipePasteExtractionTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -214,6 +218,7 @@
 				3C0A00522E65004000000003 /* MenuGenerationTests.swift */,
 				3C0A00542E65004000000005 /* ImageStoreTests.swift */,
 				3C0A007D2E6700600000000E /* MenuIntentSupportTests.swift */,
+				3C0A00822E68007000000003 /* RecipePasteExtractionTests.swift */,
 				3C0A00012E60A00100000001 /* SnapshotTestingSmokeTests.swift */,
 				3C0A00122E60B00300000003 /* TestModelContainerTests.swift */,
 				3C0A00142E60B00300000005 /* Fixtures */,
@@ -274,6 +279,7 @@
 				3C0A00722E67006000000003 /* MenuIntentSupport.swift */,
 				3C0A00152E60C00400000001 /* MenuEmptyStateCopy.swift */,
 				3C0A00422E63002000000003 /* IngredientFormatting.swift */,
+				3C0A00802E68007000000001 /* RecipePasteExtraction.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -463,6 +469,7 @@
 				3C0A00612E66005000000002 /* RecipeDietaryKind.swift in Sources */,
 				3C0A00412E63002000000002 /* RecipeIngredient.swift in Sources */,
 				3C0A00432E63002000000004 /* IngredientFormatting.swift in Sources */,
+				3C0A00812E68007000000002 /* RecipePasteExtraction.swift in Sources */,
 				3BAFB0C52E537D72001B185B /* Layout.swift in Sources */,
 				3BAD92AE2E493AA6009DCBAE /* WeeklyMenuApp.swift in Sources */,
 				3B47D6022E4E3BE000E22A4B /* ImageCodec.swift in Sources */,
@@ -485,6 +492,7 @@
 				3C0A00452E63002000000006 /* IngredientFormattingTests.swift in Sources */,
 				3C0A00472E63002000000008 /* RecipeIngredientPersistenceTests.swift in Sources */,
 				3C0A00492E64003000000002 /* AddRecipeCoordinatorTests.swift in Sources */,
+				3C0A00832E68007000000004 /* RecipePasteExtractionTests.swift in Sources */,
 				3C0A00532E65004000000004 /* MenuGenerationTests.swift in Sources */,
 				3C0A007E2E6700600000000F /* MenuIntentSupportTests.swift in Sources */,
 				3C0A00552E65004000000006 /* ImageStoreTests.swift in Sources */,
