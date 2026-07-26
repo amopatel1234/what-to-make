@@ -5,6 +5,7 @@
 
 @testable import ForkPlan
 import Foundation
+import SwiftData
 import Testing
 
 @Suite
