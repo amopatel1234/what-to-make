@@ -40,13 +40,13 @@ struct GenerableRecipePaste {
 
 @Generable(description: "A single ingredient line")
 struct GenerableRecipeIngredient {
-    @Guide(description: "Ingredient name without amount or unit")
+    @Guide(description: "Ingredient food name only — no quantities or units")
     var name: String
 
-    @Guide(description: "Numeric amount as text such as 2 or 1.5; empty if unknown")
+    @Guide(description: "Numeric amount only such as 300 or 1.5 — never letters or units")
     var amountText: String
 
-    @Guide(description: "Unit as written such as g, cup, or tbsp; empty if none")
+    @Guide(description: "Single unit such as g, kg, oz, cup, or tbsp; empty if none. Prefer metric when both metric and imperial appear")
     var unit: String
 
     /// Explicit memberwise init — `@Generable` may not preserve a usable one for tests.
@@ -132,12 +132,17 @@ enum RecipePasteExtractor {
         case .vegan: dietaryKind = .vegan
         }
         let ingredients = value.ingredients.compactMap { ingredient -> RecipePasteIngredientDraft? in
-            let name = ingredient.name.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !name.isEmpty else { return nil }
+            guard let normalized = normalizeExtractedIngredient(
+                name: ingredient.name,
+                amountText: ingredient.amountText,
+                unit: ingredient.unit
+            ) else {
+                return nil
+            }
             return RecipePasteIngredientDraft(
-                name: name,
-                amountText: ingredient.amountText.trimmingCharacters(in: .whitespacesAndNewlines),
-                unit: ingredient.unit.trimmingCharacters(in: .whitespacesAndNewlines)
+                name: normalized.name,
+                amountText: normalized.amountText,
+                unit: normalized.unit
             )
         }
         return RecipePasteDraft(
@@ -172,7 +177,12 @@ enum RecipePasteExtractor {
             Prefer a clear title and an ordered ingredient list.
             Put instructions into notes when present.
             Use dietaryKind vegan only when clearly plant-only, vegetarian when no meat,
-            otherwise standard. Use empty strings for unknown amountText or unit.
+            otherwise standard.
+            For each ingredient: name must be food only (no quantities);
+            amountText must be digits/fractions only (no unit letters);
+            unit must be a single unit such as g or oz. When the source has both
+            metric and imperial (300g/10oz), prefer the metric amount and unit.
+            Use empty strings for unknown amountText or unit.
             """
         }
 

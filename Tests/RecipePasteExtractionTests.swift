@@ -90,6 +90,7 @@ struct AddRecipePasteCoordinatorTests {
     @Test
     func applyPasteDraftFillsFormFields() {
         let coordinator = AddRecipeCoordinator()
+        coordinator.pasteText = "A very long pasted recipe that should clear after extract."
         coordinator.applyPasteDraft(
             RecipePasteDraft(
                 name: "Tacos",
@@ -106,6 +107,7 @@ struct AddRecipePasteCoordinatorTests {
         #expect(coordinator.name == "Tacos")
         #expect(coordinator.notes == "Tuesday")
         #expect(coordinator.dietaryKind == .vegetarian)
+        #expect(coordinator.pasteText.isEmpty)
         #expect(coordinator.ingredientDrafts.count == 3)
         #expect(coordinator.ingredientDrafts[0].name == "Tortillas")
         #expect(coordinator.ingredientDrafts[0].amountText == "8")

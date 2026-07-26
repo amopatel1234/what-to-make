@@ -128,6 +128,8 @@ final class AddRecipeCoordinator {
         dietaryKind = draft.dietaryKind
         ingredientDrafts = draft.ingredients.map(Self.ingredientDraft(from:))
         ingredientSuggestions = []
+        // Collapse the paste field so a long source recipe doesn't keep the form tall.
+        pasteText = ""
         errorMessage = nil
         suggestionStatusMessage = nil
     }

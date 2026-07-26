@@ -82,16 +82,21 @@ enum RecipeIngredientSuggestor {
         var seen = excluded
         var result: [RecipeIngredientSuggestion] = []
         for ingredient in value.ingredients {
-            let name = ingredient.name.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !name.isEmpty else { continue }
-            let key = name.lowercased()
+            guard let normalized = normalizeExtractedIngredient(
+                name: ingredient.name,
+                amountText: ingredient.amountText,
+                unit: ingredient.unit
+            ) else {
+                continue
+            }
+            let key = normalized.name.lowercased()
             guard !seen.contains(key) else { continue }
             seen.insert(key)
             result.append(
                 RecipeIngredientSuggestion(
-                    name: name,
-                    amountText: ingredient.amountText.trimmingCharacters(in: .whitespacesAndNewlines),
-                    unit: ingredient.unit.trimmingCharacters(in: .whitespacesAndNewlines)
+                    name: normalized.name,
+                    amountText: normalized.amountText,
+                    unit: normalized.unit
                 )
             )
         }
