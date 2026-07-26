@@ -234,6 +234,7 @@ Tests/
 | Recipes | `recipesList`, `emptyRecipesView`, `addRecipeButton` |
 | Add recipe | `recipeNameField`, `notesField`, `choosePhotoButton`, `generateRecipeImageButton`, `saveRecipeButton`, `recipeDietaryKindPicker`, `ingredientNameField_<index>`, `ingredientAmountField_<index>`, `ingredientUnitField_<index>`, `addIngredientButton`, `pasteRecipeField`, `extractRecipeButton`, `suggestIngredientsButton` |
 | Menu | `toggleDay_<Day>`, `dayDiet_<Day>`, `generateMenuButton`, `menuItem_<Day>`, `menuRecipesRequirementMessage`, `menuValidationMessage`, `rerollDay_<Day>`, `chooseRecipeDay_<Day>`, `markCookedDay_<Day>` |
+
 - Add accessibility identifiers to **all user-interactive elements**.
 - Ignore naming inconsistencies (`whattomake` vs `ForkPlan`) unless they cause build, import, or test failures.
 
