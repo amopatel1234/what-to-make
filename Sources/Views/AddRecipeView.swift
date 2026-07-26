@@ -15,6 +15,8 @@ struct AddRecipeView: View {
     @State private var pasteModelAvailable = RecipePasteExtractor.isModelAvailable
     @State private var pasteUnavailableReason = RecipePasteExtractor.unavailableReasonMessage
     @State private var suggestModelAvailable = RecipeIngredientSuggestor.isModelAvailable
+    @State private var showImagePlayground = false
+    @Environment(\.supportsImagePlayground) private var supportsImagePlayground
 
     enum Field: Hashable {
         case paste, name, notes
@@ -24,6 +26,23 @@ struct AddRecipeView: View {
     }
 
     private var isEditing: Bool { existingRecipe != nil }
+
+    private var imageGenerationRequest: RecipeImageGenerationRequest {
+        RecipeImageGenerationRequest(
+            recipeName: coordinator.name,
+            ingredientNames: coordinator.ingredientDrafts
+                .filter { !$0.isBlank }
+                .map(\.name),
+            notes: coordinator.notes,
+            dietaryKind: coordinator.dietaryKind
+        )
+    }
+
+    private var canOpenImagePlayground: Bool {
+        supportsImagePlayground
+            && RecipeImagePlaygroundPrompt.canGenerate(from: imageGenerationRequest)
+            && !coordinator.isAIBusy
+    }
 
     /// Done dismisses keyboard for every tracked field (including multiline paste/notes).
     private var showsKeyboardDoneButton: Bool {
@@ -37,7 +56,7 @@ struct AddRecipeView: View {
     var body: some View {
         List {
             // MARK: Photo
-            Section("Photo") {
+            Section {
                 if let ui = coordinator.previewImage {
                     Image(uiImage: ui)
                         .resizable()
@@ -56,6 +75,32 @@ struct AddRecipeView: View {
                     coordinator.loadSelectedImage()
                 }
                 .accessibilityIdentifier("choosePhotoButton")
+
+                if supportsImagePlayground {
+                    Button {
+                        resignFocus()
+                        showImagePlayground = true
+                    } label: {
+                        Label("Generate with Image Playground", systemImage: "sparkles")
+                            .font(FpTypography.body)
+                    }
+                    .buttonStyle(.borderless)
+                    .disabled(!canOpenImagePlayground)
+                    .accessibilityIdentifier("generateRecipeImageButton")
+
+                    if !RecipeImagePlaygroundPrompt.canGenerate(from: imageGenerationRequest) {
+                        Text("Add a recipe name before generating an image.")
+                            .font(FpTypography.caption)
+                            .foregroundStyle(Color.fpSecondaryLabel)
+                            .accessibilityIdentifier("generateRecipeImageNameHint")
+                    }
+                }
+            } header: {
+                Text("Photo")
+            } footer: {
+                if supportsImagePlayground {
+                    Text("Image Playground uses Apple Intelligence. Review the image before saving.")
+                }
             }
             .listRowSeparator(.hidden)
 
@@ -278,6 +323,18 @@ struct AddRecipeView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(isEditing ? "Edit Recipe" : "Add Recipe")
         .scrollDismissesKeyboard(.interactively)
+        .recipeImagePlaygroundSheet(
+            isPresented: $showImagePlayground,
+            request: imageGenerationRequest,
+            onImageData: { data in
+                Task { @MainActor in
+                    await coordinator.handleLoadedImageData(data)
+                }
+            },
+            onFailure: { message in
+                coordinator.errorMessage = message
+            }
+        )
         .onAppear(perform: refreshModelAvailability)
         .onDisappear {
             coordinator.cancelAIWork()

@@ -151,7 +151,7 @@ Sources/
   Application/   WeeklyMenuApp.swift
   Views/         RecipesListView, AddRecipeView, GenerateMenuView
   Models/        Recipe, RecipeDietaryKind, RecipeIngredient, Menu, ImageCodec (ImageStore)
-  Helpers/       MenuGenerator, MenuGeneration, DaySelectionStorage, DayDietConstraintStorage, AppStorageKey, MenuPersistence, MenuIntentSupport, ForkPlanModelContainer, RecipePasteExtraction, RecipeIngredientSuggestion
+  Helpers/       MenuGenerator, MenuGeneration, DaySelectionStorage, DayDietConstraintStorage, AppStorageKey, MenuPersistence, MenuIntentSupport, ForkPlanModelContainer, RecipePasteExtraction, RecipeIngredientSuggestion, RecipeImagePlaygroundPrompt
   Intents/       GetTodaysMealIntent, GetWeeklyMenuIntent, GenerateWeeklyMenuIntent, ForkPlanShortcuts
   DesignSystem/  unchanged
 Tests/
@@ -169,6 +169,13 @@ Tests/
 - Amount parsing accepts ASCII and Unicode fractions (`1/2`, `½`, `1 1/2`) so pasted amounts are not dropped on save.
 - Hide/disable AI actions when ``SystemLanguageModel`` is unavailable; never auto-save generated drafts.
 - Show ``RecipeIngredientSuggestor/generatedContentDisclaimer`` near AI controls so users always verify generated content.
+
+**Apple Intelligence — Image Playground recipe photos:**
+
+- ``RecipeImagePlaygroundPrompt`` (Helpers) builds version-agnostic concept text from name, ingredients, diet, and notes.
+- ``RecipeImagePlaygroundSheetModifier`` (Views) presents iOS 26 `.imagePlaygroundSheet`; swap that file for iOS 27 API changes without rewriting Add Recipe.
+- Do **not** use `ImageCreator` (removed in iOS 27). Gate the button with ``EnvironmentValues/supportsImagePlayground``.
+- Generated images reuse ``AddRecipeCoordinator/handleLoadedImageData`` (thumbnail + ``ImageStore``). User must still Save.
 
 ### Testing Rules
 
@@ -225,7 +232,7 @@ Tests/
 | Area | Identifiers |
 |------|------------|
 | Recipes | `recipesList`, `emptyRecipesView`, `addRecipeButton` |
-| Add recipe | `recipeNameField`, `notesField`, `choosePhotoButton`, `saveRecipeButton`, `recipeDietaryKindPicker`, `ingredientNameField_<index>`, `ingredientAmountField_<index>`, `ingredientUnitField_<index>`, `addIngredientButton`, `pasteRecipeField`, `extractRecipeButton`, `suggestIngredientsButton` |
+| Add recipe | `recipeNameField`, `notesField`, `choosePhotoButton`, `generateRecipeImageButton`, `saveRecipeButton`, `recipeDietaryKindPicker`, `ingredientNameField_<index>`, `ingredientAmountField_<index>`, `ingredientUnitField_<index>`, `addIngredientButton`, `pasteRecipeField`, `extractRecipeButton`, `suggestIngredientsButton` |
 | Menu | `toggleDay_<Day>`, `dayDiet_<Day>`, `generateMenuButton`, `menuItem_<Day>`, `menuRecipesRequirementMessage`, `menuValidationMessage`, `rerollDay_<Day>`, `chooseRecipeDay_<Day>`, `markCookedDay_<Day>` |
 
 - Add accessibility identifiers to **all user-interactive elements**.

@@ -93,3 +93,15 @@ Add/Edit Recipe (name required; notes optional)
 
 Keep guided schemas and mapping in `Helpers/`. Do not persist until the user taps Save. Cancel overlapping AI tasks (and on dismiss). Always surface a check-generated-content disclaimer near AI controls.
 
+## Image Playground (recipe photos)
+
+```
+Add/Edit Recipe (name required)
+  → RecipeImagePlaygroundPrompt (version-agnostic concepts)
+  → RecipeImagePlaygroundSheetModifier (.imagePlaygroundSheet, iOS 26)
+  → image Data → AddRecipeCoordinator.handleLoadedImageData
+  → user Saves
+```
+
+Swap only the presenter/modifier for iOS 27 sheet/options changes. Never add `ImageCreator`.
+
