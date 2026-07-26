@@ -57,11 +57,32 @@ func formattedIngredientLine(name: String, amount: Decimal?, unit: String?) -> S
 func parseIngredientAmount(_ text: String) -> Decimal? {
     let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !trimmed.isEmpty else { return nil }
+
+    // `Decimal(string:)` accepts a leading numeric prefix and ignores trailing
+    // junk (`"1/2"` → `1`, `"1½"` → `1`), so fraction forms must be normalized first.
+    if containsIngredientFractionMarker(trimmed) {
+        let normalized = normalizeIngredientAmountText(trimmed)
+        return Decimal(string: normalized, locale: Locale(identifier: "en_US_POSIX"))
+    }
+
     if let direct = Decimal(string: trimmed, locale: Locale(identifier: "en_US_POSIX")) {
         return direct
     }
     let normalized = normalizeIngredientAmountText(trimmed)
     return Decimal(string: normalized, locale: Locale(identifier: "en_US_POSIX"))
+}
+
+/// True when `text` includes an ASCII `/` fraction or a Unicode vulgar fraction glyph.
+func containsIngredientFractionMarker(_ text: String) -> Bool {
+    if text.contains("/") { return true }
+    let vulgar: Set<Character> = [
+        "¼", "½", "¾",
+        "⅓", "⅔",
+        "⅕", "⅖", "⅗", "⅘",
+        "⅙", "⅚",
+        "⅛", "⅜", "⅝", "⅞"
+    ]
+    return text.contains { vulgar.contains($0) }
 }
 
 /// Rewrites common fraction spellings into a decimal string suitable for ``Decimal``.
