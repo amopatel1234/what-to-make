@@ -135,6 +135,10 @@ func stripLeadingMeasure(
         guard result.lowercased().hasPrefix(candidate.lowercased()) else { continue }
         result = String(result.dropFirst(candidate.count))
             .trimmingCharacters(in: .whitespacesAndNewlines)
+        while result.hasPrefix("/") {
+            result = String(result.dropFirst())
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        }
         break
     }
 
