@@ -20,6 +20,16 @@ struct AddRecipeView: View {
 
     private var isEditing: Bool { existingRecipe != nil }
 
+    /// Keyboard Done belongs on single-line fields only; Notes stays multiline (Return = newline).
+    private var showsKeyboardDoneButton: Bool {
+        switch focusedField {
+        case .name, .ingredientName, .ingredientAmount, .ingredientCustomUnit:
+            true
+        case .notes, .none:
+            false
+        }
+    }
+
     var body: some View {
         List {
             // MARK: Photo
@@ -59,15 +69,14 @@ struct AddRecipeView: View {
                     .accessibilityIdentifier("recipeNameField")
 
                 // System Writing Tools (Proofread / Rewrite / Summarize) — not Foundation Models.
+                // Multiline: Return inserts a newline; dismiss via tap/scroll only.
                 TextField("Notes", text: $coordinator.notes, axis: .vertical)
                     .lineLimit(3...10)
                     .font(FpTypography.body)
                     .foregroundStyle(Color.fpLabel)
                     .textInputAutocapitalization(.sentences)
                     .autocorrectionDisabled(false)
-                    .submitLabel(.done)
                     .focused($focusedField, equals: .notes)
-                    .onSubmit { focusedField = nil }
                     .writingToolsBehavior(.complete)
                     .accessibilityIdentifier("notesField")
             }
@@ -115,14 +124,18 @@ struct AddRecipeView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(isEditing ? "Edit Recipe" : "Add Recipe")
         .scrollDismissesKeyboard(.interactively)
+        // Tap non-control list chrome to resign any focused field (including Notes).
+        .onTapGesture { focusedField = nil }
         .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Done") {
-                    focusedField = nil
+            if showsKeyboardDoneButton {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        focusedField = nil
+                    }
+                    .font(FpTypography.body)
+                    .accessibilityIdentifier("dismissKeyboardButton")
                 }
-                .font(FpTypography.body)
-                .accessibilityIdentifier("dismissKeyboardButton")
             }
         }
     }
@@ -141,9 +154,9 @@ private struct IngredientDraftRow: View {
                 TextField("Ingredient", text: $draft.name)
                     .font(FpTypography.body)
                     .textInputAutocapitalization(.words)
-                    .submitLabel(.next)
+                    .submitLabel(.done)
                     .focused(focusedField, equals: .ingredientName(draft.id))
-                    .onSubmit { focusedField.wrappedValue = .ingredientAmount(draft.id) }
+                    .onSubmit { focusedField.wrappedValue = nil }
                     .writingToolsBehavior(.disabled)
                     .accessibilityIdentifier("ingredientNameField_\(rowID)")
 
