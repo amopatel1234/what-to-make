@@ -14,6 +14,11 @@ import FoundationModels
 struct GenerableIngredientSuggestions {
     @Guide(description: "Suggested ingredients not already in the recipe; empty if none")
     var ingredients: [GenerableRecipeIngredient]
+
+    /// Explicit memberwise init — `@Generable` may not preserve a usable one for tests.
+    init(ingredients: [GenerableRecipeIngredient]) {
+        self.ingredients = ingredients
+    }
 }
 
 // MARK: - App-facing draft
@@ -148,15 +153,10 @@ enum RecipeIngredientSuggestor {
             )
         }
 
-        let suggestions = mapGenerable(
+        // Empty is a valid outcome (nothing useful to add) — callers show a neutral status.
+        return mapGenerable(
             extracted,
             excludingExistingNames: existingIngredients.map(\.name)
         )
-        if suggestions.isEmpty {
-            throw RecipeIngredientSuggestionError.suggestionFailed(
-                "No additional ingredients suggested. Try refining the name or notes."
-            )
-        }
-        return suggestions
     }
 }

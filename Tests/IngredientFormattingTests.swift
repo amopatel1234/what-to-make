@@ -53,9 +53,24 @@ struct IngredientFormattingTests {
     }
 
     @Test
+    func parseIngredientAmountAcceptsAsciiFractions() {
+        #expect(parseIngredientAmount("1/2") == Decimal(string: "0.5"))
+        #expect(parseIngredientAmount("1 1/2") == Decimal(string: "1.5"))
+        #expect(parseIngredientAmount("3/4") == Decimal(string: "0.75"))
+    }
+
+    @Test
+    func parseIngredientAmountAcceptsUnicodeVulgarFractions() {
+        #expect(parseIngredientAmount("½") == Decimal(string: "0.5"))
+        #expect(parseIngredientAmount("1½") == Decimal(string: "1.5"))
+        #expect(parseIngredientAmount("¼") == Decimal(string: "0.25"))
+    }
+
+    @Test
     func parseIngredientAmountReturnsNilForEmptyOrInvalid() {
         #expect(parseIngredientAmount("") == nil)
         #expect(parseIngredientAmount("   ") == nil)
         #expect(parseIngredientAmount("abc") == nil)
+        #expect(parseIngredientAmount("to taste") == nil)
     }
 }

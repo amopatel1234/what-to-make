@@ -69,7 +69,8 @@ See [`project-context.md`](project-context.md) for full product and testing cont
 ## Foundation Models (paste → recipe / suggest ingredients)
 
 ```
-Add Recipe paste field
+Add Recipe only (not Edit)
+  → paste field → confirm if form already filled
   → RecipePasteExtractor.extract (Foundation Models + @Generable)
   → RecipePasteDraft
   → AddRecipeCoordinator.applyPasteDraft
@@ -78,8 +79,9 @@ Add Recipe paste field
 Add/Edit Recipe (name required; notes optional)
   → RecipeIngredientSuggestor.suggest
   → pending suggestions → user accepts into IngredientDrafts
+    (empty → neutral status, not error)
   → existing save
 ```
 
-Keep guided schemas and mapping in `Helpers/`. Do not persist until the user taps Save. Always surface a check-generated-content disclaimer near AI controls.
+Keep guided schemas and mapping in `Helpers/`. Do not persist until the user taps Save. Cancel overlapping AI tasks (and on dismiss). Always surface a check-generated-content disclaimer near AI controls.
 

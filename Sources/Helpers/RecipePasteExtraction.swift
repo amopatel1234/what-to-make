@@ -23,6 +23,19 @@ struct GenerableRecipePaste {
 
     @Guide(description: "Dietary classification of the recipe")
     var dietaryKind: GenerableDietaryKind
+
+    /// Explicit memberwise init — `@Generable` may not preserve a usable one for tests.
+    init(
+        name: String,
+        notes: String,
+        ingredients: [GenerableRecipeIngredient],
+        dietaryKind: GenerableDietaryKind
+    ) {
+        self.name = name
+        self.notes = notes
+        self.ingredients = ingredients
+        self.dietaryKind = dietaryKind
+    }
 }
 
 @Generable(description: "A single ingredient line")
@@ -35,6 +48,13 @@ struct GenerableRecipeIngredient {
 
     @Guide(description: "Unit as written such as g, cup, or tbsp; empty if none")
     var unit: String
+
+    /// Explicit memberwise init — `@Generable` may not preserve a usable one for tests.
+    init(name: String, amountText: String, unit: String) {
+        self.name = name
+        self.amountText = amountText
+        self.unit = unit
+    }
 }
 
 @Generable(description: "Dietary classification")

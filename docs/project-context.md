@@ -152,8 +152,11 @@ Tests/
 **Apple Intelligence — paste recipe / suggest ingredients:**
 
 - ``RecipePasteExtractor`` (Helpers) uses Foundation Models guided generation (`@Generable`) to turn pasted text into ``RecipePasteDraft``.
-- ``RecipeIngredientSuggestor`` suggests missing ingredients from recipe **name** (notes optional) plus existing lines; user must accept each suggestion.
+- ``RecipeIngredientSuggestor`` suggests missing ingredients from recipe **name** (notes optional) plus existing lines; user must accept each suggestion. Empty results are a neutral status, not an error.
+- Paste extraction is **Add Recipe only** (hidden while editing). Overwrite confirmation appears when the form already has content.
+- ``AddRecipeCoordinator`` cancels overlapping extract/suggest tasks and clears in-flight work on sheet dismiss so stale results cannot land.
 - ``AddRecipeCoordinator/applyPasteDraft`` / ``extractRecipeFromPaste`` / ``suggestMissingIngredients`` fill the form; user reviews then saves via existing SwiftData path.
+- Amount parsing accepts ASCII and Unicode fractions (`1/2`, `½`, `1 1/2`) so pasted amounts are not dropped on save.
 - Hide/disable AI actions when ``SystemLanguageModel`` is unavailable; never auto-save generated drafts.
 - Show ``RecipeIngredientSuggestor/generatedContentDisclaimer`` near AI controls so users always verify generated content.
 

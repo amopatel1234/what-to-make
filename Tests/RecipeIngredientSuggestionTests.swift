@@ -83,4 +83,34 @@ struct AddRecipeSuggestIngredientsCoordinatorTests {
         coordinator.dismissIngredientSuggestions()
         #expect(coordinator.ingredientSuggestions.isEmpty)
     }
+
+    @Test
+    func requestExtractConfirmsWhenFormHasContent() {
+        let coordinator = AddRecipeCoordinator()
+        coordinator.name = "Existing"
+        coordinator.pasteText = "Some recipe"
+        coordinator.requestExtractRecipeFromPaste()
+        #expect(coordinator.showingPasteOverwriteConfirmation == true)
+        #expect(coordinator.isExtractingPaste == false)
+    }
+
+    @Test
+    func requestExtractSkipsConfirmWhenFormEmpty() {
+        let coordinator = AddRecipeCoordinator()
+        coordinator.pasteText = ""
+        // Empty paste fails quickly without confirmation.
+        coordinator.requestExtractRecipeFromPaste()
+        #expect(coordinator.showingPasteOverwriteConfirmation == false)
+    }
+
+    @Test
+    func cancelAIWorkClearsBusyFlags() {
+        let coordinator = AddRecipeCoordinator()
+        coordinator.isExtractingPaste = true
+        coordinator.isSuggestingIngredients = true
+        coordinator.cancelAIWork()
+        #expect(coordinator.isExtractingPaste == false)
+        #expect(coordinator.isSuggestingIngredients == false)
+        #expect(coordinator.isAIBusy == false)
+    }
 }
