@@ -61,7 +61,7 @@ enum RecipeIngredientSuggestor {
 
     /// Whether the system language model can run on this device right now.
     static var isModelAvailable: Bool {
-        RecipePasteExtractor.isModelAvailable
+        AppleIntelligenceAvailability.current.allowsActions
     }
 
     /// Explains why suggestion is disabled, or `nil` when available.

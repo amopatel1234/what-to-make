@@ -1,0 +1,1 @@
+Verify Add/Edit Recipe: recipe name is at the top; when Apple Intelligence is off in Settings, paste/suggest/Image Playground stay visible but disabled with a Settings hint; on unsupported devices those AI controls are hidden.

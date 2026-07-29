@@ -71,6 +71,8 @@
 		3C0A008D2E6B00B000000002 /* RecipeImagePlaygroundPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A008C2E6B00B000000001 /* RecipeImagePlaygroundPrompt.swift */; };
 		3C0A008F2E6B00B000000004 /* RecipeImagePlaygroundPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A008E2E6B00B000000003 /* RecipeImagePlaygroundPresenter.swift */; };
 		3C0A00912E6B00B000000006 /* RecipeImagePlaygroundPromptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00902E6B00B000000005 /* RecipeImagePlaygroundPromptTests.swift */; };
+		3C0A00932E6C00C000000002 /* AppleIntelligenceAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00922E6C00C000000001 /* AppleIntelligenceAvailability.swift */; };
+		3C0A00952E6C00C000000004 /* AppleIntelligenceAvailabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00942E6C00C000000003 /* AppleIntelligenceAvailabilityTests.swift */; };
 		3C0A00052E60A00100000005 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3C0A00042E60A00100000004 /* SnapshotTesting */; };
 /* End PBXBuildFile section */
 
@@ -153,6 +155,8 @@
 		3C0A008C2E6B00B000000001 /* RecipeImagePlaygroundPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeImagePlaygroundPrompt.swift; sourceTree = "<group>"; };
 		3C0A008E2E6B00B000000003 /* RecipeImagePlaygroundPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeImagePlaygroundPresenter.swift; sourceTree = "<group>"; };
 		3C0A00902E6B00B000000005 /* RecipeImagePlaygroundPromptTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeImagePlaygroundPromptTests.swift; sourceTree = "<group>"; };
+		3C0A00922E6C00C000000001 /* AppleIntelligenceAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceAvailability.swift; sourceTree = "<group>"; };
+		3C0A00942E6C00C000000003 /* AppleIntelligenceAvailabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceAvailabilityTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -236,6 +240,7 @@
 				3C0A00862E69008000000003 /* RecipeIngredientSuggestionTests.swift */,
 				3C0A008A2E6A009000000003 /* RecipeIngredientNormalizationTests.swift */,
 				3C0A00902E6B00B000000005 /* RecipeImagePlaygroundPromptTests.swift */,
+				3C0A00942E6C00C000000003 /* AppleIntelligenceAvailabilityTests.swift */,
 				3C0A00012E60A00100000001 /* SnapshotTestingSmokeTests.swift */,
 				3C0A00122E60B00300000003 /* TestModelContainerTests.swift */,
 				3C0A00142E60B00300000005 /* Fixtures */,
@@ -297,6 +302,7 @@
 				3C0A00152E60C00400000001 /* MenuEmptyStateCopy.swift */,
 				3C0A00422E63002000000003 /* IngredientFormatting.swift */,
 				3C0A00882E6A009000000001 /* RecipeIngredientNormalization.swift */,
+				3C0A00922E6C00C000000001 /* AppleIntelligenceAvailability.swift */,
 				3C0A008C2E6B00B000000001 /* RecipeImagePlaygroundPrompt.swift */,
 				3C0A00802E68007000000001 /* RecipePasteExtraction.swift */,
 				3C0A00842E69008000000001 /* RecipeIngredientSuggestion.swift */,
@@ -491,6 +497,7 @@
 				3C0A00412E63002000000002 /* RecipeIngredient.swift in Sources */,
 				3C0A00432E63002000000004 /* IngredientFormatting.swift in Sources */,
 				3C0A00892E6A009000000002 /* RecipeIngredientNormalization.swift in Sources */,
+				3C0A00932E6C00C000000002 /* AppleIntelligenceAvailability.swift in Sources */,
 				3C0A008D2E6B00B000000002 /* RecipeImagePlaygroundPrompt.swift in Sources */,
 				3C0A008F2E6B00B000000004 /* RecipeImagePlaygroundPresenter.swift in Sources */,
 				3C0A00812E68007000000002 /* RecipePasteExtraction.swift in Sources */,
@@ -521,6 +528,7 @@
 				3C0A00872E69008000000004 /* RecipeIngredientSuggestionTests.swift in Sources */,
 				3C0A008B2E6A009000000004 /* RecipeIngredientNormalizationTests.swift in Sources */,
 				3C0A00912E6B00B000000006 /* RecipeImagePlaygroundPromptTests.swift in Sources */,
+				3C0A00952E6C00C000000004 /* AppleIntelligenceAvailabilityTests.swift in Sources */,
 				3C0A00532E65004000000004 /* MenuGenerationTests.swift in Sources */,
 				3C0A007E2E6700600000000F /* MenuIntentSupportTests.swift in Sources */,
 				3C0A00552E65004000000006 /* ImageStoreTests.swift in Sources */,

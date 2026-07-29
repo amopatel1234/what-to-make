@@ -54,6 +54,8 @@ git config core.hooksPath hooks
 
 Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor`, `perf`, `test`.
 
+**TestFlight What to Test:** before opening a PR, update [`fastlane/testing_notes.txt`](fastlane/testing_notes.txt) with a short human-readable sentence describing what testers should verify. The `deploy` Fastlane lane reads that file for App Store Connect / TestFlight testing notes.
+
 PR body: short prose only (no test-plan checklist). CI: harness sensors run on **all** PRs (including drafts); full simulator tests run when the PR is **ready for review**.
 
 ## Steering the harness
