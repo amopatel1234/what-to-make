@@ -107,13 +107,13 @@ enum RecipePasteError: Error, Equatable, LocalizedError {
 enum RecipePasteExtractor {
     /// Whether the system language model can run on this device right now.
     static var isModelAvailable: Bool {
-        if case .available = SystemLanguageModel.default.availability {
-            return true
-        }
-        return false
+        AppleIntelligenceAvailability.current.allowsActions
     }
 
-    /// Explains why paste extraction is disabled, or `nil` when available.
+    /// Explains why paste extraction cannot run, or `nil` when available.
+    ///
+    /// Prefer ``AppleIntelligenceAvailability`` for UI gating (hide vs disable).
+    /// This message is still used for thrown ``RecipePasteError/modelUnavailable``.
     static var unavailableReasonMessage: String? {
         switch SystemLanguageModel.default.availability {
         case .available:
@@ -216,7 +216,7 @@ enum RecipePasteExtractor {
         case .deviceNotEligible:
             return "Paste extraction needs a device that supports Apple Intelligence."
         case .appleIntelligenceNotEnabled:
-            return "Turn on Apple Intelligence in Settings to paste recipes."
+            return AppleIntelligenceAvailability.notEnabledHintMessage
         case .modelNotReady:
             return "Apple Intelligence is still downloading. Try again in a moment."
         @unknown default:

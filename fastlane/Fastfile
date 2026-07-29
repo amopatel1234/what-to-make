@@ -119,10 +119,16 @@ platform :ios do
 
       UI.success("Built IPA at: #{ipa_path}")
 
+      testing_notes_path = File.join(__dir__, "testing_notes.txt")
+      UI.user_error!("Missing #{testing_notes_path} — add What to Test notes before deploy") unless File.exist?(testing_notes_path)
+      testing_notes = File.read(testing_notes_path).strip
+      UI.user_error!("fastlane/testing_notes.txt is empty — add a short What to Test sentence before deploy") if testing_notes.empty?
+      UI.message("TestFlight What to Test notes:\n#{testing_notes}")
+
       upload_to_testflight(
         skip_submission: true,
         app_platform: "ios",
-        changelog: last_git_commit[:message]
+        changelog: testing_notes
       )
     ensure
       delete_keychain(name: keychain_name)
