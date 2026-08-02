@@ -9,7 +9,7 @@ Canonical product rules remain in [`project-context.md`](project-context.md). Sc
 | `Application/` | App entry (`WeeklyMenuApp`) — shared `ModelContainer` + App Intent dependency registration |
 | `Views/` | SwiftUI views + thin `@Observable` coordinators (transient UI) |
 | `Models/` | SwiftData `@Model` types + `ImageCodec` / `ImageStore` |
-| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, `MenuIntentSupport`, `RecipePasteExtraction`, `RecipeIngredientSuggestion`, …) |
+| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, `MenuIntentSupport`, `AppleIntelligenceAvailability`, `RecipePasteExtraction`, `RecipeIngredientSuggestion`, …) |
 | `Intents/` | App Intents + `AppShortcutsProvider` (thin; call Helpers for work) |
 | `DesignSystem/` | Shared `fp*` styling |
 
@@ -92,6 +92,8 @@ Add/Edit Recipe (name required; notes optional)
 ```
 
 Keep guided schemas and mapping in `Helpers/`. Do not persist until the user taps Save. Cancel overlapping AI tasks (and on dismiss). Always surface a check-generated-content disclaimer near AI controls.
+
+Gate AI UI with `AppleIntelligenceAvailability`: **unavailable** hides paste / suggest / Image Playground; **notEnabled** keeps them visible but disabled with a Settings hint.
 
 ## Image Playground (recipe photos)
 

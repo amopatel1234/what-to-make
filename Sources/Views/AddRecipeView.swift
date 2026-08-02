@@ -12,9 +12,7 @@ struct AddRecipeView: View {
     @Bindable var coordinator: AddRecipeCoordinator
     @FocusState private var focusedField: Field?
     /// Cached on appear so body does not re-query model availability every render.
-    @State private var pasteModelAvailable = RecipePasteExtractor.isModelAvailable
-    @State private var pasteUnavailableReason = RecipePasteExtractor.unavailableReasonMessage
-    @State private var suggestModelAvailable = RecipeIngredientSuggestor.isModelAvailable
+    @State private var appleIntelligence = AppleIntelligenceAvailability.current
     @State private var showImagePlayground = false
     @Environment(\.supportsImagePlayground) private var supportsImagePlayground
 
@@ -27,6 +25,14 @@ struct AddRecipeView: View {
 
     private var isEditing: Bool { existingRecipe != nil }
 
+    private var showsAppleIntelligenceFeatures: Bool {
+        appleIntelligence.showsFeatures
+    }
+
+    private var appleIntelligenceActionsAllowed: Bool {
+        appleIntelligence.allowsActions
+    }
+
     private var imageGenerationRequest: RecipeImageGenerationRequest {
         RecipeImageGenerationRequest(
             recipeName: coordinator.name,
@@ -38,8 +44,13 @@ struct AddRecipeView: View {
         )
     }
 
+    private var showsImagePlaygroundControls: Bool {
+        supportsImagePlayground && showsAppleIntelligenceFeatures
+    }
+
     private var canOpenImagePlayground: Bool {
-        supportsImagePlayground
+        showsImagePlaygroundControls
+            && appleIntelligenceActionsAllowed
             && RecipeImagePlaygroundPrompt.canGenerate(from: imageGenerationRequest)
             && !coordinator.isAIBusy
     }
@@ -55,126 +66,7 @@ struct AddRecipeView: View {
 
     var body: some View {
         List {
-            // MARK: Photo
-            Section {
-                if let ui = coordinator.previewImage {
-                    Image(uiImage: ui)
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .padding(1) // stay inside stroke
-                        .accessibilityIdentifier("recipeImagePreview")
-                }
-
-                PhotosPicker(selection: $coordinator.selectedPhotoItem, matching: .images) {
-                    Label("Choose Photo", systemImage: "photo.on.rectangle")
-                        .font(FpTypography.body)
-                }
-                .tint(Color.fpAccent)
-                .onChange(of: coordinator.selectedPhotoItem, initial: false) {
-                    coordinator.loadSelectedImage()
-                }
-                .accessibilityIdentifier("choosePhotoButton")
-
-                if supportsImagePlayground {
-                    Button {
-                        resignFocus()
-                        showImagePlayground = true
-                    } label: {
-                        Label("Generate with Image Playground", systemImage: "sparkles")
-                            .font(FpTypography.body)
-                    }
-                    .buttonStyle(.borderless)
-                    .disabled(!canOpenImagePlayground)
-                    .accessibilityIdentifier("generateRecipeImageButton")
-
-                    if !RecipeImagePlaygroundPrompt.canGenerate(from: imageGenerationRequest) {
-                        Text("Add a recipe name before generating an image.")
-                            .font(FpTypography.caption)
-                            .foregroundStyle(Color.fpSecondaryLabel)
-                            .accessibilityIdentifier("generateRecipeImageNameHint")
-                    }
-                }
-            } header: {
-                Text("Photo")
-            } footer: {
-                if supportsImagePlayground {
-                    Text("Image Playground uses Apple Intelligence. Review the image before saving.")
-                }
-            }
-            .listRowSeparator(.hidden)
-
-            // MARK: Paste recipe (Apple Intelligence) — add only; avoid overwriting an edit.
-            if !isEditing {
-                Section {
-                    TextField("Paste recipe text…", text: $coordinator.pasteText, axis: .vertical)
-                        .lineLimit(3...5)
-                        .frame(maxHeight: 120, alignment: .topLeading)
-                        .font(FpTypography.body)
-                        .foregroundStyle(Color.fpLabel)
-                        .textInputAutocapitalization(.sentences)
-                        .autocorrectionDisabled(false)
-                        .writingToolsBehavior(.disabled)
-                        .focused($focusedField, equals: .paste)
-                        .disabled(coordinator.isAIBusy)
-                        .accessibilityIdentifier("pasteRecipeField")
-
-                    Button {
-                        resignFocus()
-                        coordinator.requestExtractRecipeFromPaste()
-                    } label: {
-                        HStack(spacing: 8) {
-                            if coordinator.isExtractingPaste {
-                                ProgressView()
-                                Text("Extracting…")
-                                    .font(FpTypography.body)
-                            } else {
-                                Label("Extract Recipe", systemImage: "wand.and.stars")
-                                    .font(FpTypography.body)
-                            }
-                            Spacer(minLength: 0)
-                        }
-                        .frame(minHeight: 44, alignment: .leading)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.borderless)
-                    .disabled(
-                        coordinator.isAIBusy
-                            || coordinator.pasteText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            || !pasteModelAvailable
-                    )
-                    .accessibilityIdentifier("extractRecipeButton")
-
-                    if coordinator.isExtractingPaste {
-                        Text("Apple Intelligence is reading the pasted recipe…")
-                            .font(FpTypography.caption)
-                            .foregroundStyle(Color.fpSecondaryLabel)
-                            .accessibilityIdentifier("extractRecipeProgressMessage")
-                    }
-
-                    if let unavailable = pasteUnavailableReason {
-                        Text(unavailable)
-                            .font(FpTypography.caption)
-                            .foregroundStyle(Color.fpSecondaryLabel)
-                            .accessibilityIdentifier("pasteRecipeUnavailableMessage")
-                    }
-                } header: {
-                    Text("Paste recipe")
-                } footer: {
-                    Text(RecipeIngredientSuggestor.generatedContentDisclaimer)
-                }
-            }
-
-            if let error = coordinator.errorMessage {
-                Section {
-                    Text(error)
-                        .font(FpTypography.body)
-                        .foregroundStyle(.red)
-                        .accessibilityIdentifier("errorMessage")
-                }
-            }
-
-            // MARK: Recipe
+            // MARK: Recipe (name first — primary identity for save + AI)
             Section("Recipe") {
                 TextField("Recipe Name", text: $coordinator.name)
                     .font(FpTypography.body)
@@ -214,6 +106,130 @@ struct AddRecipeView: View {
                 .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
 
+            // MARK: Photo
+            Section {
+                if let ui = coordinator.previewImage {
+                    Image(uiImage: ui)
+                        .resizable()
+                        .scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .padding(1) // stay inside stroke
+                        .accessibilityIdentifier("recipeImagePreview")
+                }
+
+                PhotosPicker(selection: $coordinator.selectedPhotoItem, matching: .images) {
+                    Label("Choose Photo", systemImage: "photo.on.rectangle")
+                        .font(FpTypography.body)
+                }
+                .tint(Color.fpAccent)
+                .onChange(of: coordinator.selectedPhotoItem, initial: false) {
+                    coordinator.loadSelectedImage()
+                }
+                .accessibilityIdentifier("choosePhotoButton")
+
+                if showsImagePlaygroundControls {
+                    Button {
+                        resignFocus()
+                        showImagePlayground = true
+                    } label: {
+                        Label("Generate with Image Playground", systemImage: "sparkles")
+                            .font(FpTypography.body)
+                    }
+                    .buttonStyle(.borderless)
+                    .disabled(!canOpenImagePlayground)
+                    .accessibilityIdentifier("generateRecipeImageButton")
+
+                    if let hint = appleIntelligence.enablementHintMessage {
+                        Text(hint)
+                            .font(FpTypography.caption)
+                            .foregroundStyle(Color.fpSecondaryLabel)
+                            .accessibilityIdentifier("imagePlaygroundUnavailableMessage")
+                    } else if !RecipeImagePlaygroundPrompt.canGenerate(from: imageGenerationRequest) {
+                        Text("Add a recipe name before generating an image.")
+                            .font(FpTypography.caption)
+                            .foregroundStyle(Color.fpSecondaryLabel)
+                            .accessibilityIdentifier("generateRecipeImageNameHint")
+                    }
+                }
+            } header: {
+                Text("Photo")
+            } footer: {
+                if showsImagePlaygroundControls {
+                    Text("Image Playground uses Apple Intelligence. Review the image before saving.")
+                }
+            }
+            .listRowSeparator(.hidden)
+
+            // MARK: Paste recipe (Apple Intelligence) — add only; avoid overwriting an edit.
+            if !isEditing && showsAppleIntelligenceFeatures {
+                Section {
+                    TextField("Paste recipe text…", text: $coordinator.pasteText, axis: .vertical)
+                        .lineLimit(3...5)
+                        .frame(maxHeight: 120, alignment: .topLeading)
+                        .font(FpTypography.body)
+                        .foregroundStyle(Color.fpLabel)
+                        .textInputAutocapitalization(.sentences)
+                        .autocorrectionDisabled(false)
+                        .writingToolsBehavior(.disabled)
+                        .focused($focusedField, equals: .paste)
+                        .disabled(coordinator.isAIBusy)
+                        .accessibilityIdentifier("pasteRecipeField")
+
+                    Button {
+                        resignFocus()
+                        coordinator.requestExtractRecipeFromPaste()
+                    } label: {
+                        HStack(spacing: 8) {
+                            if coordinator.isExtractingPaste {
+                                ProgressView()
+                                Text("Extracting…")
+                                    .font(FpTypography.body)
+                            } else {
+                                Label("Extract Recipe", systemImage: "wand.and.stars")
+                                    .font(FpTypography.body)
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        .frame(minHeight: 44, alignment: .leading)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.borderless)
+                    .disabled(
+                        coordinator.isAIBusy
+                            || coordinator.pasteText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                            || !appleIntelligenceActionsAllowed
+                    )
+                    .accessibilityIdentifier("extractRecipeButton")
+
+                    if coordinator.isExtractingPaste {
+                        Text("Apple Intelligence is reading the pasted recipe…")
+                            .font(FpTypography.caption)
+                            .foregroundStyle(Color.fpSecondaryLabel)
+                            .accessibilityIdentifier("extractRecipeProgressMessage")
+                    }
+
+                    if let hint = appleIntelligence.enablementHintMessage {
+                        Text(hint)
+                            .font(FpTypography.caption)
+                            .foregroundStyle(Color.fpSecondaryLabel)
+                            .accessibilityIdentifier("pasteRecipeUnavailableMessage")
+                    }
+                } header: {
+                    Text("Paste recipe")
+                } footer: {
+                    Text(RecipeIngredientSuggestor.generatedContentDisclaimer)
+                }
+            }
+
+            if let error = coordinator.errorMessage {
+                Section {
+                    Text(error)
+                        .font(FpTypography.body)
+                        .foregroundStyle(.red)
+                        .accessibilityIdentifier("errorMessage")
+                }
+            }
+
             // MARK: Diet
             Section("Diet") {
                 Picker("Diet", selection: $coordinator.dietaryKind) {
@@ -243,40 +259,51 @@ struct AddRecipeView: View {
                 }
                 .accessibilityIdentifier("addIngredientButton")
 
-                Button {
-                    resignFocus()
-                    coordinator.suggestMissingIngredients()
-                } label: {
-                    HStack(spacing: 8) {
-                        if coordinator.isSuggestingIngredients {
-                            ProgressView()
-                            Text("Suggesting…")
-                                .font(FpTypography.body)
-                        } else {
-                            Label("Suggest Missing Ingredients", systemImage: "wand.and.stars")
-                                .font(FpTypography.body)
+                if showsAppleIntelligenceFeatures {
+                    Button {
+                        resignFocus()
+                        coordinator.suggestMissingIngredients()
+                    } label: {
+                        HStack(spacing: 8) {
+                            if coordinator.isSuggestingIngredients {
+                                ProgressView()
+                                Text("Suggesting…")
+                                    .font(FpTypography.body)
+                            } else {
+                                Label("Suggest Missing Ingredients", systemImage: "wand.and.stars")
+                                    .font(FpTypography.body)
+                            }
+                            Spacer(minLength: 0)
                         }
-                        Spacer(minLength: 0)
                     }
-                }
-                .buttonStyle(.borderless)
-                .disabled(
-                    coordinator.isAIBusy
-                        || coordinator.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                        || !suggestModelAvailable
-                )
-                .accessibilityIdentifier("suggestIngredientsButton")
+                    .buttonStyle(.borderless)
+                    .disabled(
+                        coordinator.isAIBusy
+                            || coordinator.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                            || !appleIntelligenceActionsAllowed
+                    )
+                    .accessibilityIdentifier("suggestIngredientsButton")
 
-                if coordinator.isSuggestingIngredients {
-                    Text("Apple Intelligence is suggesting missing ingredients…")
-                        .font(FpTypography.caption)
-                        .foregroundStyle(Color.fpSecondaryLabel)
-                        .accessibilityIdentifier("suggestIngredientsProgressMessage")
+                    if coordinator.isSuggestingIngredients {
+                        Text("Apple Intelligence is suggesting missing ingredients…")
+                            .font(FpTypography.caption)
+                            .foregroundStyle(Color.fpSecondaryLabel)
+                            .accessibilityIdentifier("suggestIngredientsProgressMessage")
+                    }
+
+                    if let hint = appleIntelligence.enablementHintMessage {
+                        Text(hint)
+                            .font(FpTypography.caption)
+                            .foregroundStyle(Color.fpSecondaryLabel)
+                            .accessibilityIdentifier("suggestIngredientsUnavailableMessage")
+                    }
                 }
             } header: {
                 Text("Ingredients")
             } footer: {
-                Text(RecipeIngredientSuggestor.generatedContentDisclaimer)
+                if showsAppleIntelligenceFeatures {
+                    Text(RecipeIngredientSuggestor.generatedContentDisclaimer)
+                }
             }
 
             // MARK: Status
@@ -336,9 +363,7 @@ struct AddRecipeView: View {
     }
 
     private func refreshModelAvailability() {
-        pasteModelAvailable = RecipePasteExtractor.isModelAvailable
-        pasteUnavailableReason = RecipePasteExtractor.unavailableReasonMessage
-        suggestModelAvailable = RecipeIngredientSuggestor.isModelAvailable
+        appleIntelligence = AppleIntelligenceAvailability.current
     }
 }
 

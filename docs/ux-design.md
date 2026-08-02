@@ -147,17 +147,19 @@ Keep motion light: button press opacity (~0.15s ease-in-out), ProgressView on ge
 
 | Section | Add | Edit |
 |---------|-----|------|
-| Photo | PhotosPicker | Same |
-| Paste recipe | Paste field + Extract (Apple Intelligence) | Hidden |
-| Recipe | Name (required), Notes | Same |
+| Recipe | Name (required), Notes — **first** | Same |
+| Photo | PhotosPicker + Image Playground when AI features shown | Same |
+| Paste recipe | Paste field + Extract when AI features shown | Hidden |
 | Diet | Standard / Vegetarian / Vegan segmented | Same |
-| Ingredients | Lines + Suggest Missing Ingredients | Same (suggest allowed) |
+| Ingredients | Lines + Suggest Missing Ingredients when AI features shown | Same |
 
 - Cancel / Save in toolbar; Save disabled while saving or AI busy.
 - Paste overwrite confirmation when the form already has content.
 - Suggest Missing Ingredients appends rows into the draft list for review (delete unwanted lines before Save).
-- Footer disclaimer on paste and ingredients: *Always check Apple Intelligence suggestions before saving — they can be wrong or incomplete.*
-- Hide/disable AI when the on-device model is unavailable; empty suggestions are neutral status, not an error.
+- Footer disclaimer on paste and ingredients when AI features are shown: *Always check Apple Intelligence suggestions before saving — they can be wrong or incomplete.*
+- **Apple Intelligence unavailable** (device ineligible / model not ready / unknown): hide paste, suggest-missing-ingredients, and Image Playground controls entirely.
+- **Apple Intelligence not enabled** (supported device, off in Settings): keep those controls visible, disable action buttons, and show a Settings enablement hint.
+- Empty suggestions are neutral status, not an error.
 
 ---
 

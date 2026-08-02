@@ -55,6 +55,9 @@ bundle exec fastlane runUnitTests
 | [`docs/agent-playbook.md`](docs/agent-playbook.md) | AI agents | Recovery paths when checks/CI fail |
 | [`docs/harness-log.md`](docs/harness-log.md) | AI agents & developers | Steering log — encode repeated slips into guides/sensors |
 | [`docs/index.md`](docs/index.md) | App users | Privacy policy (GitHub Pages) |
+| [`fastlane/testing_notes.txt`](fastlane/testing_notes.txt) | Testers / App Store Connect | What to Test notes for the next TestFlight upload |
+
+Update `fastlane/testing_notes.txt` with a short sentence before opening a PR that will eventually ship; Fastlane `deploy` reads it when uploading to App Store Connect.
 
 ## License
 
