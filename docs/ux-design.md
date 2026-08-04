@@ -155,6 +155,7 @@ Keep motion light: button press opacity (~0.15s ease-in-out), ProgressView on ge
 
 - Cancel / Save in toolbar; Save disabled while saving or AI busy.
 - Paste overwrite confirmation when the form already has content.
+- Suggest Missing Ingredients appends rows into the draft list for review (delete unwanted lines before Save).
 - Footer disclaimer on paste and ingredients when AI features are shown: *Always check Apple Intelligence suggestions before saving — they can be wrong or incomplete.*
 - **Apple Intelligence unavailable** (device ineligible / model not ready / unknown): hide paste, suggest-missing-ingredients, and Image Playground controls entirely.
 - **Apple Intelligence not enabled** (supported device, off in Settings): keep those controls visible, disable action buttons, and show a Settings enablement hint.

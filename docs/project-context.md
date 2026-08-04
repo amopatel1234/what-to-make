@@ -163,10 +163,10 @@ Tests/
 
 - ``AppleIntelligenceAvailability`` (Helpers) maps ``SystemLanguageModel`` availability into ``available`` / ``notEnabled`` / ``unavailable`` for UI gating.
 - ``RecipePasteExtractor`` (Helpers) uses Foundation Models guided generation (`@Generable`) to turn pasted text into ``RecipePasteDraft``.
-- ``RecipeIngredientSuggestor`` suggests missing ingredients from recipe **name** (notes optional) plus existing lines; user must accept each suggestion. Empty results are a neutral status, not an error.
+- ``RecipeIngredientSuggestor`` suggests missing ingredients from recipe **name** (notes optional) plus existing lines; results are appended into ingredient drafts for review (user may delete unwanted rows). Empty results are a neutral status, not an error.
 - Paste extraction is **Add Recipe only** (hidden while editing). Overwrite confirmation appears when the form already has content.
 - ``AddRecipeCoordinator`` cancels overlapping extract/suggest tasks and clears in-flight work on sheet dismiss so stale results cannot land.
-- ``AddRecipeCoordinator/applyPasteDraft`` / ``extractRecipeFromPaste`` / ``suggestMissingIngredients`` fill the form; user reviews then saves via existing SwiftData path.
+- ``AddRecipeCoordinator/applyPasteDraft`` / ``extractRecipeFromPaste`` / ``suggestMissingIngredients`` / ``applyIngredientSuggestions`` fill the form; user reviews then saves via existing SwiftData path. Save also commits any leftover pending suggestions so they cannot be dropped.
 - Amount parsing accepts ASCII and Unicode fractions (`1/2`, `½`, `1 1/2`) so pasted amounts are not dropped on save.
 - **Unavailable** (ineligible / not ready / unknown): hide paste, suggest, and Image Playground UI. **Not enabled**: show controls disabled with Settings hint. Never auto-save generated drafts.
 - Show ``RecipeIngredientSuggestor/generatedContentDisclaimer`` near AI controls so users always verify generated content.
