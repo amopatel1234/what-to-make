@@ -14,6 +14,8 @@ struct AddRecipeView: View {
     /// Cached on appear so body does not re-query model availability every render.
     @State private var appleIntelligence = AppleIntelligenceAvailability.current
     @State private var showImagePlayground = false
+    /// True from tap until Image Playground dismisses — covers the sheet presentation lag.
+    @State private var isOpeningImagePlayground = false
     @Environment(\.supportsImagePlayground) private var supportsImagePlayground
 
     enum Field: Hashable {
@@ -53,6 +55,7 @@ struct AddRecipeView: View {
             && appleIntelligenceActionsAllowed
             && RecipeImagePlaygroundPrompt.canGenerate(from: imageGenerationRequest)
             && !coordinator.isAIBusy
+            && !isOpeningImagePlayground
     }
 
     /// Done dismisses keyboard for every tracked field (including multiline paste/notes).
@@ -130,14 +133,33 @@ struct AddRecipeView: View {
                 if showsImagePlaygroundControls {
                     Button {
                         resignFocus()
+                        isOpeningImagePlayground = true
                         showImagePlayground = true
                     } label: {
-                        Label("Generate with Image Playground", systemImage: "sparkles")
-                            .font(FpTypography.body)
+                        HStack(spacing: 8) {
+                            if isOpeningImagePlayground {
+                                ProgressView()
+                                Text("Opening…")
+                                    .font(FpTypography.body)
+                            } else {
+                                Label("Generate with Image Playground", systemImage: "sparkles")
+                                    .font(FpTypography.body)
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        .frame(minHeight: 44, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.borderless)
                     .disabled(!canOpenImagePlayground)
                     .accessibilityIdentifier("generateRecipeImageButton")
+
+                    if isOpeningImagePlayground {
+                        Text("Opening Image Playground…")
+                            .font(FpTypography.caption)
+                            .foregroundStyle(Color.fpSecondaryLabel)
+                            .accessibilityIdentifier("generateRecipeImageProgressMessage")
+                    }
 
                     if let hint = appleIntelligence.enablementHintMessage {
                         Text(hint)
@@ -328,9 +350,15 @@ struct AddRecipeView: View {
                 }
             },
             onFailure: { message in
+                isOpeningImagePlayground = false
                 coordinator.errorMessage = message
             }
         )
+        .onChange(of: showImagePlayground) { _, isPresented in
+            if !isPresented {
+                isOpeningImagePlayground = false
+            }
+        }
         .onAppear(perform: refreshModelAvailability)
         .onDisappear {
             coordinator.cancelAIWork()
