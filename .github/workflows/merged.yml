@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build app and deploy
-    runs-on: macos-26
+    runs-on: xcode-27
     permissions:
       contents: write
 
@@ -18,6 +18,9 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
 
       - name: Increment Version
         id: versioning

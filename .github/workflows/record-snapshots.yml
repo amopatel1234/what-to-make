@@ -1,6 +1,6 @@
 name: Record Snapshot Baselines
 
-# Manual opt-in re-record on macos-26 (same runner class as PR compare).
+# Manual opt-in re-record on xcode-27 (same runner class as PR compare).
 # Does not run on pull_request — keeps normal CI in compare-only mode.
 on:
   workflow_dispatch:
@@ -20,7 +20,7 @@ concurrency:
 jobs:
   record:
     name: Record and commit snapshot baselines
-    runs-on: macos-26
+    runs-on: xcode-27
 
     steps:
       - name: Add path globally
@@ -32,6 +32,9 @@ jobs:
           ref: ${{ inputs.branch }}
           # Needed so the later push can update the branch (default token is fine with contents:write).
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Show Xcode version
+        run: xcodebuild -version
 
       - name: Inject record env into test plan (reaches TEST_HOST)
         run: |

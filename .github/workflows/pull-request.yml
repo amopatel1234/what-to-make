@@ -30,7 +30,7 @@ jobs:
   build:
     name: Build, unit, and snapshot tests on pinned iPhone 17 Pro simulator
     if: github.event.pull_request.draft == false
-    runs-on: macos-26
+    runs-on: xcode-27
 
     steps:
       - name: Add path globally
@@ -38,6 +38,9 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
 
       - name: Run unit and snapshot tests
         env:
