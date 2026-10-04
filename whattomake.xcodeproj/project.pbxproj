@@ -73,6 +73,8 @@
 		3C0A00912E6B00B000000006 /* RecipeImagePlaygroundPromptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00902E6B00B000000005 /* RecipeImagePlaygroundPromptTests.swift */; };
 		3C0A00932E6C00C000000002 /* AppleIntelligenceAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00922E6C00C000000001 /* AppleIntelligenceAvailability.swift */; };
 		3C0A00952E6C00C000000004 /* AppleIntelligenceAvailabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00942E6C00C000000003 /* AppleIntelligenceAvailabilityTests.swift */; };
+		3C0A00A12E6D00D000000002 /* RecipeListOrdering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00A02E6D00D000000001 /* RecipeListOrdering.swift */; };
+		3C0A00A32E6D00D000000004 /* RecipeListOrderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00A22E6D00D000000003 /* RecipeListOrderingTests.swift */; };
 		3C0A00052E60A00100000005 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3C0A00042E60A00100000004 /* SnapshotTesting */; };
 /* End PBXBuildFile section */
 
@@ -157,6 +159,8 @@
 		3C0A00902E6B00B000000005 /* RecipeImagePlaygroundPromptTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeImagePlaygroundPromptTests.swift; sourceTree = "<group>"; };
 		3C0A00922E6C00C000000001 /* AppleIntelligenceAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceAvailability.swift; sourceTree = "<group>"; };
 		3C0A00942E6C00C000000003 /* AppleIntelligenceAvailabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceAvailabilityTests.swift; sourceTree = "<group>"; };
+		3C0A00A02E6D00D000000001 /* RecipeListOrdering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeListOrdering.swift; sourceTree = "<group>"; };
+		3C0A00A22E6D00D000000003 /* RecipeListOrderingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeListOrderingTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -241,6 +245,7 @@
 				3C0A008A2E6A009000000003 /* RecipeIngredientNormalizationTests.swift */,
 				3C0A00902E6B00B000000005 /* RecipeImagePlaygroundPromptTests.swift */,
 				3C0A00942E6C00C000000003 /* AppleIntelligenceAvailabilityTests.swift */,
+				3C0A00A22E6D00D000000003 /* RecipeListOrderingTests.swift */,
 				3C0A00012E60A00100000001 /* SnapshotTestingSmokeTests.swift */,
 				3C0A00122E60B00300000003 /* TestModelContainerTests.swift */,
 				3C0A00142E60B00300000005 /* Fixtures */,
@@ -306,6 +311,7 @@
 				3C0A008C2E6B00B000000001 /* RecipeImagePlaygroundPrompt.swift */,
 				3C0A00802E68007000000001 /* RecipePasteExtraction.swift */,
 				3C0A00842E69008000000001 /* RecipeIngredientSuggestion.swift */,
+				3C0A00A02E6D00D000000001 /* RecipeListOrdering.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -502,6 +508,7 @@
 				3C0A008F2E6B00B000000004 /* RecipeImagePlaygroundPresenter.swift in Sources */,
 				3C0A00812E68007000000002 /* RecipePasteExtraction.swift in Sources */,
 				3C0A00852E69008000000002 /* RecipeIngredientSuggestion.swift in Sources */,
+				3C0A00A12E6D00D000000002 /* RecipeListOrdering.swift in Sources */,
 				3BAFB0C52E537D72001B185B /* Layout.swift in Sources */,
 				3BAD92AE2E493AA6009DCBAE /* WeeklyMenuApp.swift in Sources */,
 				3B47D6022E4E3BE000E22A4B /* ImageCodec.swift in Sources */,
@@ -529,6 +536,7 @@
 				3C0A008B2E6A009000000004 /* RecipeIngredientNormalizationTests.swift in Sources */,
 				3C0A00912E6B00B000000006 /* RecipeImagePlaygroundPromptTests.swift in Sources */,
 				3C0A00952E6C00C000000004 /* AppleIntelligenceAvailabilityTests.swift in Sources */,
+				3C0A00A32E6D00D000000004 /* RecipeListOrderingTests.swift in Sources */,
 				3C0A00532E65004000000004 /* MenuGenerationTests.swift in Sources */,
 				3C0A007E2E6700600000000F /* MenuIntentSupportTests.swift in Sources */,
 				3C0A00552E65004000000006 /* ImageStoreTests.swift in Sources */,

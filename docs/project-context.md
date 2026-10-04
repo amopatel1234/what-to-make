@@ -97,7 +97,7 @@ Menu day swipe → MenuGeneration.rerollDay / assignRecipe / markCooked
 
 | Concern | Pattern |
 |---------|---------|
-| Recipe list | `@Query(sort: \Recipe.name)` |
+| Recipe list | `@Query(sort: [\SortDescriptor(\.sortOrder), SortDescriptor(\.name)])` |
 | Latest menu | `@Query` via `Menu.latestDescriptor()` → `menus.first` |
 | Day toggles | `@AppStorage` via `DaySelectionStorage` + `AppStorageKey` |
 | Day diet filters | `@AppStorage` via `DayDietConstraintStorage` + `AppStorageKey.dayDietConstraints` |
@@ -119,7 +119,7 @@ Menu day swipe → MenuGeneration.rerollDay / assignRecipe / markCooked
 - Normal launches use a **persistent** `ModelContainer` only — no launch-argument store modes.
 - Menu lifecycle: **delete-before-insert** on regenerate — `MenuPersistence.replaceMenu(with:in:)` deletes all existing `Menu` records before inserting the new one.
 - Latest menu: `@Query` via `Menu.latestDescriptor()` → display `menus.first`.
-- Recipe fields: `name` (required), `notes` (optional), `usageCount` (times marked cooked), `lastCookedAt`, `thumbnailBase64`, `imageFilename`, `dietaryKindRaw` / `dietaryKind` (`standard` \| `vegetarian` \| `vegan`), `ingredients`.
+- Recipe fields: `name` (required), `notes` (optional), `usageCount` (times marked cooked), `lastCookedAt`, `thumbnailBase64`, `imageFilename`, `dietaryKindRaw` / `dietaryKind` (`standard` \| `vegetarian` \| `vegan`), `sortOrder` (manual library order; default `0`), `ingredients`.
 - `RecipeIngredient` fields: `name` (required), `amount` (optional `Decimal`), `unit` (optional free text, stored as entered), `sortOrder`.
 - Ingredient units are stored as-entered — no imperial/metric conversion in v1.
 - Menu fields: `generatedDate`, `days`, `recipes` (snapshot of selected recipes).
@@ -151,7 +151,7 @@ Sources/
   Application/   WeeklyMenuApp.swift
   Views/         RecipesListView, AddRecipeView, GenerateMenuView
   Models/        Recipe, RecipeDietaryKind, RecipeIngredient, Menu, ImageCodec (ImageStore)
-  Helpers/       MenuGenerator, MenuGeneration, DaySelectionStorage, DayDietConstraintStorage, AppStorageKey, MenuPersistence, MenuIntentSupport, ForkPlanModelContainer, AppleIntelligenceAvailability, RecipePasteExtraction, RecipeIngredientSuggestion, RecipeImagePlaygroundPrompt
+  Helpers/       MenuGenerator, MenuGeneration, DaySelectionStorage, DayDietConstraintStorage, AppStorageKey, MenuPersistence, MenuIntentSupport, ForkPlanModelContainer, AppleIntelligenceAvailability, RecipePasteExtraction, RecipeIngredientSuggestion, RecipeImagePlaygroundPrompt, RecipeListOrdering
   Intents/       GetTodaysMealIntent, GetWeeklyMenuIntent, GenerateWeeklyMenuIntent, ForkPlanShortcuts
   DesignSystem/  unchanged
 Tests/

@@ -8,7 +8,10 @@ import SwiftUI
 import SwiftData
 
 struct RecipesView: View {
-    @Query(sort: \Recipe.name) private var recipes: [Recipe]
+    @Query(sort: [
+        SortDescriptor(\Recipe.sortOrder),
+        SortDescriptor(\Recipe.name)
+    ]) private var recipes: [Recipe]
     @Environment(\.modelContext) private var modelContext
     @State private var showAdd = false
     @State private var selectedRecipe: Recipe?
@@ -29,51 +32,7 @@ struct RecipesView: View {
                     .accessibilityIdentifier("emptyRecipesView")
 
                 } else {
-                    List {
-                        ForEach(recipes, id: \.id) { recipe in
-                            HStack(spacing: 12) {
-                                RecipeThumbView(base64: recipe.thumbnailBase64)
-
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(recipe.name)
-                                        .font(FpTypography.body)
-                                        .foregroundStyle(Color.fpLabel)
-                                        .accessibilityIdentifier("recipeName_\(recipe.name)")
-
-                                    if let notes = recipe.notes, !notes.isEmpty {
-                                        Text(notes)
-                                            .font(FpTypography.caption)
-                                            .foregroundStyle(Color.fpSecondaryLabel)
-                                            .lineLimit(1)
-                                    }
-                                }
-                            }
-                            .frame(minHeight: 56)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                selectedRecipe = recipe
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button("Cooked") {
-                                    markCooked(recipe)
-                                }
-                                .tint(.green)
-                                .accessibilityIdentifier("markCookedRecipe_\(recipe.id.uuidString)")
-                            }
-                            .contextMenu {
-                                Button("Mark as cooked") {
-                                    markCooked(recipe)
-                                }
-                                Button("Edit") {
-                                    selectedRecipe = recipe
-                                }
-                            }
-                        }
-                        .onDelete(perform: deleteRecipes)
-                    }
-                    .accessibilityIdentifier("recipesList")
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
+                    recipesLibraryList
                 }
             }
             .navigationTitle("Recipes")
@@ -113,11 +72,132 @@ struct RecipesView: View {
         }
     }
 
+    @ViewBuilder
+    private var recipesLibraryList: some View {
+        if #available(iOS 27, *) {
+            List {
+                ForEach(recipes) { recipe in
+                    recipeRow(for: recipe)
+                }
+                .onDelete(perform: deleteRecipes)
+                .reorderable()
+            }
+            .accessibilityIdentifier("recipesList")
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .reorderContainer(for: Recipe.self) { difference in
+                applyNativeReorder(difference)
+            }
+        } else {
+            List {
+                ForEach(recipes) { recipe in
+                    recipeRow(for: recipe)
+                }
+                .onDelete(perform: deleteRecipes)
+            }
+            .accessibilityIdentifier("recipesList")
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+        }
+    }
+
+    @ViewBuilder
+    private func recipeRow(for recipe: Recipe) -> some View {
+        HStack(spacing: 12) {
+            RecipeThumbView(base64: recipe.thumbnailBase64)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(recipe.name)
+                    .font(FpTypography.body)
+                    .foregroundStyle(Color.fpLabel)
+                    .accessibilityIdentifier("recipeName_\(recipe.name)")
+
+                if let notes = recipe.notes, !notes.isEmpty {
+                    Text(notes)
+                        .font(FpTypography.caption)
+                        .foregroundStyle(Color.fpSecondaryLabel)
+                        .lineLimit(1)
+                }
+            }
+        }
+        .frame(minHeight: 56)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            selectedRecipe = recipe
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button("Cooked") {
+                markCooked(recipe)
+            }
+            .tint(.green)
+            .accessibilityIdentifier("markCookedRecipe_\(recipe.id.uuidString)")
+        }
+        .contextMenu {
+            Button("Mark as cooked") {
+                markCooked(recipe)
+            }
+            Button("Edit") {
+                selectedRecipe = recipe
+            }
+        }
+        .accessibilityHint("Drag to reorder")
+        .accessibilityAction(named: "Move Up") {
+            moveRecipeUp(recipe)
+        }
+        .accessibilityAction(named: "Move Down") {
+            moveRecipeDown(recipe)
+        }
+    }
+
     private var actionErrorPresented: Binding<Bool> {
         Binding(
             get: { actionErrorMessage != nil },
             set: { if !$0 { actionErrorMessage = nil } }
         )
+    }
+
+    @available(iOS 27, *)
+    private func applyNativeReorder(
+        _ difference: ReorderDifference<Recipe.ID, ReorderableSingleCollectionIdentifier>
+    ) {
+        var ordered = Array(recipes)
+        ordered.apply(difference: difference)
+        RecipeListOrdering.renumberSortOrders(ordered)
+        persistOrderingChanges()
+    }
+
+    private func moveRecipeUp(_ recipe: Recipe) {
+        guard let index = recipes.firstIndex(where: { $0.id == recipe.id }), index > 0 else {
+            return
+        }
+        RecipeListOrdering.moveRecipes(
+            Array(recipes),
+            from: IndexSet(integer: index),
+            to: index - 1
+        )
+        persistOrderingChanges()
+    }
+
+    private func moveRecipeDown(_ recipe: Recipe) {
+        guard let index = recipes.firstIndex(where: { $0.id == recipe.id }),
+              index < recipes.count - 1 else {
+            return
+        }
+        RecipeListOrdering.moveRecipes(
+            Array(recipes),
+            from: IndexSet(integer: index),
+            to: index + 2
+        )
+        persistOrderingChanges()
+    }
+
+    private func persistOrderingChanges() {
+        do {
+            try modelContext.save()
+            actionErrorMessage = nil
+        } catch {
+            actionErrorMessage = error.localizedDescription
+        }
     }
 
     private func deleteRecipes(at offsets: IndexSet) {
@@ -231,8 +311,8 @@ private struct RecipeThumbView: View {
 #Preview("With Recipes") {
     let container = try! ModelContainer(for: Recipe.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
     let context = container.mainContext
-    context.insert(Recipe(name: "Pasta", notes: "Family favorite"))
-    context.insert(Recipe(name: "Tacos", notes: "Tuesday special"))
+    context.insert(Recipe(name: "Pasta", notes: "Family favorite", sortOrder: 0))
+    context.insert(Recipe(name: "Tacos", notes: "Tuesday special", sortOrder: 1))
     return RecipesView()
         .modelContainer(container)
 }

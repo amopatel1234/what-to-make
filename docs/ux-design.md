@@ -138,6 +138,7 @@ Keep motion light: button press opacity (~0.15s ease-in-out), ProgressView on ge
 
 - Empty: `ContentUnavailableView` “No Recipes” + fork.knife + “Tap + to add…”.
 - Rows: thumb + name + one-line notes; tap opens Edit sheet.
+- Manual reorder (iOS 27): drag rows via `reorderable` / `reorderContainer`; order persists in `Recipe.sortOrder`. VoiceOver: **Move Up** / **Move Down** actions.
 - Swipe **Cooked** (green); context menu Cooked / Edit; standard delete.
 - Toolbar **+** opens Add sheet.
 

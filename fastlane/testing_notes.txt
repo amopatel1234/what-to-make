@@ -1,1 +1,1 @@
-Verify Add/Edit Recipe: recipe name is at the top; when Apple Intelligence is off in Settings, paste/suggest/Image Playground stay visible but disabled with a Settings hint; on unsupported devices those AI controls are hidden.
+Verify Recipes: long-press/drag a recipe to reorder the library; quit and reopen the app and confirm the order stuck. On VoiceOver, use Move Up / Move Down on a recipe row.

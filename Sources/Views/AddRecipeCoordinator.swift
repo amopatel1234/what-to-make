@@ -389,12 +389,14 @@ final class AddRecipeCoordinator {
                 recipe.imageFilename = imageFilename
                 needsInsert = false
             } else {
+                let sortOrder = try RecipeListOrdering.nextSortOrder(in: context)
                 recipe = Recipe(
                     name: name.trimmingCharacters(in: .whitespaces),
                     notes: notes.isEmpty ? nil : notes,
                     thumbnailBase64: thumbnailBase64,
                     imageFilename: imageFilename,
-                    dietaryKind: dietaryKind
+                    dietaryKind: dietaryKind,
+                    sortOrder: sortOrder
                 )
                 pendingRecipe = recipe
                 needsInsert = true

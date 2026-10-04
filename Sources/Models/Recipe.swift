@@ -19,6 +19,7 @@ import SwiftData
 /// - ``thumbnailBase64``: Optional Base64 JPEG thumbnail for fast list rendering.
 /// - ``imageFilename``: Optional filename of the original image on disk (via ``ImageStore``).
 /// - ``dietaryKindRaw``: Stored raw value for ``RecipeDietaryKind``.
+/// - ``sortOrder``: User-controlled position in the Recipes library list.
 /// - ``ingredients``: Ordered ingredient lines for the recipe.
 ///
 /// Example
@@ -55,6 +56,12 @@ final class Recipe {
     /// mandatory attribute without one, which fails to load pre-existing stores.
     var dietaryKindRaw: String = RecipeDietaryKind.standard.rawValue
 
+    /// User-controlled position in the Recipes library list (lower values appear first).
+    ///
+    /// Inline default required for lightweight migration of stores created before
+    /// manual reordering existed. Until the user reorders, ties break by ``name``.
+    var sortOrder: Int = 0
+
     /// Ingredient lines belonging to this recipe.
     @Relationship(deleteRule: .cascade, inverse: \RecipeIngredient.recipe)
     var ingredients: [RecipeIngredient] = []
@@ -75,6 +82,7 @@ final class Recipe {
     ///   - thumbnailBase64: Optional Base64 thumbnail.
     ///   - imageFilename: Optional original image filename in ``ImageStore``.
     ///   - dietaryKind: Dietary classification (defaults to ``RecipeDietaryKind/standard``).
+    ///   - sortOrder: Library list position (defaults to `0`).
     ///   - ingredients: Initial ingredient lines (defaults to empty).
     init(
         id: UUID = UUID(),
@@ -85,6 +93,7 @@ final class Recipe {
         thumbnailBase64: String? = nil,
         imageFilename: String? = nil,
         dietaryKind: RecipeDietaryKind = .standard,
+        sortOrder: Int = 0,
         ingredients: [RecipeIngredient] = []
     ) {
         self.id = id
@@ -95,6 +104,7 @@ final class Recipe {
         self.thumbnailBase64 = thumbnailBase64
         self.imageFilename = imageFilename
         self.dietaryKindRaw = dietaryKind.rawValue
+        self.sortOrder = sortOrder
         self.ingredients = ingredients
     }
 }

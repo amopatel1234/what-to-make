@@ -9,7 +9,7 @@ Canonical product rules remain in [`project-context.md`](project-context.md). Sc
 | `Application/` | App entry (`WeeklyMenuApp`) — shared `ModelContainer` + App Intent dependency registration |
 | `Views/` | SwiftUI views + thin `@Observable` coordinators (transient UI) |
 | `Models/` | SwiftData `@Model` types + `ImageCodec` / `ImageStore` |
-| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, `MenuIntentSupport`, `AppleIntelligenceAvailability`, `RecipePasteExtraction`, `RecipeIngredientSuggestion`, …) |
+| `Helpers/` | Pure / testable logic (`MenuGenerator`, `MenuGeneration`, `DayDietConstraintStorage`, `MenuPersistence`, `MenuIntentSupport`, `AppleIntelligenceAvailability`, `RecipePasteExtraction`, `RecipeIngredientSuggestion`, `RecipeListOrdering`, …) |
 | `Intents/` | App Intents + `AppShortcutsProvider` (thin; call Helpers for work) |
 | `DesignSystem/` | Shared `fp*` styling |
 
