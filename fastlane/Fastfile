@@ -19,21 +19,26 @@ platform :ios do
   APP_IDENTIFIER = "amishpatel.whattomake"
   APP_TARGET = "whattomake"
   PROVISIONING_PROFILE_NAME = "ForkPlan App Store"
+  # Local default. CI on the `xcode-27` runner image overrides via TEST_DESTINATION
+  # because that image ships iPhone 17 (iOS 27), not iPhone 17 Pro.
   PINNED_TEST_DESTINATION = "platform=iOS Simulator,name=iPhone 17 Pro"
 
-  desc "Run unit and snapshot tests (UnitTestsPlan) on pinned iPhone 17 Pro simulator"
+  desc "Run unit and snapshot tests (UnitTestsPlan) on the configured simulator destination"
   lane :runUnitTests do
     required_vars = ['WORKSPACE', 'WORKSPACE_FILENAME', 'SCHEME', 'TEST_PLAN']
     required_vars.each do |var|
       UI.user_error!("Missing required environment variable: #{var}") unless ENV[var]
     end
 
+    destination = ENV.fetch("TEST_DESTINATION", PINNED_TEST_DESTINATION)
+    UI.message("Test destination: #{destination}")
+
     # UnitTestsPlan includes MenuGeneratorTests, RecipeSnapshotTests, MenuSnapshotTests, etc.
     run_tests(
       workspace: ENV["WORKSPACE_FILENAME"],
       scheme: ENV["SCHEME"],
       testplan: ENV["TEST_PLAN"],
-      destination: PINNED_TEST_DESTINATION,
+      destination: destination,
       ensure_devices_found: true,
       result_bundle: true,
     )

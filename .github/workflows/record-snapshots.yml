@@ -1,6 +1,6 @@
 name: Record Snapshot Baselines
 
-# Manual opt-in re-record on xcode-27 (same runner class as PR compare).
+# Manual opt-in re-record on the `xcode-27` GitHub-hosted runner image (same as PR compare).
 # Does not run on pull_request — keeps normal CI in compare-only mode.
 on:
   workflow_dispatch:
@@ -33,8 +33,23 @@ jobs:
           # Needed so the later push can update the branch (default token is fine with contents:write).
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Show Xcode version
-        run: xcodebuild -version
+      - name: Select Xcode 27
+        run: sudo xcode-select -s /Applications/Xcode_27.app
+
+      - name: Show selected Xcode toolchain and SDKs
+        run: |
+          set -euo pipefail
+          echo "== xcode-select =="
+          xcode-select -p
+          echo
+          echo "== xcodebuild -version =="
+          xcodebuild -version
+          echo
+          echo "== xcodebuild -showsdks =="
+          xcodebuild -showsdks
+          echo
+          echo "== available iOS simulators =="
+          xcrun simctl list devices available
 
       - name: Inject record env into test plan (reaches TEST_HOST)
         run: |
@@ -53,7 +68,7 @@ jobs:
           print("Enabled RECORD_SNAPSHOTS + ALLOW_CI_SNAPSHOT_RECORD in UnitTestsPlan")
           PY
 
-      - name: Record snapshots on pinned iPhone 17 Pro
+      - name: Record snapshots on iOS 27 simulator
         id: record
         continue-on-error: true
         env:
@@ -61,6 +76,9 @@ jobs:
           WORKSPACE_FILENAME: "whattomake.xcworkspace"
           SCHEME: "whattomake"
           TEST_PLAN: "UnitTestsPlan"
+          TEST_DESTINATION: "platform=iOS Simulator,name=iPhone 17,OS=27.0"
+          FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: "30"
+          FASTLANE_XCODEBUILD_SETTINGS_RETRIES: "4"
           # Shell env alone often misses TEST_HOST; test-plan injection above is authoritative.
           RECORD_SNAPSHOTS: "1"
           ALLOW_CI_SNAPSHOT_RECORD: "1"

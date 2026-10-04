@@ -56,15 +56,15 @@ When no reference PNG exists, swift-snapshot-testing writes the file but Swift T
 
 ## CI compare mode
 
-PR checks on `xcode-27` run snapshot **compare** (not record) via `fastlane runUnitTests` and `UnitTestsPlan`.
+PR checks on the GitHub-hosted `xcode-27` runner image run snapshot **compare** (not record) via `fastlane runUnitTests` and `UnitTestsPlan` (CI overrides the simulator to an iOS 27 device installed on that image).
 
-- Baselines must be recorded on the same runner class as CI (`xcode-27`) or replaced after analyzing CI failure attachments from `.xcresult`
+- Baselines must be recorded on the same runner image class as CI (`xcode-27`) or replaced after analyzing CI failure attachments from `.xcresult`
 - Never set `RECORD_SNAPSHOTS=1` in `.github/workflows/pull-request.yml` or `merged.yml`
 - **One-off runner re-record:** Actions → **Record Snapshot Baselines** → Run workflow → choose the feature branch. That `workflow_dispatch` job sets `RECORD_SNAPSHOTS=1` **and** `ALLOW_CI_SNAPSHOT_RECORD=1` via the test plan (so values reach `TEST_HOST`), commits updated PNGs, and pushes to the branch. It does not change the PR compare workflow.
 - `SnapshotTestConfiguration.isCI` blocks recording on CI unless `ALLOW_CI_SNAPSHOT_RECORD=1` is set
 
 If CI compare fails after a UI change, either run **Record Snapshot Baselines** on the branch, download failure attachments from the PR workflow `test-results` artifact (`.xcresult`), or verify dimensions (402×874) and commit updated PNGs from a Mac.
 
-Compare uses `precision: 0.98` and `perceptualPrecision: 0.98` in `SnapshotTestConfiguration` to tolerate minor xcode-27 vs dev Mac rendering drift until baselines are re-recorded on the runner.
+Compare uses `precision: 0.98` and `perceptualPrecision: 0.98` in `SnapshotTestConfiguration` to tolerate minor CI-image vs dev Mac rendering drift until baselines are re-recorded on the runner.
 
 See `docs/project-context.md` → Testing Rules → Snapshot tests for full workflow documentation.

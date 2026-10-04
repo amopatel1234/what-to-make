@@ -34,7 +34,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 | Concurrency | Swift Concurrency | `async`/`await` only — Observation / `@Observable`, not `@Published` / `@StateObject` / `@ObservedObject` |
 | Unit tests | Swift Testing | `@Test`, `#expect`; `@testable import ForkPlan` |
 | Snapshot tests | swift-snapshot-testing | Point-Free; `whattomakeTests` target only |
-| CI/CD | Fastlane + GitHub Actions | `xcode-27` runners |
+| CI/CD | Fastlane + GitHub Actions | GitHub-hosted `xcode-27` runner image (public preview; ships Xcode 27) |
 | Build | Xcode **27+** | `whattomake.xcworkspace`, scheme `whattomake` |
 | App product | `ForkPlan.app` | Repo name `what-to-make` / `whattomake` |
 
@@ -196,7 +196,7 @@ Tests/
 - Re-record baselines on a Mac via scheme env `RECORD_SNAPSHOTS=1`, or use the manual GitHub Action **Record Snapshot Baselines** (`workflow_dispatch` + `ALLOW_CI_SNAPSHOT_RECORD=1`) — never enable recording in the normal PR compare workflow.
 - Shell `RECORD_SNAPSHOTS=1 xcodebuild …` often does not reach `TEST_HOST` (`ForkPlan.app`); use Xcode scheme Test env vars, test-plan env, or the record-snapshots workflow (see snapshot README).
 - Snapshot tests seed data directly via `makeTestContainer()` — no launch arguments.
-- CI runs snapshot **compare** on `xcode-27` via `fastlane runUnitTests`; compare uses documented `precision: 0.98` / `perceptualPrecision: 0.98` to tolerate dev-Mac vs runner drift until baselines are re-recorded on `xcode-27` (see snapshot README → CI compare mode).
+- CI runs snapshot **compare** on the GitHub-hosted `xcode-27` runner image via `fastlane runUnitTests` (destination overridden to an iOS 27 simulator installed on that image). Compare uses documented `precision: 0.98` / `perceptualPrecision: 0.98` to tolerate dev-Mac vs runner drift until baselines are re-recorded on that image (see snapshot README → CI compare mode).
 
 **Device slug mapping:**
 
@@ -262,7 +262,7 @@ SCHEME="whattomake" TEST_PLAN="UnitTestsPlan" \
 bundle exec fastlane runUnitTests
 ```
 
-**CI/release:** PR checks in `.github/workflows/pull-request.yml` (Conventional Commit title validation + unit **and snapshot** tests via `fastlane runUnitTests` on `xcode-27`, using the runner's preinstalled Fastlane). Snapshot compare runs on the pinned **iPhone 17 Pro** simulator — not skipped on CI. The `runUnitTests` lane pins the test destination via `PINNED_TEST_DESTINATION` in `fastlane/Fastfile`. Merged-branch workflow in `.github/workflows/merged.yml` runs [Oliver-Binns/Versioning](https://github.com/Oliver-Binns/Versioning) to create GitHub releases/tags from commit semantics; TestFlight deploy runs only when Versioning produces a new release (skips `chore`/`docs`/`ci`/etc. merges to save CI minutes). **Two version tracks:** GitHub release semver is automated; App Store `MARKETING_VERSION` is set manually in Xcode before release; Fastlane reads marketing version from the project and increments `CURRENT_PROJECT_VERSION` from the latest TestFlight build for that marketing version.
+**CI/release:** PR checks in `.github/workflows/pull-request.yml` (Conventional Commit title validation + unit **and snapshot** tests via `fastlane runUnitTests` on the GitHub-hosted `xcode-27` runner image, using the runner's preinstalled Fastlane). That image label is listed in [GitHub-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners) and [actions/runner-images](https://github.com/actions/runner-images#available-images); it defaults to Xcode 27 and does **not** include Xcode on `macos-26`. CI sets `TEST_DESTINATION` to an iOS 27 simulator present on the image (`iPhone 17`); local Fastlane default remains `PINNED_TEST_DESTINATION` (**iPhone 17 Pro**). Merged-branch workflow in `.github/workflows/merged.yml` runs [Oliver-Binns/Versioning](https://github.com/Oliver-Binns/Versioning) to create GitHub releases/tags from commit semantics; TestFlight deploy runs only when Versioning produces a new release (skips `chore`/`docs`/`ci`/etc. merges to save CI minutes). **Two version tracks:** GitHub release semver is automated; App Store `MARKETING_VERSION` is set manually in Xcode before release; Fastlane reads marketing version from the project and increments `CURRENT_PROJECT_VERSION` from the latest TestFlight build for that marketing version.
 
 **Commits:** Conventional Commits enforced by `hooks/commit-msg`.
 
