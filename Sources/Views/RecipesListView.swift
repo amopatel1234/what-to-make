@@ -160,9 +160,26 @@ struct RecipesView: View {
     private func applyNativeReorder(
         _ difference: ReorderDifference<Recipe.ID, ReorderableSingleCollectionIdentifier>
     ) {
-        var ordered = Array(recipes)
-        ordered.apply(difference: difference)
-        RecipeListOrdering.renumberSortOrders(ordered)
+        // SwiftUI provides ReorderDifference; applying it to the model is app code
+        // (WWDC26 “What’s new in SwiftUI” — no Array.apply(difference:) API).
+        let sourceIDs = difference.sources.compactMap { sourceID in
+            recipes.first(where: { $0.id == sourceID })?.id
+        }
+        let beforeDestinationID: UUID?
+        switch difference.destination.position {
+        case .before(let beforeID):
+            beforeDestinationID = recipes.first(where: { $0.id == beforeID })?.id
+        case .end:
+            beforeDestinationID = nil
+        @unknown default:
+            beforeDestinationID = nil
+        }
+
+        RecipeListOrdering.moveRecipes(
+            Array(recipes),
+            moving: sourceIDs,
+            before: beforeDestinationID
+        )
         persistOrderingChanges()
     }
 
