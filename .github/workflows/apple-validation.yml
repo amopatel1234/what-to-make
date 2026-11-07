@@ -106,4 +106,4 @@ jobs:
           name: apple-validation-${{ github.sha }}-${{ inputs.lane || 'buildForTesting' }}
           path: fastlane/test_output/
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 1
