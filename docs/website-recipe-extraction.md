@@ -26,7 +26,10 @@ nested traversal. Identical mapped drafts are deduplicated in first-seen order;
 distinct candidates remain available to a future chooser. Only explicit Recipe
 types in JSON-LD scripts count; page titles and ordinary JavaScript are not
 fallback sources. JSON decoding uses Foundation and nesting traversal stops at
-64 levels. A named Recipe with no ingredient metadata is still a usable draft.
+64 levels. Traversal is capped at 20,000 nodes and 64 unique candidates per page;
+exceeding either produces an explicit complexity error rather than silently
+truncating the result. Duplicate detection uses a set rather than repeated scans.
+A named Recipe with no ingredient metadata is still a usable draft.
 
 ## Network contract
 

@@ -86,4 +86,22 @@ struct WebsiteRecipeParserTests {
             try parse(String(repeating: "x", count: WebsiteHTMLFetcher.maximumBytes + 1))
         }
     }
+
+    @Test func boundsRecipeCandidateCount() throws {
+        let values = (0...WebsiteRecipeParser.maximumCandidates).map { ["@type": "Recipe", "name": "Recipe \($0)"] }
+        let data = try JSONSerialization.data(withJSONObject: values)
+        let json = try #require(String(data: data, encoding: .utf8))
+        #expect(throws: WebsiteRecipeError.metadataTooComplex) {
+            try parse("<script type='application/ld+json'>\(json)</script>")
+        }
+    }
+
+    @Test func boundsMetadataTraversal() throws {
+        let values = [Int](repeating: 0, count: WebsiteRecipeParser.maximumNodes + 1)
+        let data = try JSONSerialization.data(withJSONObject: values)
+        let json = try #require(String(data: data, encoding: .utf8))
+        #expect(throws: WebsiteRecipeError.metadataTooComplex) {
+            try parse("<script type='application/ld+json'>\(json)</script>")
+        }
+    }
 }

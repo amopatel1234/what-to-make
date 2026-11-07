@@ -7,23 +7,34 @@ import Foundation
 
 /// Pure Schema.org mapping. No networking, SwiftData or Foundation Models dependency.
 enum WebsiteRecipeParser {
+    static let maximumCandidates = 64
+    static let maximumNodes = 20_000
+
+    private struct Budget {
+        var visitedNodes = 0
+        var seen: Set<WebsiteRecipeDraft> = []
+    }
     /// Produces candidates in script/document order; malformed blocks do not hide valid blocks.
     static func parse(html: String, sourceURL: URL, resolvedURL: URL) throws -> WebsiteRecipeExtraction {
         guard html.utf8.count <= WebsiteHTMLFetcher.maximumBytes else { throw WebsiteRecipeError.responseTooLarge }
         var recipes: [WebsiteRecipeDraft] = []
+        var budget = Budget()
         for block in WebsiteJSONLDScanner.blocks(in: html) {
             guard let data = block.trimmingCharacters(in: .whitespacesAndNewlines).data(using: .utf8),
                   let value = try? JSONSerialization.jsonObject(with: data) else { continue }
-            collect(value, baseURL: resolvedURL, depth: 0, into: &recipes)
+            try collect(value, baseURL: resolvedURL, depth: 0, budget: &budget, into: &recipes)
         }
         guard !recipes.isEmpty else { throw WebsiteRecipeError.noRecipeMetadata }
         return WebsiteRecipeExtraction(sourceURL: sourceURL, resolvedURL: resolvedURL, recipes: recipes)
     }
 
-    private static func collect(_ value: Any, baseURL: URL, depth: Int, into recipes: inout [WebsiteRecipeDraft]) {
+    private static func collect(_ value: Any, baseURL: URL, depth: Int, budget: inout Budget,
+                                into recipes: inout [WebsiteRecipeDraft]) throws {
+        budget.visitedNodes += 1
+        guard budget.visitedNodes <= maximumNodes else { throw WebsiteRecipeError.metadataTooComplex }
         guard depth < 64 else { return }
         if let values = value as? [Any] {
-            for value in values { collect(value, baseURL: baseURL, depth: depth + 1, into: &recipes) }
+            for value in values { try collect(value, baseURL: baseURL, depth: depth + 1, budget: &budget, into: &recipes) }
         } else if let object = value as? [String: Any] {
             let types = strings(object["@type"])
             if types.contains(where: { schemaTerm($0) == "Recipe" }), let name = text(object["name"]) {
@@ -37,11 +48,14 @@ enum WebsiteRecipeParser {
                     dietaryKind: diet,
                     imageURL: imageURL(object["image"], baseURL: baseURL)
                 )
-                if !recipes.contains(draft) { recipes.append(draft) }
+                if budget.seen.insert(draft).inserted {
+                    guard recipes.count < maximumCandidates else { throw WebsiteRecipeError.metadataTooComplex }
+                    recipes.append(draft)
+                }
             }
             // Dictionaries have no JSON ordering contract; stable traversal avoids flaky candidates.
             for key in object.keys.sorted() {
-                if let nested = object[key] { collect(nested, baseURL: baseURL, depth: depth + 1, into: &recipes) }
+                if let nested = object[key] { try collect(nested, baseURL: baseURL, depth: depth + 1, budget: &budget, into: &recipes) }
             }
         }
     }

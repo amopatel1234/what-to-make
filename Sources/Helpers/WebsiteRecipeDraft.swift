@@ -6,7 +6,7 @@
 import Foundation
 
 /// Portable, reviewable website metadata. Never a persisted recipe or an AI result.
-struct WebsiteRecipeDraft: Equatable, Sendable {
+struct WebsiteRecipeDraft: Equatable, Hashable, Sendable {
     var name: String
     var description: String?
     var ingredientLines: [String]
@@ -38,6 +38,7 @@ enum WebsiteRecipeError: Error, Equatable, LocalizedError {
     case timedOut
     case networkFailure
     case noRecipeMetadata
+    case metadataTooComplex
 
     var errorDescription: String? {
         switch self {
@@ -54,6 +55,7 @@ enum WebsiteRecipeError: Error, Equatable, LocalizedError {
         case .timedOut: return "The recipe website took too long to respond."
         case .networkFailure: return "The recipe website couldn't be downloaded."
         case .noRecipeMetadata: return "No supported recipe metadata was found on that webpage."
+        case .metadataTooComplex: return "That webpage contains too much recipe metadata to import."
         }
     }
 }
