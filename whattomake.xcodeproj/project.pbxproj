@@ -74,6 +74,15 @@
 		3C0A00932E6C00C000000002 /* AppleIntelligenceAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00922E6C00C000000001 /* AppleIntelligenceAvailability.swift */; };
 		3C0A00952E6C00C000000004 /* AppleIntelligenceAvailabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0A00942E6C00C000000003 /* AppleIntelligenceAvailabilityTests.swift */; };
 		3C0A00052E60A00100000005 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 3C0A00042E60A00100000004 /* SnapshotTesting */; };
+		040D14A70626AE1FEF2A6855 /* WebsiteRecipeDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D94C5749A5C1D6DE03D9D7 /* WebsiteRecipeDraft.swift */; };
+		212A0286E109C89E8D012385 /* WebsiteJSONLDScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A606D3A85ABDC67A403E1F /* WebsiteJSONLDScanner.swift */; };
+		178D9C98DFE7154E785837BC /* WebsiteRecipeParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15B1CE45318CBA60D01F2576 /* WebsiteRecipeParser.swift */; };
+		789A20521D89727CA2C246E8 /* WebsiteURLPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83C5862D63B283862A82625 /* WebsiteURLPolicy.swift */; };
+		AA2844F6E5CCB4DA8EC44647 /* WebsiteHTMLFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964B11414B412A2D7B4FC53D /* WebsiteHTMLFetcher.swift */; };
+		69F52A7DBAD18346A07CCDC1 /* WebsiteRecipeParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F08ACE496A193CB97648004 /* WebsiteRecipeParserTests.swift */; };
+		49F663CDFC19F409741D6B38 /* WebsiteURLPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FE1E97F2BABD7D02C98975D /* WebsiteURLPolicyTests.swift */; };
+		01F9223C25AD24A37D771FE9 /* WebsiteHTMLFetcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C291F3EC304158FAB26C6C4 /* WebsiteHTMLFetcherTests.swift */; };
+		E37CB44144DD27A24C79F116 /* WebsiteRecipes in Resources */ = {isa = PBXBuildFile; fileRef = C1EF0E9C90EA04ED9F96ABE4 /* WebsiteRecipes */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -157,6 +166,15 @@
 		3C0A00902E6B00B000000005 /* RecipeImagePlaygroundPromptTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeImagePlaygroundPromptTests.swift; sourceTree = "<group>"; };
 		3C0A00922E6C00C000000001 /* AppleIntelligenceAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceAvailability.swift; sourceTree = "<group>"; };
 		3C0A00942E6C00C000000003 /* AppleIntelligenceAvailabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceAvailabilityTests.swift; sourceTree = "<group>"; };
+		79D94C5749A5C1D6DE03D9D7 /* WebsiteRecipeDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteRecipeDraft.swift; sourceTree = "<group>"; };
+		40A606D3A85ABDC67A403E1F /* WebsiteJSONLDScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteJSONLDScanner.swift; sourceTree = "<group>"; };
+		15B1CE45318CBA60D01F2576 /* WebsiteRecipeParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteRecipeParser.swift; sourceTree = "<group>"; };
+		D83C5862D63B283862A82625 /* WebsiteURLPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteURLPolicy.swift; sourceTree = "<group>"; };
+		964B11414B412A2D7B4FC53D /* WebsiteHTMLFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteHTMLFetcher.swift; sourceTree = "<group>"; };
+		8F08ACE496A193CB97648004 /* WebsiteRecipeParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteRecipeParserTests.swift; sourceTree = "<group>"; };
+		8FE1E97F2BABD7D02C98975D /* WebsiteURLPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteURLPolicyTests.swift; sourceTree = "<group>"; };
+		3C291F3EC304158FAB26C6C4 /* WebsiteHTMLFetcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteHTMLFetcherTests.swift; sourceTree = "<group>"; };
+		C1EF0E9C90EA04ED9F96ABE4 /* WebsiteRecipes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WebsiteRecipes; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -222,6 +240,9 @@
 		3B5E9E8B2AE07F9D00293473 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				8F08ACE496A193CB97648004 /* WebsiteRecipeParserTests.swift */,
+				8FE1E97F2BABD7D02C98975D /* WebsiteURLPolicyTests.swift */,
+				3C291F3EC304158FAB26C6C4 /* WebsiteHTMLFetcherTests.swift */,
 				3C0A00222E60E00600000003 /* DaySelectionStorageTests.swift */,
 				3C0A00642E66005000000005 /* DayDietConstraintTests.swift */,
 				3C0A00202E60E00600000001 /* MenuGeneratorTests.swift */,
@@ -281,6 +302,7 @@
 		3C0A00142E60B00300000005 /* Fixtures */ = {
 			isa = PBXGroup;
 			children = (
+				C1EF0E9C90EA04ED9F96ABE4 /* WebsiteRecipes */,
 				3C0A00262E60F00700000001 /* SnapshotTestConfiguration.swift */,
 				3C0A00102E60B00300000001 /* TestModelContainer.swift */,
 			);
@@ -290,6 +312,11 @@
 		3C0A00172E60C00400000003 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				79D94C5749A5C1D6DE03D9D7 /* WebsiteRecipeDraft.swift */,
+				40A606D3A85ABDC67A403E1F /* WebsiteJSONLDScanner.swift */,
+				15B1CE45318CBA60D01F2576 /* WebsiteRecipeParser.swift */,
+				D83C5862D63B283862A82625 /* WebsiteURLPolicy.swift */,
+				964B11414B412A2D7B4FC53D /* WebsiteHTMLFetcher.swift */,
 				3C0A00182E60D00500000001 /* AppStorageKey.swift */,
 				3C0A00192E60D00500000002 /* DaySelectionStorage.swift */,
 				3C0A00622E66005000000003 /* DayDietConstraint.swift */,
@@ -455,6 +482,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E37CB44144DD27A24C79F116 /* WebsiteRecipes in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -501,6 +529,11 @@
 				3C0A008D2E6B00B000000002 /* RecipeImagePlaygroundPrompt.swift in Sources */,
 				3C0A008F2E6B00B000000004 /* RecipeImagePlaygroundPresenter.swift in Sources */,
 				3C0A00812E68007000000002 /* RecipePasteExtraction.swift in Sources */,
+				040D14A70626AE1FEF2A6855 /* WebsiteRecipeDraft.swift in Sources */,
+				212A0286E109C89E8D012385 /* WebsiteJSONLDScanner.swift in Sources */,
+				178D9C98DFE7154E785837BC /* WebsiteRecipeParser.swift in Sources */,
+				789A20521D89727CA2C246E8 /* WebsiteURLPolicy.swift in Sources */,
+				AA2844F6E5CCB4DA8EC44647 /* WebsiteHTMLFetcher.swift in Sources */,
 				3C0A00852E69008000000002 /* RecipeIngredientSuggestion.swift in Sources */,
 				3BAFB0C52E537D72001B185B /* Layout.swift in Sources */,
 				3BAD92AE2E493AA6009DCBAE /* WeeklyMenuApp.swift in Sources */,
@@ -525,6 +558,9 @@
 				3C0A00472E63002000000008 /* RecipeIngredientPersistenceTests.swift in Sources */,
 				3C0A00492E64003000000002 /* AddRecipeCoordinatorTests.swift in Sources */,
 				3C0A00832E68007000000004 /* RecipePasteExtractionTests.swift in Sources */,
+				69F52A7DBAD18346A07CCDC1 /* WebsiteRecipeParserTests.swift in Sources */,
+				49F663CDFC19F409741D6B38 /* WebsiteURLPolicyTests.swift in Sources */,
+				01F9223C25AD24A37D771FE9 /* WebsiteHTMLFetcherTests.swift in Sources */,
 				3C0A00872E69008000000004 /* RecipeIngredientSuggestionTests.swift in Sources */,
 				3C0A008B2E6A009000000004 /* RecipeIngredientNormalizationTests.swift in Sources */,
 				3C0A00912E6B00B000000006 /* RecipeImagePlaygroundPromptTests.swift in Sources */,

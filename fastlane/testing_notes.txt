@@ -1,1 +1,1 @@
-Requires iOS 27. Verify an existing recipe library, photos, ingredients and weekly menu survive upgrading, then check recipe editing, menu generation, Siri shortcuts and Apple Intelligence controls on a supported device.
+Website recipe extraction foundation only: verify existing recipe add/edit and menu flows are unchanged. Website import has no user-facing entry point yet; that is tracked in #68.

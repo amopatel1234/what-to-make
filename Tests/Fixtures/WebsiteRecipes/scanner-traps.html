@@ -1,0 +1,13 @@
+<html><head>
+<!-- <script type="application/ld+json">{"name":"comment"}</script> -->
+<style>.test { content: "<script type='application/ld+json'>"; }</style>
+<script>const misleading = "<script type='application/ld+json'>";</script>
+<script type="application/json" type="application/ld+json">{"name":"duplicate attribute"}</script>
+<script src="/remote.js" type="application/ld+json">{"name":"external script"}</script>
+</head><body>
+<div data-value="<script type='application/ld+json'>not a tag</script>"></div>
+<textarea><script type="application/ld+json">not a script</script></textarea>
+<script data-note="quoted > value" TYPE="application/ld+json">
+{"@type":"Recipe","name":"Soup","description":"Keep &amp; and </scripture> as raw JSON text"}
+</script>
+</body></html>

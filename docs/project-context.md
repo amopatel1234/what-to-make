@@ -185,6 +185,8 @@ Tests/
 - Do **not** use `ImageCreator` (removed in iOS 27). Gate the button with ``EnvironmentValues/supportsImagePlayground`` **and** ``AppleIntelligenceAvailability`` (hide when unavailable; disable + Settings hint when not enabled).
 - Generated images reuse ``AddRecipeCoordinator/handleLoadedImageData`` (thumbnail + ``ImageStore``). User must still Save.
 
+**Website extraction:** `WebsiteRecipeExtractor` returns reviewable value drafts only. The bounded URLSession fetcher, JSON-LD scanner and Schema.org parser are independent helpers with no new library dependency or AI fallback. Details and limits: [`website-recipe-extraction.md`](website-recipe-extraction.md). UI and source-URL persistence remain #68.
+
 ### Testing Rules
 
 **Unit tests (`Tests/`):**
