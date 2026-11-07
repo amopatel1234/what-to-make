@@ -27,18 +27,25 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 | Layer | Technology | Version / Notes |
 |-------|-----------|-----------------|
-| Platform | iOS | Deployment target **26.0** |
+| Platform | iOS | Deployment target **27.0** |
 | Language | Swift | **6.0** (language mode; strict concurrency `complete` on both targets) |
 | UI | SwiftUI + Observation | `@Query`, `@Observable` coordinators, `@Bindable` |
 | Persistence | SwiftData | `@Query` reads; `modelContext` writes |
 | Concurrency | Swift Concurrency | `async`/`await` only — Observation / `@Observable`, not `@Published` / `@StateObject` / `@ObservedObject` |
 | Unit tests | Swift Testing | `@Test`, `#expect`; `@testable import ForkPlan` |
 | Snapshot tests | swift-snapshot-testing | Point-Free; `whattomakeTests` target only |
-| CI/CD | Fastlane + GitHub Actions | `macos-26` runners |
-| Build | Xcode **26+** | `whattomake.xcworkspace`, scheme `whattomake` |
+| CI/CD | Fastlane + GitHub Actions | `xcode-27` runners |
+| Build | Xcode **27** | `whattomake.xcworkspace`, scheme `whattomake` |
 | App product | `ForkPlan.app` | Repo name `what-to-make` / `whattomake` |
 
 **Open:** `whattomake.xcworkspace` (not `.xcodeproj` alone).
+
+**Platform policy:** Support the latest major iOS release from launch, currently
+27.0; do not add iOS 26 compatibility paths. Preserve existing user data across
+upgrades and retain hardware/model availability checks. Other Apple platforms
+have independent policies (#80). CI pins Xcode 27.0 via `DEVELOPER_DIR` and uses
+locked Bundler dependencies. See [`apple-toolchain.md`](apple-toolchain.md) for
+verified runner inventory, snapshot transition and required upgrade validation.
 
 **Deferred (not implemented yet):** Imperial/metric unit display conversion. Additional Foundation Models features beyond paste→recipe and suggest-missing-ingredients.
 
@@ -156,7 +163,7 @@ Sources/
   DesignSystem/  unchanged
 Tests/
   Fixtures/      makeTestContainer() (Story 0.3)
-  __Snapshots__/ iPhone17Pro-iOS26/ (see Tests/__Snapshots__/iPhone17Pro-iOS26/README.md)
+  __Snapshots__/ iPhone17-iOS27/ (see Tests/__Snapshots__/iPhone17-iOS27/README.md)
 ```
 
 **Apple Intelligence — paste recipe / suggest ingredients:**
@@ -174,7 +181,7 @@ Tests/
 **Apple Intelligence — Image Playground recipe photos:**
 
 - ``RecipeImagePlaygroundPrompt`` (Helpers) builds version-agnostic concept text from name, ingredients, diet, and notes.
-- ``RecipeImagePlaygroundSheetModifier`` (Views) presents iOS 26 `.imagePlaygroundSheet`; swap that file for iOS 27 API changes without rewriting Add Recipe.
+- ``RecipeImagePlaygroundSheetModifier`` (Views) uses `.imagePlaygroundSheet`, introduced before the current deployment minimum. Keep any SDK-required presenter changes isolated there; the optional iOS 27 feature expansion remains tracked in #60.
 - Do **not** use `ImageCreator` (removed in iOS 27). Gate the button with ``EnvironmentValues/supportsImagePlayground`` **and** ``AppleIntelligenceAvailability`` (hide when unavailable; disable + Settings hint when not enabled).
 - Generated images reuse ``AddRecipeCoordinator/handleLoadedImageData`` (thumbnail + ``ImageStore``). User must still Save.
 
@@ -192,17 +199,17 @@ Tests/
 **Snapshot tests (`Tests/`):**
 
 - Library: Point-Free **swift-snapshot-testing** (`import SnapshotTesting`); linked to `whattomakeTests` only.
-- Baselines: `Tests/__Snapshots__/iPhone17Pro-iOS26/` — see [`Tests/__Snapshots__/iPhone17Pro-iOS26/README.md`](../Tests/__Snapshots__/iPhone17Pro-iOS26/README.md) for slug convention and recording workflow.
+- Baselines: `Tests/__Snapshots__/iPhone17-iOS27/` — see [`Tests/__Snapshots__/iPhone17-iOS27/README.md`](../Tests/__Snapshots__/iPhone17-iOS27/README.md) for slug convention and recording workflow.
 - Re-record baselines on a Mac via scheme env `RECORD_SNAPSHOTS=1`, or use the manual GitHub Action **Record Snapshot Baselines** (`workflow_dispatch` + `ALLOW_CI_SNAPSHOT_RECORD=1`) — never enable recording in the normal PR compare workflow.
 - Shell `RECORD_SNAPSHOTS=1 xcodebuild …` often does not reach `TEST_HOST` (`ForkPlan.app`); use Xcode scheme Test env vars, test-plan env, or the record-snapshots workflow (see snapshot README).
 - Snapshot tests seed data directly via `makeTestContainer()` — no launch arguments.
-- CI runs snapshot **compare** on `macos-26` via `fastlane runUnitTests`; compare uses documented `precision: 0.98` / `perceptualPrecision: 0.98` to tolerate dev-Mac vs runner drift until baselines are re-recorded on `macos-26` (see snapshot README → CI compare mode).
+- CI runs snapshot **compare** on `xcode-27` via `fastlane runUnitTests`; compare uses documented `precision: 0.98` / `perceptualPrecision: 0.98` to tolerate dev-Mac vs runner drift until baselines are re-recorded on `xcode-27` (see snapshot README → CI compare mode).
 
 **Device slug mapping:**
 
 | Simulator destination | Device slug folder |
 |-----------------------|-------------------|
-| `platform=iOS Simulator,name=iPhone 17 Pro` | `Tests/__Snapshots__/iPhone17Pro-iOS26/` |
+| `platform=iOS Simulator,name=iPhone 17,OS=27.0` | `Tests/__Snapshots__/iPhone17-iOS27/` |
 
 **Baseline recording settings** (Epic 2 snapshot tests must apply):
 
@@ -211,7 +218,7 @@ Tests/
 | Color scheme | Light | `.preferredColorScheme(.light)` or `@Environment(\.colorScheme)` override in test host |
 | Locale | `en_US` | Set via test `Locale` environment or view modifier — pick one approach and document for Epic 2 |
 | Dynamic Type | Standard (`.large` / default) | Do not use accessibility sizes in baseline snapshots |
-| Simulator | iPhone 17 Pro | Must match CI Fastfile destination |
+| Simulator | iPhone 17 | Must match CI Fastfile destination |
 
 **Removed (do not reintroduce):**
 
@@ -241,7 +248,7 @@ Tests/
 
 ### Development Workflow Rules
 
-**Local setup:** macOS, Xcode 26+, iOS 26+ simulator (pinned: **iPhone 17 Pro**). Open `whattomake.xcworkspace`. Run `bundle install` for Fastlane.
+**Local setup:** macOS, Xcode 27, iOS 27.0 simulator (pinned: **iPhone 17**). Open `whattomake.xcworkspace`. Run `bundle install` for Fastlane.
 
 **Build & test commands:**
 
@@ -249,20 +256,20 @@ Tests/
 # Unit + snapshot tests (pinned simulator)
 xcodebuild -workspace whattomake.xcworkspace -scheme whattomake \
   -testPlan UnitTestsPlan \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0' test
 
 # Re-record snapshot baselines (local only — never CI)
 RECORD_SNAPSHOTS=1 xcodebuild -workspace whattomake.xcworkspace -scheme whattomake \
   -testPlan UnitTestsPlan \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0' test
 
-# CI-equivalent via Fastlane (pinned iPhone 17 Pro via PINNED_TEST_DESTINATION in Fastfile)
-WORKSPACE="$PWD" WORKSPACE_FILENAME="whattomake.xcworkspace" \
+# CI-equivalent via Fastlane (pinned iPhone 17 via PINNED_TEST_DESTINATION in Fastfile)
+WORKSPACE_FILENAME="whattomake.xcworkspace" \
 SCHEME="whattomake" TEST_PLAN="UnitTestsPlan" \
 bundle exec fastlane runUnitTests
 ```
 
-**CI/release:** PR checks in `.github/workflows/pull-request.yml` (Conventional Commit title validation + unit **and snapshot** tests via `fastlane runUnitTests` on `macos-26`, using the runner's preinstalled Fastlane). Snapshot compare runs on the pinned **iPhone 17 Pro** simulator — not skipped on CI. The `runUnitTests` lane pins the test destination via `PINNED_TEST_DESTINATION` in `fastlane/Fastfile`. Merged-branch workflow in `.github/workflows/merged.yml` runs [Oliver-Binns/Versioning](https://github.com/Oliver-Binns/Versioning) to create GitHub releases/tags from commit semantics; TestFlight deploy runs only when Versioning produces a new release (skips `chore`/`docs`/`ci`/etc. merges to save CI minutes). **Two version tracks:** GitHub release semver is automated; App Store `MARKETING_VERSION` is set manually in Xcode before release; Fastlane reads marketing version from the project and increments `CURRENT_PROJECT_VERSION` from the latest TestFlight build for that marketing version.
+**CI/release:** PR checks in `.github/workflows/pull-request.yml` (Conventional Commit title validation + unit **and snapshot** tests via `fastlane runUnitTests` on `xcode-27`, using Bundler and the committed Gemfile.lock). Snapshot compare runs on the pinned **iPhone 17 / iOS 27.0** simulator — not skipped on CI. The `runUnitTests` lane pins the test destination via `PINNED_TEST_DESTINATION` in `fastlane/Fastfile`. Merged-branch workflow in `.github/workflows/merged.yml` runs [Oliver-Binns/Versioning](https://github.com/Oliver-Binns/Versioning) to create GitHub releases/tags from commit semantics; TestFlight deploy runs only when Versioning produces a new release (skips `chore`/`docs`/`ci`/etc. merges to save CI minutes). **Two version tracks:** GitHub release semver is automated; App Store `MARKETING_VERSION` is set manually in Xcode before release; Fastlane reads marketing version from the project and increments `CURRENT_PROJECT_VERSION` from the latest TestFlight build for that marketing version.
 
 **Commits:** Conventional Commits enforced by `hooks/commit-msg`.
 
@@ -328,4 +335,4 @@ Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor
 - Review quarterly for outdated rules.
 - Remove rules that become obvious over time.
 
-Last Updated: 2026-07-25
+Last Updated: 2026-11-07

@@ -3,10 +3,11 @@ fastlane documentation
 
 # Installation
 
-Make sure you have the latest version of the Xcode command line tools installed:
+Install full Xcode 27.0 with the iOS 27.0 SDK and iPhone 17 simulator, then select it:
 
 ```sh
-xcode-select --install
+export DEVELOPER_DIR=/Applications/Xcode_27.app/Contents/Developer
+bundle install
 ```
 
 For _fastlane_ installation instructions, see [Installing _fastlane_](https://docs.fastlane.tools/#installing-fastlane)
@@ -21,7 +22,10 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios runUnitTests
 ```
 
-Run unit and snapshot tests (UnitTestsPlan) on pinned iPhone 17 Pro simulator
+Run unit and snapshot tests (UnitTestsPlan) on pinned iPhone 17 / iOS 27.0 simulator.
+Requires `WORKSPACE_FILENAME`, `SCHEME` and `TEST_PLAN`. Fastlane validates the
+selected toolchain and exact simulator before running tests. See
+[toolchain policy](../docs/apple-toolchain.md).
 
 ### ios deploy
 

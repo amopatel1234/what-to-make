@@ -8,16 +8,24 @@ on:
 jobs:
   build:
     name: Build app and deploy
-    runs-on: macos-26
+    runs-on: xcode-27
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.app/Contents/Developer
+      FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: "30"
+      FASTLANE_XCODEBUILD_SETTINGS_RETRIES: "4"
     permissions:
       contents: write
 
     steps:
-      - name: Add path globally
-        run: echo "/usr/local/bin" >> $GITHUB_PATH
-
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install locked Fastlane dependencies
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler: '2.6.9'
+          bundler-cache: true
 
       - name: Increment Version
         id: versioning
@@ -39,7 +47,7 @@ jobs:
 
       - name: Deploy
         if: steps.versioning.outputs.release_version != ''
-        run: fastlane deploy
+        run: bundle exec fastlane deploy
         env:
           ISSUER_ID: "69a6de86-2dd0-47e3-e053-5b8c7c11a4d1"
           KEY_ID: "6986A95Z65"

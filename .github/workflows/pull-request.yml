@@ -27,30 +27,13 @@ jobs:
       - name: Check architecture boundaries
         run: ./scripts/check-architecture.sh
 
+      - name: Test Apple toolchain preflight
+        run: python3 -B -m unittest discover -s scripts/tests
+
   build:
-    name: Build, unit, and snapshot tests on pinned iPhone 17 Pro simulator
-    if: github.event.pull_request.draft == false
-    runs-on: macos-26
-
-    steps:
-      - name: Add path globally
-        run: echo "/usr/local/bin" >> $GITHUB_PATH
-
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Run unit and snapshot tests
-        env:
-          WORKSPACE: ${{ github.workspace }}
-          WORKSPACE_FILENAME: "whattomake.xcworkspace"
-          SCHEME: "whattomake"
-          TEST_PLAN: "UnitTestsPlan"
-        run: fastlane runUnitTests
-
-      - name: Upload test results on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: fastlane/test_output/
-          if-no-files-found: ignore
+    name: Apple validation (draft builds; ready PR tests)
+    permissions:
+      contents: read
+    uses: ./.github/workflows/apple-validation.yml
+    with:
+      lane: ${{ github.event.pull_request.draft && 'buildForTesting' || 'runUnitTests' }}

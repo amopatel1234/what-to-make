@@ -9,6 +9,7 @@ This file is a **map**. Read only what the task needs; do not treat it as the fu
 3. **Architecture boundaries:** [`docs/architecture.md`](docs/architecture.md)
 4. **When something fails:** [`docs/agent-playbook.md`](docs/agent-playbook.md)
 5. **Harness steering log:** [`docs/harness-log.md`](docs/harness-log.md)
+6. **Platform & CI:** [`docs/apple-toolchain.md`](docs/apple-toolchain.md) — latest-major iOS only (currently 27.0); verify runner inventory before choosing toolchains or simulators.
 
 ## Build & verify
 
@@ -19,7 +20,7 @@ This file is a **map**. Read only what the task needs; do not treat it as the fu
 ```bash
 xcodebuild -workspace whattomake.xcworkspace -scheme whattomake \
   -testPlan UnitTestsPlan \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0' test
 ```
 
 - CI-equivalent: `bundle exec fastlane runUnitTests` (see [`README.md`](README.md)).
@@ -56,7 +57,7 @@ Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor
 
 **TestFlight What to Test:** before opening a PR, update [`fastlane/testing_notes.txt`](fastlane/testing_notes.txt) with a short human-readable sentence describing what testers should verify. The `deploy` Fastlane lane reads that file for App Store Connect / TestFlight testing notes.
 
-PR body: short prose only (no test-plan checklist). CI: harness sensors run on **all** PRs (including drafts); full simulator tests run when the PR is **ready for review**.
+PR body: short prose only (no test-plan checklist). CI: harness sensors run on **all** PRs (including drafts); draft PRs compile app and test targets; full simulator tests run when the PR is **ready for review**. On-demand Apple validation is described in [`docs/apple-toolchain.md`](docs/apple-toolchain.md).
 
 ## Steering the harness
 

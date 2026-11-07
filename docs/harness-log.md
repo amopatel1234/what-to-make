@@ -8,6 +8,8 @@ When an agent (or human+agent loop) hits the **same** failure twice, encode a la
 | 2026-07-25 | Draft PRs skipped all CI sensors | Split workflow: harness job always runs; simulator tests when ready for review |
 | 2026-07-25 | Local pushes could skip architecture check | `hooks/pre-push` → `check-architecture.sh`; document `core.hooksPath` |
 
+| 2026-11-07 | Runner defaults and simulator inventory assumed to match the app minimum | Verified `xcode-27` inventory; explicit Xcode selection, locked Fastlane, toolchain/simulator preflight; [`apple-toolchain.md`](apple-toolchain.md) |
+
 ## How to add an entry
 
 1. Fix the immediate issue.

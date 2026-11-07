@@ -1,5 +1,9 @@
 # Snapshot baselines — iPhone17Pro-iOS26
 
+Historical iOS 26 references. Active tests now use
+[`../iPhone17-iOS27/`](../iPhone17-iOS27/); the instructions below describe the old
+baseline setup. Do not reuse these PNGs as iOS 27 baselines.
+
 Committed reference PNGs for visual regression testing (Epic 2+).
 
 ## Device slug convention
