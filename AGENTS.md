@@ -9,6 +9,7 @@ This file is a **map**. Read only what the task needs; do not treat it as the fu
 3. **Architecture boundaries:** [`docs/architecture.md`](docs/architecture.md)
 4. **When something fails:** [`docs/agent-playbook.md`](docs/agent-playbook.md)
 5. **Harness steering log:** [`docs/harness-log.md`](docs/harness-log.md)
+6. **Platform & CI:** [`docs/apple-toolchain.md`](docs/apple-toolchain.md) — latest-major iOS only (currently 27.0); verify runner inventory before choosing toolchains or simulators.
 
 ## Build & verify
 
@@ -19,10 +20,12 @@ This file is a **map**. Read only what the task needs; do not treat it as the fu
 ```bash
 xcodebuild -workspace whattomake.xcworkspace -scheme whattomake \
   -testPlan UnitTestsPlan \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0' test
 ```
 
 - CI-equivalent: `bundle exec fastlane runUnitTests` (see [`README.md`](README.md)).
+- **Required remote validation:** For changes to Swift/iOS code, tests, build settings, dependencies, Fastlane or Apple workflows, push the feature branch and obtain a passing **Apple validation** run before reporting the work as validated. Use `buildForTesting` for compile-only checks; use `runUnitTests` for behavior, persistence, UI or test changes and before marking implementation ready for review. Draft status is not a reason to skip full tests: dispatch them on demand. Inspect the tested SHA, logs and results, fix failures and rerun. See [`docs/apple-toolchain.md`](docs/apple-toolchain.md#required-validation-before-handoff).
+- Linux checks alone do not validate an iOS implementation. Report the tested commit, run link, lane and outcome in the handoff. If remote access is blocked, report the precise blocker and remaining validation instead of claiming success. Documentation-only edits need no additional Mac run when the implementation and validation configuration are unchanged.
 - Architecture sensor (cheap; run before finishing):
 
 ```bash
@@ -56,7 +59,7 @@ Allowed types: `build`, `ci`, `docs`, `fix`, `feat`, `chore`, `style`, `refactor
 
 **TestFlight What to Test:** before opening a PR, update [`fastlane/testing_notes.txt`](fastlane/testing_notes.txt) with a short human-readable sentence describing what testers should verify. The `deploy` Fastlane lane reads that file for App Store Connect / TestFlight testing notes.
 
-PR body: short prose only (no test-plan checklist). CI: harness sensors run on **all** PRs (including drafts); full simulator tests run when the PR is **ready for review**.
+PR body: short prose only (no test-plan checklist). CI: harness sensors run on **all** PRs (including drafts); draft PRs compile app and test targets; full simulator tests run when the PR is **ready for review**. On-demand Apple validation is described in [`docs/apple-toolchain.md`](docs/apple-toolchain.md).
 
 ## Steering the harness
 

@@ -29,7 +29,7 @@ enum SnapshotTestConfiguration {
             .deletingLastPathComponent() // Fixtures
             .deletingLastPathComponent() // Tests
         return testsRoot
-            .appendingPathComponent("__Snapshots__/iPhone17Pro-iOS26")
+            .appendingPathComponent("__Snapshots__/iPhone17-iOS27")
             .path()
     }()
 
@@ -44,8 +44,8 @@ enum SnapshotTestConfiguration {
     }
 
     static func imageStrategy<V: View>() -> Snapshotting<V, UIImage> {
-        // Tolerance for macos-26 runner vs local dev Mac GPU/font rendering (Story 2.2).
-        // Re-record baselines on macos-26 when possible; see snapshot README → CI compare mode.
+        // Tolerance for xcode-27 runner vs local dev Mac GPU/font rendering (Story 2.2).
+        // Re-record baselines on xcode-27 when possible; see snapshot README → CI compare mode.
         .image(
             precision: 0.98,
             perceptualPrecision: 0.98,

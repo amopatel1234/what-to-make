@@ -4,10 +4,15 @@ An iOS app for saving recipes and generating a randomized weekly menu. Built wit
 
 ## Requirements
 
-- macOS with **Xcode 26+**
+- macOS with **Xcode 27**
 - **Swift 6.0** with strict concurrency enabled
-- **iOS 26+** simulator/runtime
+- **iOS 27.0** simulator/runtime
 - Ruby/Bundler (for Fastlane CI automation)
+
+ForkPlan follows the latest major iOS release; this update requires iOS 27.0.
+Users remaining on iOS 26 cannot install it. CI uses the verified `xcode-27`
+runner, explicitly selected Xcode 27.0 and locked Fastlane dependencies.
+See [toolchain policy and upgrade validation](docs/apple-toolchain.md).
 
 ## Quick start
 
@@ -20,6 +25,7 @@ Run the app from Xcode using the `whattomake` scheme. The built product is `Fork
 Optional setup for Fastlane and local agent harness hooks (commit-msg + pre-push architecture check):
 
 ```bash
+export DEVELOPER_DIR=/Applications/Xcode_27.app/Contents/Developer
 bundle install
 git config core.hooksPath hooks
 ./scripts/check-architecture.sh
@@ -27,7 +33,7 @@ git config core.hooksPath hooks
 
 ## Tests
 
-Unit and snapshot tests run on the pinned **iPhone 17 Pro** simulator. See [`Tests/__Snapshots__/iPhone17Pro-iOS26/README.md`](Tests/__Snapshots__/iPhone17Pro-iOS26/README.md) for re-recording baselines (scheme env vars) and CI compare mode.
+Unit and snapshot tests run on the pinned **iPhone 17 / iOS 27.0** simulator. See [`Tests/__Snapshots__/iPhone17-iOS27/README.md`](Tests/__Snapshots__/iPhone17-iOS27/README.md) for re-recording baselines (scheme env vars) and CI compare mode.
 
 ```bash
 # Unit and snapshot tests (pinned simulator)
@@ -35,11 +41,11 @@ xcodebuild \
   -workspace whattomake.xcworkspace \
   -scheme whattomake \
   -testPlan UnitTestsPlan \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0' \
   test
 
 # Same as CI
-WORKSPACE="$PWD" WORKSPACE_FILENAME="whattomake.xcworkspace" \
+WORKSPACE_FILENAME="whattomake.xcworkspace" \
 SCHEME="whattomake" TEST_PLAN="UnitTestsPlan" \
 bundle exec fastlane runUnitTests
 ```

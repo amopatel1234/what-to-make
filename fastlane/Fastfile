@@ -13,20 +13,66 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+require "fileutils"
+
 default_platform(:ios)
 platform :ios do
   PROJECT_NAME = "whattomake.xcodeproj"
   APP_IDENTIFIER = "amishpatel.whattomake"
   APP_TARGET = "whattomake"
   PROVISIONING_PROFILE_NAME = "ForkPlan App Store"
-  PINNED_TEST_DESTINATION = "platform=iOS Simulator,name=iPhone 17 Pro"
+  # Keep in sync with the snapshot directory and the verified runner inventory.
+  TEST_DEVICE_NAME = "iPhone 17"
+  TEST_OS_VERSION = "27.0"
+  PINNED_TEST_DESTINATION = "platform=iOS Simulator,name=#{TEST_DEVICE_NAME},OS=#{TEST_OS_VERSION}"
+  TOOLCHAIN_CHECK = File.expand_path("../scripts/check-apple-toolchain.py", __dir__)
+  PROJECT_ROOT = File.expand_path("..", __dir__)
 
-  desc "Run unit and snapshot tests (UnitTestsPlan) on pinned iPhone 17 Pro simulator"
+  desc "Validate an unsigned Release build for the iOS device SDK without archiving or uploading"
+  lane :validateRelease do
+    sh("python3", TOOLCHAIN_CHECK)
+    output_directory = File.join(PROJECT_ROOT, "fastlane/test_output")
+    FileUtils.mkdir_p(output_directory)
+    result_bundle = File.join(output_directory, "release-#{Time.now.utc.strftime('%Y%m%d%H%M%S')}.xcresult")
+    sh(
+      "xcodebuild",
+      "-workspace", File.join(PROJECT_ROOT, ENV.fetch("WORKSPACE_FILENAME", "whattomake.xcworkspace")),
+      "-scheme", ENV.fetch("SCHEME", "whattomake"),
+      "-configuration", "Release",
+      "-destination", "generic/platform=iOS",
+      "-sdk", "iphoneos",
+      "-derivedDataPath", File.join(PROJECT_ROOT, "build/ReleaseDerivedData"),
+      "-resultBundlePath", result_bundle,
+      "CODE_SIGNING_ALLOWED=NO",
+      "build"
+    )
+  end
+
+  desc "Compile the app and test targets for the pinned simulator without signing or running tests"
+  lane :buildForTesting do
+    sh("python3", TOOLCHAIN_CHECK, "--simulator-name", TEST_DEVICE_NAME, "--simulator-os", TEST_OS_VERSION)
+    run_tests(
+      workspace: ENV.fetch("WORKSPACE_FILENAME", "whattomake.xcworkspace"),
+      scheme: ENV.fetch("SCHEME", "whattomake"),
+      testplan: ENV.fetch("TEST_PLAN", "UnitTestsPlan"),
+      destination: PINNED_TEST_DESTINATION,
+      build_for_testing: true,
+      derived_data_path: "build/DerivedData",
+      output_directory: "fastlane/test_output",
+      buildlog_path: "fastlane/test_output/build_logs",
+      xcargs: "CODE_SIGNING_ALLOWED=NO",
+      result_bundle: true,
+    )
+  end
+
+  desc "Run unit and snapshot tests (UnitTestsPlan) on iPhone 17 / iOS 27.0"
   lane :runUnitTests do
-    required_vars = ['WORKSPACE', 'WORKSPACE_FILENAME', 'SCHEME', 'TEST_PLAN']
+    required_vars = ['WORKSPACE_FILENAME', 'SCHEME', 'TEST_PLAN']
     required_vars.each do |var|
-      UI.user_error!("Missing required environment variable: #{var}") unless ENV[var]
+      UI.user_error!("Missing required environment variable: #{var}") if ENV[var].to_s.strip.empty?
     end
+
+    sh("python3", TOOLCHAIN_CHECK, "--simulator-name", TEST_DEVICE_NAME, "--simulator-os", TEST_OS_VERSION)
 
     # UnitTestsPlan includes MenuGeneratorTests, RecipeSnapshotTests, MenuSnapshotTests, etc.
     run_tests(
@@ -34,6 +80,8 @@ platform :ios do
       scheme: ENV["SCHEME"],
       testplan: ENV["TEST_PLAN"],
       destination: PINNED_TEST_DESTINATION,
+      buildlog_path: "fastlane/test_output/build_logs",
+      xcargs: "CODE_SIGNING_ALLOWED=NO",
       ensure_devices_found: true,
       result_bundle: true,
     )
@@ -46,6 +94,8 @@ platform :ios do
       UI.important("Nothing to deploy: no GitHub release was created for this merge")
       next
     end
+
+    sh("python3", TOOLCHAIN_CHECK)
 
     marketing_version = get_version_number(
       xcodeproj: PROJECT_NAME,

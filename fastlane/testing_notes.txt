@@ -1,1 +1,1 @@
-Verify Add/Edit Recipe: recipe name is at the top; when Apple Intelligence is off in Settings, paste/suggest/Image Playground stay visible but disabled with a Settings hint; on unsupported devices those AI controls are hidden.
+Requires iOS 27. Verify an existing recipe library, photos, ingredients and weekly menu survive upgrading, then check recipe editing, menu generation, Siri shortcuts and Apple Intelligence controls on a supported device.

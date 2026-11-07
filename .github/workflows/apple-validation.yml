@@ -1,0 +1,114 @@
+name: Apple validation
+
+on:
+  workflow_call:
+    inputs:
+      lane:
+        description: Fastlane validation lane
+        type: string
+        default: buildForTesting
+  workflow_dispatch:
+    inputs:
+      lane:
+        description: Validation to run on the selected branch
+        type: choice
+        options: [buildForTesting, runUnitTests, validateRelease]
+        default: buildForTesting
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apple-validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: ${{ inputs.lane || 'buildForTesting' }} (Xcode 27 / iOS 27)
+    runs-on: xcode-27
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.app/Contents/Developer
+      FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: "30"
+      FASTLANE_XCODEBUILD_SETTINGS_RETRIES: "4"
+      WORKSPACE_FILENAME: whattomake.xcworkspace
+      SCHEME: whattomake
+      TEST_PLAN: UnitTestsPlan
+      VALIDATION_LANE: ${{ inputs.lane || 'buildForTesting' }}
+
+    steps:
+      - name: Checkout exact triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Record commit and runner toolchain
+        run: |
+          mkdir -p fastlane/test_output
+          {
+            git rev-parse HEAD
+            echo "Runner image: $ImageOS $ImageVersion"
+            echo "Developer directory: $DEVELOPER_DIR"
+            xcodebuild -version
+            xcodebuild -showsdks
+            xcrun simctl list devices available
+          } 2>&1 | tee fastlane/test_output/environment.txt
+
+      - name: Install locked Fastlane dependencies
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler: '2.6.9'
+          bundler-cache: true
+
+      - name: Run validation
+        run: |
+          set -o pipefail
+          case "$VALIDATION_LANE" in
+            buildForTesting|runUnitTests|validateRelease) ;;
+            *) echo "Unsupported validation lane: $VALIDATION_LANE"; exit 1 ;;
+          esac
+          bundle exec fastlane --version >> fastlane/test_output/environment.txt
+          bundle exec fastlane "$VALIDATION_LANE" 2>&1 | tee fastlane/test_output/validation.log
+
+      - name: Summarize validation
+        if: always()
+        env:
+          VALIDATION_STATUS: ${{ job.status }}
+        run: |
+          {
+            echo "### Apple validation"
+            echo "Commit: $(git rev-parse HEAD)"
+            echo "Lane: $VALIDATION_LANE"
+            echo "Result: $VALIDATION_STATUS"
+            echo "Toolchain: Xcode 27.0 / iOS 27.0"
+            if [ "$VALIDATION_LANE" = "validateRelease" ]; then
+              echo "Destination: generic iOS device; unsigned Release build"
+            else
+              echo "Destination: iPhone 17 / iOS 27.0 simulator"
+            fi
+            echo "Compiler logs and result bundles are in the attached artifact."
+          } >> "$GITHUB_STEP_SUMMARY"
+          python3 <<'PY'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          report = Path("fastlane/test_output/report.junit")
+          if report.exists():
+              root = ET.fromstring(report.read_text())
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+                  summary.write(f"\nTests: {root.get('tests')}; failures: {root.get('failures')}; skipped: {root.get('skipped')}.\n")
+                  for case in root.iter("testcase"):
+                      if case.find("failure") is not None or case.find("error") is not None:
+                          summary.write(f"- Failed: {case.get('classname', '')}.{case.get('name', '')}\n")
+          PY
+
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apple-validation-${{ github.sha }}-${{ inputs.lane || 'buildForTesting' }}
+          path: fastlane/test_output/
+          if-no-files-found: warn
+          retention-days: 1

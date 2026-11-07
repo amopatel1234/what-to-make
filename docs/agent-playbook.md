@@ -28,14 +28,20 @@ Format: `type: description` — allowed types listed in [`../AGENTS.md`](../AGEN
 
 ## Unit / snapshot tests failed
 
-- Destination must be **iPhone 17 Pro**; plan **`UnitTestsPlan`**.
-- Snapshots: compare only in the PR workflow; re-record via scheme env `RECORD_SNAPSHOTS=1` on a Mac, or Actions → **Record Snapshot Baselines** — see [`../Tests/__Snapshots__/iPhone17Pro-iOS26/README.md`](../Tests/__Snapshots__/iPhone17Pro-iOS26/README.md).
-- On CI failure, download the `test-results` artifact (`.xcresult`) from the PR workflow.
+- Destination must be **iPhone 17**; plan **`UnitTestsPlan`**.
+- Snapshots: compare only in the PR workflow; re-record via scheme env `RECORD_SNAPSHOTS=1` on a Mac, or Actions → **Record Snapshot Baselines** — see [`../Tests/__Snapshots__/iPhone17-iOS27/README.md`](../Tests/__Snapshots__/iPhone17-iOS27/README.md).
+- On CI failure, download the `apple-validation-<SHA>-<lane>` artifact (`.xcresult` and compiler logs) from the Apple validation job.
 
 ## Draft PR: tests did not run
 
 Harness sensors (PR title + architecture check) run on **draft and non-draft** PRs.  
-Full Fastlane unit/snapshot job runs only when the PR is **ready for review** (`draft == false`). Mark the PR ready to get simulator CI.
+Draft PRs compile app and test targets using `buildForTesting`. Full unit/snapshot tests run when the PR is **ready for review**. Both use the reusable Apple validation workflow; see [`apple-toolchain.md`](apple-toolchain.md).
+
+For behavior, persistence, UI or test changes, dispatch `runUnitTests` on the
+current branch even while the PR is a draft. Wait for completion and inspect the
+tested SHA, counts and failures before handing off validated work. Do not stop
+at a green draft build or report local Xcode unavailability as the end of
+verification. See [required validation](apple-toolchain.md#required-validation-before-handoff).
 
 ## Wrong workspace / module name
 
