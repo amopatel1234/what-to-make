@@ -19,7 +19,7 @@ Checked against GitHub's published inventory on **2026-11-07**:
   **iPhone 17 on iOS 27.0**. This is the test/snapshot destination.
 - The `macos-26` image lists Xcode 26, so it is insufficient for this minimum.
 
-All three Apple workflows select the same toolchain with
+All Apple workflows select the same toolchain with
 `DEVELOPER_DIR=/Applications/Xcode_27.app/Contents/Developer`; they do not follow
 the image's changing default Xcode. Ruby setup installs Bundler 2.6.9 and the
 committed `Gemfile.lock` dependencies, then runs `bundle exec fastlane`.
@@ -32,7 +32,7 @@ unreviewed snapshot recording happens in ordinary CI. Build-settings queries
 use a 30-second base timeout with four retries for cold runners.
 
 When the runner inventory changes, verify the linked inventory before changing
-labels, application paths or destinations. Update all three workflows and the
+labels, application paths or destinations. Update all Apple workflows and the
 snapshot configuration together. A runner's host OS does not establish its
 installed SDKs or simulator inventory.
 

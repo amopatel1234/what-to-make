@@ -10,6 +10,8 @@ When an agent (or human+agent loop) hits the **same** failure twice, encode a la
 
 | 2026-11-07 | Runner defaults and simulator inventory assumed to match the app minimum | Verified `xcode-27` inventory; explicit Xcode selection, locked Fastlane, toolchain/simulator preflight; [`apple-toolchain.md`](apple-toolchain.md) |
 
+| 2026-11-07 | Linux agents could not obtain compiler feedback until a PR was ready | Reusable Apple validation workflow; draft build-for-testing lane; exact-SHA summaries and compiler artifacts |
+
 ## How to add an entry
 
 1. Fix the immediate issue.

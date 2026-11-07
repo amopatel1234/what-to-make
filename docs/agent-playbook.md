@@ -35,7 +35,7 @@ Format: `type: description` — allowed types listed in [`../AGENTS.md`](../AGEN
 ## Draft PR: tests did not run
 
 Harness sensors (PR title + architecture check) run on **draft and non-draft** PRs.  
-Full Fastlane unit/snapshot job runs only when the PR is **ready for review** (`draft == false`). Mark the PR ready to get simulator CI.
+Draft PRs compile app and test targets using `buildForTesting`. Full unit/snapshot tests run when the PR is **ready for review**. Both use the reusable Apple validation workflow; see [`apple-toolchain.md`](apple-toolchain.md).
 
 ## Wrong workspace / module name
 
