@@ -64,6 +64,42 @@ does not by itself establish TestFlight or App Store delivery.
 
 ## Agent validation loop
 
+### Required validation before handoff
+
+Agents **must use Apple validation** for changes to Swift/iOS code, tests, Xcode
+project/workspace settings, dependencies, Fastlane or Apple workflows. Linux
+architecture and configuration checks remain required but do not substitute for
+Apple compilation and simulator tests.
+
+1. Finish the implementation, run applicable Linux checks, and push the feature
+   branch. Use an existing automatic run when it provides the required coverage;
+   otherwise dispatch the workflow. No additional confirmation is needed when
+   branch push and validation are already authorized in the task.
+2. Use `buildForTesting` for intermediate compiler feedback and compile-only
+   build/toolchain changes. Use `runUnitTests` for behavior, persistence, UI or
+   test changes, and before marking implementation ready for review. A draft PR's
+   automatic build does not satisfy the full-test requirement; dispatch full
+   tests without changing PR status.
+3. Wait for completion and inspect the outcome, test counts, failures and relevant
+   logs/artifacts. Fix failures and repeat. Never replace snapshot references just
+   to turn a failing comparison green; deliberate UI/baseline updates require
+   separate recording, visual inspection and a recording-disabled compare run.
+4. Match the evidence to the implementation being handed off. Check the actual
+   checkout SHA; a PR run may test a synthetic merge commit, in which case verify
+   its head/base relationship. New implementation, dependency or validation
+   configuration changes invalidate earlier evidence and require the applicable
+   check again. Documentation-only follow-ups do not invalidate that evidence.
+5. In the final handoff, include the tested SHA, run link, lane and result. State
+   remaining real-device checks separately. If authorization, credentials, runner
+   access or another dependency blocks validation, complete independent work and
+   report the specific blocker and outstanding checks; do not claim the iOS work
+   is validated or treat an old run as current evidence.
+
+Documentation-only edits require no additional Mac run when implementation and
+validation configuration are unchanged. Avoid duplicate runs for an unchanged
+implementation when a matching successful run already supplies the required
+coverage. Validation does not authorize merging, releasing or deploying.
+
 `bundle exec fastlane buildForTesting` compiles the app and test targets for the
 pinned simulator with signing disabled, without executing tests or changing
 snapshot baselines. `runUnitTests` executes unit and snapshot comparison tests.
@@ -80,11 +116,12 @@ feature branch, inspect runs for that SHA, fix errors and repeat. A successful
 build-only run does not mean tests or real-device checks passed.
 
 ```bash
+validation_branch="$(git branch --show-current)"
 gh workflow run apple-validation.yml --repo amopatel1234/what-to-make \
-  --ref codex/ios27-validation -f lane=buildForTesting
+  --ref "$validation_branch" -f lane=buildForTesting
 # Use -f lane=runUnitTests for unit and snapshot tests.
 gh run list --repo amopatel1234/what-to-make \
-  --workflow apple-validation.yml --branch codex/ios27-validation
+  --workflow apple-validation.yml --branch "$validation_branch"
 ```
 
 Inspect the run's `head_sha` before accepting its result; branch names can move

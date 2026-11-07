@@ -24,6 +24,8 @@ xcodebuild -workspace whattomake.xcworkspace -scheme whattomake \
 ```
 
 - CI-equivalent: `bundle exec fastlane runUnitTests` (see [`README.md`](README.md)).
+- **Required remote validation:** For changes to Swift/iOS code, tests, build settings, dependencies, Fastlane or Apple workflows, push the feature branch and obtain a passing **Apple validation** run before reporting the work as validated. Use `buildForTesting` for compile-only checks; use `runUnitTests` for behavior, persistence, UI or test changes and before marking implementation ready for review. Draft status is not a reason to skip full tests: dispatch them on demand. Inspect the tested SHA, logs and results, fix failures and rerun. See [`docs/apple-toolchain.md`](docs/apple-toolchain.md#required-validation-before-handoff).
+- Linux checks alone do not validate an iOS implementation. Report the tested commit, run link, lane and outcome in the handoff. If remote access is blocked, report the precise blocker and remaining validation instead of claiming success. Documentation-only edits need no additional Mac run when the implementation and validation configuration are unchanged.
 - Architecture sensor (cheap; run before finishing):
 
 ```bash

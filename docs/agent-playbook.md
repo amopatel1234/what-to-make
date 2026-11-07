@@ -37,6 +37,12 @@ Format: `type: description` — allowed types listed in [`../AGENTS.md`](../AGEN
 Harness sensors (PR title + architecture check) run on **draft and non-draft** PRs.  
 Draft PRs compile app and test targets using `buildForTesting`. Full unit/snapshot tests run when the PR is **ready for review**. Both use the reusable Apple validation workflow; see [`apple-toolchain.md`](apple-toolchain.md).
 
+For behavior, persistence, UI or test changes, dispatch `runUnitTests` on the
+current branch even while the PR is a draft. Wait for completion and inspect the
+tested SHA, counts and failures before handing off validated work. Do not stop
+at a green draft build or report local Xcode unavailability as the end of
+verification. See [required validation](apple-toolchain.md#required-validation-before-handoff).
+
 ## Wrong workspace / module name
 
 - Open `whattomake.xcworkspace`.

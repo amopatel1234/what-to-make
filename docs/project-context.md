@@ -248,6 +248,19 @@ Tests/
 
 ### Development Workflow Rules
 
+**Required validation before handoff:** Changes to Swift/iOS code, tests, project
+settings, dependencies, Fastlane or Apple CI must use the remote **Apple
+validation** workflow, including when the agent works on Linux. Obtain and inspect
+a passing run for the implementation being handed off; do not stop at static
+checks or an unavailable local Xcode. Full `runUnitTests` is required for behavior,
+persistence, UI or test changes and before marking implementation ready for
+review; `buildForTesting` is sufficient for an intermediate compile check or a
+build/toolchain-only change. Dispatch full tests even on draft PRs when needed.
+Fix failures and rerun; hand off the run link, tested SHA, lane and result.
+Documentation-only changes do not require another Mac run if implementation and
+validation configuration are unchanged. Exact-commit handling and blocked-access
+reporting: [`apple-toolchain.md`](apple-toolchain.md#required-validation-before-handoff).
+
 **Local setup:** macOS, Xcode 27, iOS 27.0 simulator (pinned: **iPhone 17**). Open `whattomake.xcworkspace`. Run `bundle install` for Fastlane.
 
 **Build & test commands:**

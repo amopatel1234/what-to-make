@@ -14,6 +14,11 @@ When an agent (or human+agent loop) hits the **same** failure twice, encode a la
 
 ## How to add an entry
 
+Required follow-up (2026-11-07): remote Apple validation is now an explicit
+handoff requirement in `AGENTS.md` and `project-context.md`, with lane selection,
+commit matching, failure handling and evidence reporting in `apple-toolchain.md`.
+Documenting how to call CI alone was insufficient guidance.
+
 1. Fix the immediate issue.
 2. Add or tighten a **guide** (`AGENTS.md` / docs) and/or **sensor** (script, hook, CI).
 3. Append a row to the table above in the same PR when practical.
