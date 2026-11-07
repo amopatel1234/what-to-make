@@ -4,10 +4,25 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      validate_only:
+        description: Validate an unsigned Release build without creating a release or uploading to TestFlight
+        type: boolean
+        default: true
 
 jobs:
+  validate:
+    name: Validate release build without publishing
+    if: github.event_name == 'workflow_dispatch' && inputs.validate_only
+    permissions:
+      contents: read
+    uses: ./.github/workflows/apple-validation.yml
+    with:
+      lane: validateRelease
+
   build:
     name: Build app and deploy
+    if: github.event_name == 'push' || !inputs.validate_only
     runs-on: xcode-27
     env:
       DEVELOPER_DIR: /Applications/Xcode_27.app/Contents/Developer
@@ -17,6 +32,12 @@ jobs:
       contents: write
 
     steps:
+      - name: Require main for publishing
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Publishing is restricted to main. Use validate_only=true to check a feature branch."
+          exit 1
+
       - name: Checkout
         uses: actions/checkout@v4
 

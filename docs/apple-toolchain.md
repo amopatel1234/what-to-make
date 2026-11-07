@@ -105,7 +105,7 @@ pinned simulator with signing disabled, without executing tests or changing
 snapshot baselines. `runUnitTests` executes unit and snapshot comparison tests.
 Draft PRs run build-only validation; ready PRs run full tests through the same
 reusable `Apple validation` workflow. Actions → Apple validation also accepts a
-branch and either lane. Before merging, agents can dispatch the registered
+branch and the appropriate validation lane. Before merging, agents can dispatch the registered
 workflow against this branch using the GitHub CLI.
 
 Validation checks out the exact triggering SHA. Inspect the run summary and
@@ -142,3 +142,19 @@ The first cold simulator startup was slow and logged a device-service timeout;
 build-only validation completed much sooner. Existing compiler concurrency
 warnings remain visible in the artifacts. Real-device data-upgrade and Apple
 Intelligence validation remain separate release checks.
+
+## Release-workflow validation
+
+Dispatch `merged.yml` with `validate_only=true` (the default) to exercise the
+release workflow's reusable Mac validation job on a feature branch. The
+`validateRelease` lane checks the toolchain and builds the app in Release
+configuration for `generic/platform=iOS` using the device SDK with signing
+disabled. It saves a result bundle and compiler output with one-day retention.
+This does not execute versioning, create releases, use signing credentials,
+archive/export an IPA or upload to TestFlight. Actual publishing remains a
+separate path restricted to `main`; a successful unsigned build does not validate
+signing, provisioning, App Store Connect credentials or upload permissions.
+
+Snapshot recording may legitimately produce identical PNGs. After the separate
+recording-disabled comparison succeeds, this no-change case is successful and
+creates no baseline commit. Differing images still require visual inspection.

@@ -12,7 +12,7 @@ on:
       lane:
         description: Validation to run on the selected branch
         type: choice
-        options: [buildForTesting, runUnitTests]
+        options: [buildForTesting, runUnitTests, validateRelease]
         default: buildForTesting
 
 permissions:
@@ -65,7 +65,7 @@ jobs:
         run: |
           set -o pipefail
           case "$VALIDATION_LANE" in
-            buildForTesting|runUnitTests) ;;
+            buildForTesting|runUnitTests|validateRelease) ;;
             *) echo "Unsupported validation lane: $VALIDATION_LANE"; exit 1 ;;
           esac
           bundle exec fastlane --version >> fastlane/test_output/environment.txt
@@ -81,7 +81,12 @@ jobs:
             echo "Commit: $(git rev-parse HEAD)"
             echo "Lane: $VALIDATION_LANE"
             echo "Result: $VALIDATION_STATUS"
-            echo "Toolchain: Xcode 27.0; iPhone 17 / iOS 27.0"
+            echo "Toolchain: Xcode 27.0 / iOS 27.0"
+            if [ "$VALIDATION_LANE" = "validateRelease" ]; then
+              echo "Destination: generic iOS device; unsigned Release build"
+            else
+              echo "Destination: iPhone 17 / iOS 27.0 simulator"
+            fi
             echo "Compiler logs and result bundles are in the attached artifact."
           } >> "$GITHUB_STEP_SUMMARY"
           python3 <<'PY'
