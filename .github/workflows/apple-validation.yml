@@ -14,9 +14,6 @@ on:
         type: choice
         options: [buildForTesting, runUnitTests]
         default: buildForTesting
-  # Bootstrap this workflow before it exists on the default branch.
-  push:
-    branches: [codex/ios27-validation]
 
 permissions:
   contents: read
@@ -87,6 +84,20 @@ jobs:
             echo "Toolchain: Xcode 27.0; iPhone 17 / iOS 27.0"
             echo "Compiler logs and result bundles are in the attached artifact."
           } >> "$GITHUB_STEP_SUMMARY"
+          python3 <<'PY'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          report = Path("fastlane/test_output/report.junit")
+          if report.exists():
+              root = ET.fromstring(report.read_text())
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+                  summary.write(f"\nTests: {root.get('tests')}; failures: {root.get('failures')}; skipped: {root.get('skipped')}.\n")
+                  for case in root.iter("testcase"):
+                      if case.find("failure") is not None or case.find("error") is not None:
+                          summary.write(f"- Failed: {case.get('classname', '')}.{case.get('name', '')}\n")
+          PY
 
       - name: Upload validation evidence
         if: always()

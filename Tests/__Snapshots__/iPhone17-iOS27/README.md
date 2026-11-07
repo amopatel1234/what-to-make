@@ -4,7 +4,9 @@ Destination: **iPhone 17, iOS 27.0, Xcode 27.0**, matching all Apple CI workflow
 Light appearance, `en_US`, standard Dynamic Type and fixed 402×874 layout remain
 unchanged.
 
-New reference PNGs must be recorded and reviewed on this destination. The old
+Four reference PNGs were recorded on this destination and visually inspected
+on 2026-11-07. The subsequent compare-only run passed all 137 tests. Future
+reference updates must also be recorded and reviewed on this destination. The old
 `../iPhone17Pro-iOS26/` images are historical references; do not copy or rename
 them into this folder. Ordinary PR tests compare only and fail for missing or
 different references.

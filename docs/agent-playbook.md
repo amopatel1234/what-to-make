@@ -30,7 +30,7 @@ Format: `type: description` — allowed types listed in [`../AGENTS.md`](../AGEN
 
 - Destination must be **iPhone 17**; plan **`UnitTestsPlan`**.
 - Snapshots: compare only in the PR workflow; re-record via scheme env `RECORD_SNAPSHOTS=1` on a Mac, or Actions → **Record Snapshot Baselines** — see [`../Tests/__Snapshots__/iPhone17-iOS27/README.md`](../Tests/__Snapshots__/iPhone17-iOS27/README.md).
-- On CI failure, download the `test-results` artifact (`.xcresult`) from the PR workflow.
+- On CI failure, download the `apple-validation-<SHA>-<lane>` artifact (`.xcresult` and compiler logs) from the Apple validation job.
 
 ## Draft PR: tests did not run
 

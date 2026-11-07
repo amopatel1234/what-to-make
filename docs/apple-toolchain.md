@@ -40,9 +40,10 @@ installed SDKs or simulator inventory.
 
 Tests now compare against `Tests/__Snapshots__/iPhone17-iOS27/`. The existing
 `iPhone17Pro-iOS26` PNGs are historical references, not valid iOS 27 baselines.
-Record new PNGs on the selected Xcode 27.0 / iOS 27.0 destination using the manual
-**Record Snapshot Baselines** workflow, inspect them and rerun ordinary compare
-mode. Missing references must fail until reviewed baselines exist. Do not rename
+Four new PNGs were recorded on the selected Xcode 27.0 / iOS 27.0 destination
+on 2026-11-07, visually inspected, and verified in a follow-up compare run
+(137 tests, zero failures). For later UI changes, use the manual **Record Snapshot
+Baselines** workflow, inspect the images and rerun ordinary compare mode. Missing references must fail until reviewed baselines exist. Do not rename
 old PNGs or weaken comparison to make this transition pass.
 
 ## Upgrade validation and distribution
@@ -68,9 +69,8 @@ pinned simulator with signing disabled, without executing tests or changing
 snapshot baselines. `runUnitTests` executes unit and snapshot comparison tests.
 Draft PRs run build-only validation; ready PRs run full tests through the same
 reusable `Apple validation` workflow. Actions → Apple validation also accepts a
-branch and either lane once the workflow is available on the default branch.
-A branch-specific push trigger bootstraps validation on `codex/ios27-validation`
-before merging the workflow.
+branch and either lane. Before merging, agents can dispatch the registered
+workflow against this branch using the GitHub CLI.
 
 Validation checks out the exact triggering SHA. Inspect the run summary and
 `apple-validation-<SHA>-<lane>` artifact for environment inventory, compiler logs,
@@ -78,3 +78,30 @@ and result bundles. It has read-only repository permissions, a 30-minute timeout
 no signing secrets and no release/deployment steps. Linux agents should push a
 feature branch, inspect runs for that SHA, fix errors and repeat. A successful
 build-only run does not mean tests or real-device checks passed.
+
+```bash
+gh workflow run apple-validation.yml --repo amopatel1234/what-to-make \
+  --ref codex/ios27-validation -f lane=buildForTesting
+# Use -f lane=runUnitTests for unit and snapshot tests.
+gh run list --repo amopatel1234/what-to-make \
+  --workflow apple-validation.yml --branch codex/ios27-validation
+```
+
+Inspect the run's `head_sha` before accepting its result; branch names can move
+while a run is active. Prefer the connected GitHub tools for job logs and artifact downloads in the
+cloud environment. Direct `gh run download` can be blocked at the redirected
+artifact-storage host even when GitHub access works; the connected artifact tool
+was verified to work. On an unrestricted machine, `gh run download <run-id>`
+is also available.
+
+## First verified run (2026-11-07)
+
+The draft build and on-demand dispatch both ran successfully on the verified
+runner. The first full run exposed four missing snapshot references, with the
+other 133 tests passing. The dedicated recording workflow created four iOS 27
+references and its recording-disabled comparison passed all 137 tests:
+[recording and comparison run](https://github.com/amopatel1234/what-to-make/actions/runs/42384835325).
+The first cold simulator startup was slow and logged a device-service timeout;
+build-only validation completed much sooner. Existing compiler concurrency
+warnings remain visible in the artifacts. Real-device data-upgrade and Apple
+Intelligence validation remain separate release checks.
