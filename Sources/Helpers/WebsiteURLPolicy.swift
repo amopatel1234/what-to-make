@@ -83,6 +83,15 @@ enum WebsiteURLPolicy {
               components.port.map({ (1...65535).contains($0) }) ?? true else {
             throw WebsiteRecipeError.invalidURL
         }
+        // URLComponents and the connection resolver can interpret legacy numeric
+        // spellings differently. Inspect the original authority before normalization.
+        guard let sourceHost = sourceHost(in: url), !sourceHost.contains("%"),
+              !sourceHost.lowercased().split(separator: ".").contains(where: { $0.hasPrefix("0x") }) else {
+            throw WebsiteRecipeError.unsafeDestination
+        }
+        if sourceHost.allSatisfy({ $0.isNumber || $0 == "." }), !isCanonicalIPv4(sourceHost) {
+            throw WebsiteRecipeError.unsafeDestination
+        }
         let host = normalizedHost(rawHost)
         guard !host.contains("%"), !host.contains("\\"),
               !["localhost", "local", "internal", "home", "lan"].contains(host),
@@ -111,6 +120,7 @@ enum WebsiteURLPolicy {
     }
 
     static func isPublicAddress(_ host: String) -> Bool {
+        if !host.contains(":"), !isCanonicalIPv4(host) { return false }
         var ipv4 = in_addr()
         if inet_pton(AF_INET, host, &ipv4) == 1 {
             let bytes = withUnsafeBytes(of: ipv4) { Array($0) }
@@ -144,5 +154,24 @@ enum WebsiteURLPolicy {
         if value.hasPrefix("["), value.hasSuffix("]") { value = String(value.dropFirst().dropLast()) }
         if value.hasSuffix(".") { value.removeLast() }
         return value
+    }
+
+    private static func isCanonicalIPv4(_ host: String) -> Bool {
+        let parts = host.split(separator: ".", omittingEmptySubsequences: false)
+        return parts.count == 4 && parts.allSatisfy { part in
+            !part.isEmpty && (part.count == 1 || part.first != "0")
+                && part.utf8.allSatisfy { (48...57).contains($0) } && UInt8(part) != nil
+        }
+    }
+
+    private static func sourceHost(in url: URL) -> String? {
+        let value = url.absoluteURL.absoluteString
+        guard let separator = value.range(of: "://") else { return nil }
+        let authority = value[separator.upperBound...].prefix { !["/", "?", "#"].contains($0) }
+        if authority.hasPrefix("[") {
+            guard let closing = authority.firstIndex(of: "]") else { return nil }
+            return String(authority[...closing])
+        }
+        return String(authority.prefix { $0 != ":" })
     }
 }

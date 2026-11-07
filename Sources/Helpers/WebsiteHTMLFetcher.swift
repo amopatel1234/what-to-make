@@ -26,7 +26,7 @@ protocol WebsiteHTTPClient: Sendable {
 }
 
 /// Stops URLSession's automatic redirects. The fetcher validates and follows them itself.
-private final class WebsiteRedirectBlocker: NSObject, URLSessionTaskDelegate, Sendable {
+final class WebsiteRedirectBlocker: NSObject, URLSessionTaskDelegate, Sendable {
     func urlSession(_ session: URLSession, task: URLSessionTask,
                     willPerformHTTPRedirection response: HTTPURLResponse,
                     newRequest request: URLRequest) async -> URLRequest? { nil }

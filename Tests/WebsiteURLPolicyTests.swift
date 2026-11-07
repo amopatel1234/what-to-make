@@ -27,6 +27,7 @@ struct WebsiteURLPolicyTests {
     @Test(arguments: ["file:///etc/passwd", "ftp://example.com/recipe", "https://user:secret@example.com",
                       "http://localhost/", "http://LOCALHOST./", "http://printer.local/", "http://router/",
                       "http://127.1/", "http://2130706433/", "http://0177.0.0.1/", "http://0x7f000001/",
+                      "http://001.002.003.004/", "http://93.184.216.034/", "http://0x5d.b8.d8.22/",
                       "http://[::1]/", "http://[::ffff:127.0.0.1]/"])
     func rejectsUnsupportedOrLocalURLs(_ value: String) throws {
         let url = try #require(URL(string: value))

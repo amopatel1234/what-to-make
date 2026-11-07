@@ -90,7 +90,9 @@ dependencies, and do not certify compatibility with an entire named website.
 Swift Testing covers extraction and mapping, address classes and DNS answers,
 redirect policy, HTTP/content-type errors, encoding, cancellation and timeout.
 URLProtocol fixtures additionally exercise the real URLSession streaming client,
-automatic redirect blocking and both declared/streamed body limits without the
-internet. Run the Mac `buildForTesting` and full `runUnitTests` lanes for the
+redirect-response preservation and both declared/streamed body limits without the
+internet. A separate delegate-contract test verifies that proposed automatic
+redirects are rejected; fetcher tests verify validation before manually following
+them. Run the Mac `buildForTesting` and full `runUnitTests` lanes for the
 exact implementation commit before claiming validation. Live-site compatibility
 and the user-facing import experience remain follow-up work (#68–#69).

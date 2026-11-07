@@ -151,15 +151,11 @@ private final class WebsiteTransportProtocol: URLProtocol, @unchecked Sendable {
     override func startLoading() {
         guard let url = request.url else { return }
         let path = url.path
-        if path == "/redirect", let destination = URL(string: "https://transport.invalid/ok"),
-           let response = HTTPURLResponse(url: url, statusCode: 302, httpVersion: "HTTP/1.1", headerFields: ["Location": destination.absoluteString]) {
-            client?.urlProtocol(self, wasRedirectedTo: URLRequest(url: destination), redirectResponse: response)
-            client?.urlProtocolDidFinishLoading(self)
-            return
-        }
         var headers = ["Content-Type": path == "/binary" ? "image/png" : "text/html"]
+        if path == "/redirect" { headers["Location"] = "https://transport.invalid/ok" }
         if path == "/declared-large" { headers["Content-Length"] = "99999" }
-        guard let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: headers) else { return }
+        guard let response = HTTPURLResponse(url: url, statusCode: path == "/redirect" ? 302 : 200,
+                                            httpVersion: "HTTP/1.1", headerFields: headers) else { return }
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         let body = path == "/ok" ? Data("<html>ok</html>".utf8) : Data(repeating: 65, count: 128)
         client?.urlProtocol(self, didLoad: body)
@@ -199,10 +195,25 @@ struct WebsiteURLSessionTransportTests {
         #expect(result.body.isEmpty)
     }
 
-    @Test func blocksAutomaticURLSessionRedirects() async throws {
+    @Test func returnsRedirectMetadataWithoutReadingTheBody() async throws {
         let url = try #require(URL(string: "https://transport.invalid/redirect"))
         let result = try await client().get(url, maximumBytes: 100, timeout: 2)
         #expect(result.statusCode == 302)
+        #expect(result.header("Location") == "https://transport.invalid/ok")
         #expect(result.body.isEmpty)
+    }
+
+    @Test func redirectDelegateRejectsTheProposedRequest() async throws {
+        let session = URLSession(configuration: .ephemeral)
+        defer { session.invalidateAndCancel() }
+        let source = try #require(URL(string: "https://transport.invalid/redirect"))
+        let destination = try #require(URL(string: "http://127.0.0.1/private"))
+        let response = try #require(HTTPURLResponse(url: source, statusCode: 302, httpVersion: "HTTP/1.1", headerFields: [:]))
+        // The suspended task is never resumed, so this contract test sends no request.
+        let result = await WebsiteRedirectBlocker().urlSession(
+            session, task: session.dataTask(with: source), willPerformHTTPRedirection: response,
+            newRequest: URLRequest(url: destination)
+        )
+        #expect(result == nil)
     }
 }
